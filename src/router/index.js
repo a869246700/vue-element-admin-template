@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-import zn from '@/locales/zh-CN'
+// import zn from '@/locales/zh-CN'
 
 Vue.use(Router)
 
@@ -141,7 +141,7 @@ function formatter(data, parentName, validRouter) {
       locale = `menu.${item.name}`
     }
 
-    item.meta.title = zn[locale]
+    item.meta.title = locale
 
     const result = {
       ...item,

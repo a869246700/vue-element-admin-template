@@ -18,6 +18,8 @@ import './icons' // icon
 import './permission' // permission control
 import './utils/error-log' // error log
 
+import i18n from '@/utils/i18n'
+
 import * as filters from './filters' // global filters
 
 if (process.env.NODE_ENV === 'production') {
@@ -41,5 +43,6 @@ new Vue({
   el: '#app',
   router,
   store,
+  i18n,
   render: h => h(App)
 })
