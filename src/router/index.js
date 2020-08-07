@@ -123,6 +123,11 @@ export async function initRouterList() {
 // 将路由转换成菜单
 function formatter(data, parentName, validRouter) {
   return data.map(item => {
+    // 如果父路由是工作线的话
+    if (parentName === 'menu.efficacyEvolve.project_line.project_twelve_four' || parentName === 'project_twelve_five' || parentName === 'project_twelve_RPL1') {
+      return item
+    }
+
     const valid = validRouter.findIndex(ele => item.name === ele.path)
     // 如果无法查询到
     if (valid === -1) {

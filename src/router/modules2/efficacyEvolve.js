@@ -5,13 +5,116 @@ const projectLineChildrenRouter = [
   {
     path: 'total',
     name: 'total',
-    meta: { title: 'total', noCahe: true },
+    meta: { title: '总述', noCahe: true },
+    hidden: false,
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'progress',
+    name: 'progress',
+    meta: { title: '进展', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'quality',
+    name: 'quality',
+    meta: { title: '质量', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'cost',
+    name: 'cost',
+    meta: { title: '成本', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'problem&risk',
+    name: 'problem&risk',
+    meta: { title: '问题&风险', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'risk_management',
+    name: 'risk_management',
+    meta: { title: '风险管理', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'special_task',
+    name: 'special_task',
+    meta: { title: '专项任务', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'project_long_path',
+    name: 'project_long_path',
+    meta: { title: '项目最长路径', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'technology_project',
+    name: 'technology_project',
+    meta: { title: '技术项目', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'design',
+    name: 'design',
+    meta: { title: '设计', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'wbs',
+    name: 'wbs',
+    meta: { title: 'WBS', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'communication_management',
+    name: 'communication_management',
+    meta: { title: '沟通管理', noCahe: true },
     component: () => import('@/views/mygoo/demo2')
   },
   {
     path: 'process',
     name: 'process',
-    meta: { title: 'process', noCahe: true },
+    meta: { title: '流程', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'personnel_management',
+    name: 'personnel_management',
+    meta: { title: '人员管理', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'integral_management',
+    name: 'integral_management',
+    meta: { title: '积分管理', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'performance_appraisal',
+    name: 'performance_appraisal',
+    meta: { title: '绩效考核', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'qualification_review',
+    name: 'qualification_review',
+    meta: { title: '资质审查', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'component_project',
+    name: 'Component_project',
+    meta: { title: '组件项目', noCahe: true },
+    component: () => import('@/views/mygoo/demo2')
+  },
+  {
+    path: 'demand_change',
+    name: 'demand_change',
+    meta: { title: '需求变更', noCahe: true },
     component: () => import('@/views/mygoo/demo2')
   }
 ]

@@ -19,8 +19,11 @@ $menuHover:#263445;
 $subMenuBg:#000C17;
 $subMenuHover:#001528;
 
-//控制侧边栏宽度
+// 控制侧边栏宽度
 $sideBarWidth: 256px;
+
+// 控制侧边栏高度
+$sideBarHeight: 40px;
 
 // the :export directive is the magic sauce for webpack
 // https://www.bluematador.com/blog/how-to-share-variables-between-js-and-sass
@@ -33,4 +36,5 @@ $sideBarWidth: 256px;
   subMenuBg: $subMenuBg;
   subMenuHover: $subMenuHover;
   sideBarWidth: $sideBarWidth;
+  sideBarHeight: $sideBarHeight;
 }

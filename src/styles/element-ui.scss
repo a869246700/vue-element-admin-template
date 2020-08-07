@@ -99,3 +99,13 @@
 .evolve .example-second .el-card__body {
   padding: 0;
 }
+
+// 设置侧边栏项高度
+.el-submenu__title {
+  height: $sideBarHeight;
+  line-height: $sideBarHeight;
+}
+
+.el-table .cell {
+  padding: 5px 16px!important;
+}
