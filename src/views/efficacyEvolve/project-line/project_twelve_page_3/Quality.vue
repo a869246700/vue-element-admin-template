@@ -10,19 +10,31 @@
       <template #content>
         <!-- 第一个表格区域 -->
         <div class="first-table">
-          <!-- radio切换 -->
-          <el-radio-group v-model="implementStageFirst" size="small">
-            <el-radio-button
-              v-for="(item, index) in implementStageTypeListFirst"
-              :key="index"
-              :label="item.stage"
-            />
-          </el-radio-group>
+          <div class="container">
+            <!-- radio切换 -->
+            <el-radio-group v-model="implementStageFirst" size="small">
+              <el-radio-button
+                v-for="(item, index) in implementStageTypeListFirst"
+                :key="index"
+                :label="item.stage"
+              />
+            </el-radio-group>
+
+            <!-- select -->
+            <el-select v-model="executionSelectVal" multiple collapse-tags placeholder="请选择">
+              <el-option
+                v-for="(item, index) in exectionSelectOptions"
+                :key="index"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </div>
 
           <!-- 表格 -->
           <el-table
             :data="tableData"
-            style="width: 100%; margin-bottom: 10px; margin-top: 10px;"
+            style="width: 100%; margin-bottom: 30px;"
             border
             :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
             row-key="id"
@@ -30,35 +42,40 @@
             fit
           >
             <el-table-column prop="t1" label="类型" fixed width="100" />
-            <el-table-column prop="t2" label="代码量" fixed min-width="75" />
-            <el-table-column prop="t3" label="总缺陷" min-width="75" />
-            <el-table-column prop="t4" label="总缺陷率" min-width="89" />
-            <el-table-column prop="t5" label="准入BUG数" min-width="104" />
-            <el-table-column prop="t6" label="准入缺陷" min-width="89" />
-            <el-table-column prop="t7" label="首轮BUG数" min-width="104" />
-            <el-table-column prop="t8" label="首轮缺陷" min-width="89" />
-            <el-table-column prop="t9" label="次轮BUG数" min-width="104" />
-            <el-table-column prop="t10" label="次轮缺陷" min-width="89" />
-            <el-table-column prop="t11" label="回归BUG数" min-width="104" />
-            <el-table-column prop="t12" label="回归缺陷" min-width="89" />
-            <el-table-column prop="t13" label="集成BUG数" min-width="104" />
-            <el-table-column prop="t14" label="事业部bug数" min-width="115" />
-            <el-table-column prop="t15" label="事业部缺陷率" min-width="117" />
-            <el-table-column prop="t16" label="遗漏个数" min-width="89" />
-            <el-table-column prop="t17" label="遗漏率" min-width="75" />
+            <el-table-column prop="t2" label="代码量" fixed min-width="89" align="center" />
+            <el-table-column
+              v-for="(item, index) in desginTableTitleList"
+              :key="index"
+              :prop="item.prop"
+              :label="item.label"
+              :min-width="item.minWidth"
+              align="center"
+            />
           </el-table>
         </div>
 
         <!-- 第二个表格区域 -->
         <div class="second-table">
-          <!-- radio切换 -->
-          <el-radio-group v-model="implementStageSecond" size="small">
-            <el-radio-button
-              v-for="(item, index) in implementStageTypeListSecond"
-              :key="index"
-              :label="item.stage"
-            />
-          </el-radio-group>
+          <div class="container">
+            <!-- radio切换 -->
+            <el-radio-group v-model="implementStageSecond" size="small">
+              <el-radio-button
+                v-for="(item, index) in implementStageTypeListSecond"
+                :key="index"
+                :label="item.stage"
+              />
+            </el-radio-group>
+
+            <!-- select -->
+            <el-select v-model="executionSelectVal2" multiple collapse-tags placeholder="请选择">
+              <el-option
+                v-for="(item, index) in exectionSelectOptions2"
+                :key="index"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </div>
 
           <!-- 表格 -->
           <el-table
@@ -70,22 +87,15 @@
             :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
           >
             <el-table-column prop="t1" label="类型" fixed width="100" />
-            <el-table-column prop="t2" label="代码量" fixed min-width="75" />
-            <el-table-column prop="t3" label="总缺陷" min-width="75" />
-            <el-table-column prop="t4" label="总缺陷率" min-width="89" />
-            <el-table-column prop="t5" label="准入BUG数" min-width="104" />
-            <el-table-column prop="t6" label="准入缺陷" min-width="89" />
-            <el-table-column prop="t7" label="首轮BUG数" min-width="104" />
-            <el-table-column prop="t8" label="首轮缺陷" min-width="89" />
-            <el-table-column prop="t9" label="次轮BUG数" min-width="104" />
-            <el-table-column prop="t10" label="次轮缺陷" min-width="89" />
-            <el-table-column prop="t11" label="回归BUG数" min-width="104" />
-            <el-table-column prop="t12" label="回归缺陷" min-width="89" />
-            <el-table-column prop="t13" label="集成BUG数" min-width="104" />
-            <el-table-column prop="t14" label="事业部bug数" min-width="115" />
-            <el-table-column prop="t15" label="事业部缺陷率" min-width="117" />
-            <el-table-column prop="t16" label="遗漏个数" min-width="89" />
-            <el-table-column prop="t17" label="遗漏率" min-width="75" />
+            <el-table-column prop="t2" label="代码量" fixed min-width="89" align="center" />
+            <el-table-column
+              v-for="(item, index) in desginTableTitleList2"
+              :key="index"
+              :prop="item.prop"
+              :label="item.label"
+              :min-width="item.minWidth"
+              align="center"
+            />
           </el-table>
         </div>
       </template>
@@ -95,6 +105,13 @@
 
 <script>
 import Card from '@/components/Card/index'
+
+// 导入配置项
+import {
+  executionCardSelectList,
+  executionCardSelectDefaultList,
+  executionCardTableTitleList
+} from './options'
 
 export default {
   components: {
@@ -373,11 +390,37 @@ export default {
             }
           ]
         }
-      ]
+      ],
+      key: 1,
+      executionSelectVal: executionCardSelectDefaultList, // 表格一的 select 选中列表
+      exectionSelectOptions: executionCardSelectList, // 表格一的 select 列表
+      desginTableTitleList: executionCardTableTitleList, // 表格一的显示列表
+      executionSelectVal2: executionCardSelectDefaultList,
+      exectionSelectOptions2: executionCardSelectList, // 表格二的 select 列表
+      desginTableTitleList2: executionCardTableTitleList // 表格二的显示列表
+    }
+  },
+  watch: {
+    executionSelectVal(valArr) {
+      this.desginTableTitleList = executionCardTableTitleList.filter(
+        (i) => valArr.indexOf(i.label) >= 0
+      )
+      this.key = this.key + 1
+    },
+    executionSelectVal2(valArr) {
+      this.desginTableTitleList2 = executionCardTableTitleList.filter(
+        (i) => valArr.indexOf(i.label) >= 0
+      )
+      this.key = this.key + 1
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
+.container {
+  display: flex;
+  justify-content: space-between;
+  margin-bottom: 10px;
+}
 </style>

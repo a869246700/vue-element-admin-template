@@ -751,7 +751,6 @@ export default {
       this.key = this.key + 1
     },
     reviewSelectVal(valArr) {
-      console.log(valArr)
       this.reviewTableTitleList = reviewCardTableTitleList.filter(
         (i) => valArr.indexOf(i.label) >= 0
       )
