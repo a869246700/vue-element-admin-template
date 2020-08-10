@@ -107,5 +107,9 @@
 }
 
 .el-table .cell {
-  padding: 5px 16px!important;
+  padding: 0px 16px!important;
+}
+
+.el-select {
+  min-width: 250px;
 }

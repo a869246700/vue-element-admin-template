@@ -31,7 +31,7 @@ export default {
   data() {
     return {
       name: '12.5PL1',
-      activeName: '4',
+      activeName: '2',
       tabMapOptions: [
         { label: '总述', key: '1', name: 'Dashboard' },
         { label: '进展', key: '2', name: 'Evolve' },

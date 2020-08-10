@@ -28,7 +28,6 @@
             row-key="id"
             :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             fit
-            :load="handleLoad"
           >
             <el-table-column prop="t1" label="类型" fixed width="100" />
             <el-table-column prop="t2" label="代码量" fixed min-width="75" />

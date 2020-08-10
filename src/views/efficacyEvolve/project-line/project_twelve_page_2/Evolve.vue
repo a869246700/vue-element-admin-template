@@ -48,71 +48,91 @@
                 </el-row>
               </div>
 
+              <!-- 表格一区域 -->
               <card class="case-first card">
                 <template #buttons>
                   <el-button type="primary" size="small">添加用例执行分析</el-button>
                 </template>
 
                 <template #content>
+                  <!-- select -->
+                  <div class="filter-container">
+                    <el-select v-model="caseCheckboxVal" multiple collapse-tags placeholder="请选择">
+                      <el-option
+                        v-for="(item, index) in caseSelectOptions"
+                        :key="index"
+                        :label="item"
+                        :value="item"
+                      />
+                    </el-select>
+                  </div>
+
                   <!-- 表格 -->
-                  <el-table
-                    :data="tableData"
-                    border
-                    style="width: 100%"
-                    :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
-                    :cell-style="cellStyle"
-                  >
-                    <el-table-column prop="date" label="芯片平台" width="103" fixed />
-                    <el-table-column prop="name" label="用例总数" width="89" />
-                    <el-table-column prop="address" label="已执行" width="75" />
-                    <el-table-column prop="address" label="执行率" width="78" />
-                    <el-table-column prop="address" label="未执行" min-width="75" />
-                    <el-table-column prop="address" label="SKIP" min-width="62" />
-                    <el-table-column prop="address" label="PASS数" min-width="80" />
-                    <el-table-column prop="address" label="PASS率" min-width="80" />
-                    <el-table-column prop="address" label="FAIL数" min-width="75" />
-                    <el-table-column prop="address" label="FAIL率" min-width="78" />
-                    <el-table-column prop="address" label="未分析" min-width="75" />
-                    <el-table-column prop="address" label="今日执行总数" min-width="117" />
-                    <el-table-column prop="address" label="今日PASS总数" min-width="122" />
-                    <el-table-column prop="address" label="计划明日执行个数" min-width="145" />
-                    <el-table-column prop="address" label="还需执行天数" min-width="117" />
-                    <el-table-column prop="address" label="执行分析" min-width="540" />>
-                  </el-table>
+                  <div class="table">
+                    <el-table
+                      :data="caseTableData"
+                      border
+                      style="width: 100%"
+                      :header-cell-style="{'background-color': '#FAFAFA' }"
+                      fit
+                      highlight-current-row
+                    >
+                      <el-table-column prop="name" label="芯片平台 " width="115px">
+                        <template slot-scope="{ row }">
+                          <span style="color: #1890ff;">{{ row.name }}</span>
+                        </template>
+                      </el-table-column>
+                      <el-table-column
+                        v-for="(item, index) in caseTableTitleList"
+                        :key="index"
+                        :label="item.label"
+                        prop="case_total"
+                        align="center"
+                        :min-width="item.minWidth ? item.minWidth : 100"
+                      />
+                    </el-table>
+                  </div>
                 </template>
               </card>
 
+              <!-- 表格二区域 -->
               <card class="case-second card">
                 <template #buttons>
                   <el-button type="primary" size="small">添加用例执行分析</el-button>
                 </template>
 
                 <template #content>
+                  <div class="filter-container">
+                    <el-select v-model="caseCheckboxVal2" multiple collapse-tags placeholder="请选择">
+                      <el-option
+                        v-for="(item, index) in caseSelectOptions"
+                        :key="index"
+                        :label="item"
+                        :value="item"
+                      />
+                    </el-select>
+                  </div>
+
                   <!-- 表格 -->
-                  <el-table
-                    :data="tableData"
-                    border
-                    style="width: 100%"
-                    :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
-                    :cell-style="cellStyle"
-                  >
-                    <el-table-column prop="date" label="芯片平台" width="103" />
-                    <el-table-column prop="name" label="用例总数" width="89" />
-                    <el-table-column prop="address" label="已执行" width="75" />
-                    <el-table-column prop="address" label="执行率" width="78" />
-                    <el-table-column prop="address" label="未执行" min-width="75" />
-                    <el-table-column prop="address" label="SKIP" min-width="62" />
-                    <el-table-column prop="address" label="PASS数" min-width="80" />
-                    <el-table-column prop="address" label="PASS率" min-width="80" />
-                    <el-table-column prop="address" label="FAIL数" min-width="75" />
-                    <el-table-column prop="address" label="FAIL率" min-width="78" />
-                    <el-table-column prop="address" label="未分析" min-width="75" />
-                    <el-table-column prop="address" label="今日执行总数" min-width="117" />
-                    <el-table-column prop="address" label="今日PASS总数" min-width="122" />
-                    <el-table-column prop="address" label="计划明日执行个数" min-width="145" />
-                    <el-table-column prop="address" label="还需执行天数" min-width="117" />
-                    <el-table-column prop="address" label="执行分析" min-width="540" />>
-                  </el-table>
+                  <div class="table">
+                    <el-table
+                      :data="caseTableData2"
+                      border
+                      style="width: 100%"
+                      :header-cell-style="{'background-color': '#FAFAFA' }"
+                      highlight-current-row
+                    >
+                      <el-table-column prop="name" label="芯片平台 " min-width="120px" />
+                      <el-table-column
+                        v-for="(item, index) in caseTableTitleList2"
+                        :key="index"
+                        :label="item.label"
+                        prop="case_total"
+                        align="center"
+                        :min-width="item.minWidth ? item.minWidth + 'px' : '100px'"
+                      />
+                    </el-table>
+                  </div>
                 </template>
               </card>
             </div>
@@ -135,24 +155,41 @@
               :key="index"
               :span="24 / desginNoticeList.length"
             >
-              <el-alert :title="item" type="error" :closable="false" />
+              <el-alert :title="item.content" :type="item.status" :closable="false" />
             </el-col>
           </el-row>
         </div>
 
         <div class="desgin-table">
+          <div class="filter-container">
+            <!-- select -->
+            <el-select v-model="desginSelectVal" multiple collapse-tags placeholder="请选择">
+              <el-option
+                v-for="(item, index) in desginSelectOptions"
+                :key="index"
+                :label="item"
+                :value="item"
+              />
+            </el-select>
+          </div>
+
+          <!-- 表格 -->
           <el-table
-            :data="desginTableList"
+            :data="desginTableData"
             border
             style="width: 100%"
-            :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
+            fit
+            :header-cell-style="{'background-color': '#FAFAFA' }"
+            highlight-current-row
           >
+            <el-table-column prop="area" label="域" min-width="103" />
             <el-table-column
-              v-for="(item, index) in desginTableHeader"
+              v-for="(item, index) in desginTableTitleList"
               :key="index"
               :prop="item.prop"
               :label="item.label"
-              :width="item.width"
+              :min-width="item.width"
+              align="center"
             />
           </el-table>
           <!-- 分段器 -->
@@ -218,28 +255,48 @@
           </el-radio-group>
 
           <div class="review-table-content">
+            <div class="filter-container">
+              <!-- select -->
+              <el-select v-model="reviewSelectVal" multiple collapse-tags placeholder="请选择">
+                <el-option
+                  v-for="(item, index) in reviewSelectOptions"
+                  :key="index"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </div>
+
+            <!-- 表格 -->
             <el-table
-              :data="tableData"
+              :data="caseTableData"
+              border
               style="width: 100%"
-              :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
+              fit
+              :header-cell-style="{'background-color': '#FAFAFA' }"
+              highlight-current-row
             >
-              <el-table-column prop="name" label="项目名称" width="80" fixed />
-              <el-table-column prop="name" label="工作包" width="200" fixed />
-              <el-table-column prop="name" label="PTGTTM" width="80" />
-              <el-table-column prop="name" label="代码量" width="80" />
-              <el-table-column prop="name" label="缺陷个数" width="80" />
-              <el-table-column prop="name" label="缺陷率" width="80" />
-              <el-table-column prop="name" label="需求缺陷" width="80" />
-              <el-table-column prop="name" label="设计缺陷" width="80" />
-              <el-table-column prop="name" label="软件意见个数" width="150" />
-              <el-table-column label="质量意见个数" width="210">
-                <el-table-column prop="name" label="姓名" width="70" />
-                <el-table-column prop="name" label="姓名" width="70" />
-                <el-table-column prop="name" label="姓名" width="70" />
+              <el-table-column prop="name" label="项目名" fixed min-width="89" />
+              <el-table-column prop="work_package" label="工作包" fixed min-width="186" />
+              <el-table-column
+                v-for="(item, index) in reviewTableTitleList"
+                :key="index"
+                :prop="item.prop"
+                :label="item.label"
+                :min-width="item.minWidth"
+                align="center"
+              />
+              <el-table-column prop="software_opinion_count" label="软件意见数量" min-width="130" align="center" />
+              <el-table-column
+                prop="quality_opinion_count"
+                label="质量意见个数"
+                min-width="210"
+                align="center"
+              >
+                <el-table-column prop="need" label="需求" :min-width="70" align="center" />
+                <el-table-column prop="desgin" label="需求" :min-width="70" align="center" />
+                <el-table-column prop="total" label="需求" :min-width="70" align="center" />
               </el-table-column>
-              <el-table-column prop="name" label="可测试意见个数" width="230" />
-              <el-table-column prop="name" label="设计与需求不一致个数" width="260" />
-              <el-table-column prop="name" label="需求与原始需求不一致个数" width="280" />
             </el-table>
 
             <!-- 分页器 -->
@@ -259,6 +316,18 @@ import Chart from '@/components/MyChart/Chart'
 
 import request from '@/services/request'
 
+// 导入 select 和 table 的配置项
+import {
+  caseCardSelectList,
+  caseCardSelectDefaultList,
+  caseCardTableTitleList,
+  desginCardSelectList,
+  desginCardSelectDefaultList,
+  desginCardTableTitleList,
+  reviewCardSelectList,
+  reviewCardSelectDefaultList,
+  reviewCardTableTitleList
+} from './options'
 export default {
   components: {
     Card,
@@ -284,86 +353,157 @@ export default {
           { value: 40, name: 'rose8' }
         ]
       },
-      tableData: [
+      reviewTableData: [
         {
           date: '2016-05-03',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         },
         {
           date: '2016-05-02',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         },
         {
           date: '2016-05-04',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         },
         {
           date: '2016-05-01',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         },
         {
           date: '2016-05-08',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         },
         {
           date: '2016-05-06',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         },
         {
           date: '2016-05-07',
           name: '王小虎',
-          address: '福州市'
+          province: '上海',
+          city: '普陀区',
+          address: '上海市普陀区金沙江路 1518 弄',
+          zip: 200333
         }
       ],
-      desginNoticeList: ['总计TP 44 个', '已完成TP 31 个', '计划用例 1379 个', '实际用例 835 个'],
-      desginTableHeader: [
+      caseSelectOptions: caseCardSelectList, // select 的选项列表
+      caseCheckboxVal: caseCardSelectDefaultList, // select 的选中项列表
+      caseTableTitleList: caseCardTableTitleList.filter(
+        (i) => caseCardSelectDefaultList.indexOf(i.label) >= 0
+      ), // 用例卡片表格1的配置项
+      caseCheckboxVal2: caseCardSelectDefaultList, // select 的选中项列表
+      caseTableTitleList2: caseCardTableTitleList.filter(
+        (i) => caseCardSelectDefaultList.indexOf(i.label) >= 0
+      ), // 用例卡片表格2的配置项
+      caseTableData: [
         {
-          prop: 'area',
-          label: '域',
-          width: '80'
+          name: '合计',
+          case_total: 323
         },
         {
-          prop: 'ttpcount',
-          label: '总计TP个数',
-          width: '150'
+          name: '通用',
+          case_total: 323
         },
         {
-          prop: 'atpcount',
-          label: '已完成TP个数',
-          width: '170'
+          name: 'N18K-X-CB',
+          case_total: 323
         },
         {
-          prop: 'btpcount',
-          label: '计划周期内完成的TP个数',
-          width: '250'
+          name: 's57h',
+          case_total: 323
         },
         {
-          prop: 'ctpcount',
-          label: '周期超期的TP个数',
-          width: '200'
+          name: 'S57X',
+          case_total: 323
         },
         {
-          prop: 'dtpcount',
-          label: '资源超期的TP个数',
-          width: '200'
+          name: 'S6120',
+          case_total: 323
         },
         {
-          prop: 'etpcount',
-          label: '预计完成用例个数',
-          width: '200'
+          name: 'S6910-3C',
+          case_total: 323
         },
         {
-          prop: 'ftpcount',
-          label: '已完成用例个数',
-          width: '200'
+          name: 'S7810C',
+          case_total: 323
+        },
+        {
+          name: 'S7810C',
+          case_total: 323
         }
       ],
+      caseTableData2: [
+        {
+          name: '合计',
+          case_total: 323
+        },
+        {
+          name: '新增手工',
+          case_total: 323
+        },
+        {
+          name: '新增自动化',
+          case_total: 323
+        },
+        {
+          name: '存量手工',
+          case_total: 323
+        },
+        {
+          name: '存量自动化',
+          case_total: 323
+        }
+      ],
+      key: 1,
+      desginNoticeList: [
+        {
+          content: '总计TP 44 个',
+          status: 'info'
+        },
+        {
+          content: '已完成TP 31 个',
+          status: 'success'
+        },
+        {
+          content: '计划用例 1379 个',
+          status: 'warning'
+        },
+        {
+          content: '实际用例 835 个',
+          status: 'error'
+        }
+      ],
+      desginSelectVal: desginCardSelectDefaultList, // select 选中项列表
+      desginSelectOptions: desginCardSelectList, // select 的选项配置
+      desginTableTitleList: desginCardTableTitleList.filter(
+        (i) => desginCardSelectDefaultList.indexOf(i.label) >= 0
+      ),
       desginTableData: [
         {
           area: 'test',
@@ -577,64 +717,11 @@ export default {
         }
       ],
       desginTableCurrentPage: 1, // 当前页码
-      reviewTableData: [
-        {
-          date: '2016-05-03',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        },
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        },
-        {
-          date: '2016-05-04',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        },
-        {
-          date: '2016-05-01',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        },
-        {
-          date: '2016-05-08',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        },
-        {
-          date: '2016-05-06',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        },
-        {
-          date: '2016-05-07',
-          name: '王小虎',
-          province: '上海',
-          city: '普陀区',
-          address: '上海市普陀区金沙江路 1518 弄',
-          zip: 200333
-        }
-      ]
+      reviewSelectVal: reviewCardSelectDefaultList,
+      reviewSelectOptions: reviewCardSelectList,
+      reviewTableTitleList: reviewCardTableTitleList.filter(
+        (i) => reviewCardSelectDefaultList.indexOf(i.label) >= 0
+      )
     }
   },
   computed: {
@@ -643,6 +730,32 @@ export default {
         (this.desginTableCurrentPage - 1) * 10,
         this.desginTableCurrentPage * 10
       )
+    }
+  },
+  watch: {
+    // 用例卡片 select1 的选中项改变
+    caseCheckboxVal(valArr) {
+      this.caseTableTitleList = caseCardTableTitleList.filter((i) => valArr.indexOf(i.label) >= 0)
+      this.key = this.key + 1
+    },
+    // 用例卡片 select2 的选中项改变
+    caseCheckboxVal2(valArr) {
+      this.caseTableTitleList2 = caseCardTableTitleList.filter((i) => valArr.indexOf(i.label) >= 0)
+      this.key = this.key + 1
+    },
+    // 设计卡片 select 的选中项改变
+    desginSelectVal(valArr) {
+      this.desginTableTitleList = desginCardTableTitleList.filter(
+        (i) => valArr.indexOf(i.label) >= 0
+      )
+      this.key = this.key + 1
+    },
+    reviewSelectVal(valArr) {
+      console.log(valArr)
+      this.reviewTableTitleList = reviewCardTableTitleList.filter(
+        (i) => valArr.indexOf(i.label) >= 0
+      )
+      this.key = this.key + 1
     }
   },
   created() {
