@@ -36,12 +36,12 @@
             :data="tableData"
             style="width: 100%; margin-bottom: 30px;"
             border
-            :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
+            :header-cell-style="{'background-color': '#FAFAFA' }"
             row-key="id"
             :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
             fit
           >
-            <el-table-column prop="t1" label="类型" fixed width="100" />
+            <el-table-column prop="t1" label="类型" fixed width="220" show-overflow-tooltip />
             <el-table-column prop="t2" label="代码量" fixed min-width="89" align="center" />
             <el-table-column
               v-for="(item, index) in desginTableTitleList"
@@ -82,11 +82,11 @@
             :data="tableData"
             style="width: 100%; margin-bottom: 10px; margin-top: 10px;"
             border
-            :header-cell-style="{'background-color': '#FAFAFA', 'text-align': 'center' }"
+            :header-cell-style="{'background-color': '#FAFAFA' }"
             row-key="id"
             :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
           >
-            <el-table-column prop="t1" label="类型" fixed width="100" />
+            <el-table-column prop="t1" label="类型" fixed width="220" show-overflow-tooltip />
             <el-table-column prop="t2" label="代码量" fixed min-width="89" align="center" />
             <el-table-column
               v-for="(item, index) in desginTableTitleList2"

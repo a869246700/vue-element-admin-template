@@ -20,24 +20,26 @@ import Dashboard from '@/views/dashboard/index'
 import Evolve from './project_twelve_page_2/Evolve'
 import Quality from './project_twelve_page_3/Quality'
 import Cost from './project_twelve_page_4/Cost'
+import RiskManage from './project_twelve_page_5/RiskManage'
 
 export default {
   components: {
     Dashboard,
     Evolve,
     Quality,
-    Cost
+    Cost,
+    RiskManage
   },
   data() {
     return {
       name: '12.5PL1',
-      activeName: '2',
+      activeName: '5',
       tabMapOptions: [
         { label: '总述', key: '1', name: 'Dashboard' },
         { label: '进展', key: '2', name: 'Evolve' },
         { label: '质量', key: '3', name: 'Quality' },
         { label: '成本', key: '4', name: 'Cost' },
-        { label: '问题&风险', key: '5' },
+        { label: '问题&风险', key: '5', name: 'RiskManage' },
         { label: '风险管理', key: '6' },
         { label: '专项任务', key: '7' },
         { label: '项目最长路径', key: '8' },

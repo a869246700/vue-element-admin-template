@@ -14,15 +14,13 @@
           style="width: 100%"
           row-key="id"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          :span-method="arraySpanMethod"
           fit
           border
         >
-          <el-table-column prop="type" label="类型" min-width="220" fixed />
-          <el-table-column min-width="100" />
+          <el-table-column prop="type" label="类型" min-width="220" fixed show-overflow-tooltip />
           <el-table-column label="代码量" align="center">
-            <el-table-column prop="add" label="新增" width="121" />
-            <el-table-column prop="transplant" label="移植" width="121">
+            <el-table-column prop="add" label="新增" min-width="121" />
+            <el-table-column prop="transplant" label="移植" min-width="121">
               <template #header>
                 <span style="margin-right: 5px">移植</span>
                 <el-popover
@@ -36,7 +34,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="total" width="121">
+            <el-table-column prop="total" min-width="121">
               <template #header>
                 <span style="margin-right: 5px">总计</span>
                 <el-popover
@@ -52,7 +50,7 @@
           </el-table-column>
 
           <el-table-column label="总计" align="center">
-            <el-table-column prop="target" label="目标" width="152">
+            <el-table-column prop="target" label="目标" min-width="141">
               <template #header>
                 <span style="margin-right: 5px">目标</span>
                 <el-popover placement="top-start" width="800" trigger="hover">
@@ -62,7 +60,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="actual" label="实际" width="152">
+            <el-table-column prop="actual" label="实际" min-width="141">
               <template #header>
                 <span style="margin-right: 5px">实际</span>
                 <el-popover placement="top-start" width="400" trigger="hover">
@@ -70,9 +68,13 @@
                   <i slot="reference" class="el-icon-question" />
                 </el-popover>
               </template>
+
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
             </el-table-column>
 
-            <el-table-column prop="need" label="还需" width="152">
+            <el-table-column prop="need" label="还需" min-width="141">
               <template #header>
                 <span style="margin-right: 5px">还需</span>
                 <el-popover placement="top-start" width="800" trigger="hover">
@@ -82,7 +84,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="expected" label="预期" width="152">
+            <el-table-column prop="expected" label="预期" min-width="141">
               <template #header>
                 <span style="margin-right: 5px">预期</span>
                 <el-popover placement="top-start" width="400" trigger="hover">
@@ -90,9 +92,13 @@
                   <i slot="reference" class="el-icon-question" />
                 </el-popover>
               </template>
+
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.expected)">{{ row.expected }}</span>
+              </template>
             </el-table-column>
 
-            <el-table-column prop="deviation" label="偏差" width="152">
+            <el-table-column prop="deviation" label="偏差" min-width="141">
               <template #header>
                 <span style="margin-right: 5px">偏差</span>
                 <el-popover
@@ -118,17 +124,16 @@
           style="width: 100%; margin-top: 10px;"
           row-key="id"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          :span-method="arraySpanMethod"
         >
-          <el-table-column prop="type" label="类型" width="220" fixed />
-          <el-table-column min-width="100" />
+          <el-table-column prop="type" label="类型" min-width="220" fixed show-overflow-tooltip />
           <el-table-column label="代码量" align="center">
-            <el-table-column prop="add" label="新增" width="121" />
-            <el-table-column prop="transplant" label="移植" width="121" />
-            <el-table-column prop="total" label="总计" width="121" />
+            <el-table-column prop="add" label="新增" min-width="94" />
+            <el-table-column prop="transplant" label="移植" min-width="94" />
+            <el-table-column prop="total" label="总计" min-width="94" />
           </el-table-column>
+
           <el-table-column label="总计" align="center">
-            <el-table-column prop="target" width="152">
+            <el-table-column prop="target" min-width="141">
               <template #header>
                 <span style="margin-right: 5px">目标</span>
                 <el-popover placement="top-start" width="800" trigger="hover">
@@ -137,59 +142,159 @@
                 </el-popover>
               </template>
             </el-table-column>
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="需求" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="need" label="还需" min-width="94" />
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="设计" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="准入" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="首轮" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="次轮" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="回归" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
+
           <el-table-column label="试点" align="center">
-            <el-table-column prop="target" label="目标" width="152" />
-            <el-table-column prop="actual" label="实际" width="152" />
-            <el-table-column prop="need" label="还需" width="152" />
-            <el-table-column prop="expected" label="预期" width="152" />
-            <el-table-column prop="deviation" label="偏差" width="152" />
+            <el-table-column prop="target" label="目标" min-width="141" />
+
+            <el-table-column prop="actual" label="实际" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="need" label="还需" min-width="94" />
+
+            <el-table-column prop="expected" label="预期" min-width="94">
+              <template slot-scope="{row}">
+                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
+              </template>
+            </el-table-column>
+
+            <el-table-column prop="deviation" label="偏差" min-width="94" />
           </el-table-column>
         </el-table>
       </template>
@@ -210,9 +315,8 @@
           style="width: 100%; margin-top: 10px;"
           row-key="id"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          :span-method="arraySpanMethod"
         >
-          <el-table-column prop="type" width="150" fixed>
+          <el-table-column prop="type" min-width="220" fixed show-overflow-tooltip>
             <template #header>
               <span style="margin-right: 5px">工序</span>
               <el-popover
@@ -225,12 +329,11 @@
               </el-popover>
             </template>
           </el-table-column>
-          <el-table-column min-width="80" />
 
           <el-table-column label="12.5PL1" align="center">
-            <el-table-column prop="add" label="代码量" min-width="164px" />
+            <el-table-column prop="add" label="代码量" min-width="164" />
 
-            <el-table-column prop="add" label="目标系数" width="164">
+            <el-table-column prop="add" label="目标系数" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">目标系数</span>
                 <el-popover placement="top-start" width="200" trigger="hover" content="根据基线算出，目前写死">
@@ -239,7 +342,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="目标资源" width="164">
+            <el-table-column prop="add" label="目标资源" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">目标资源</span>
                 <el-popover placement="top-start" width="200" trigger="hover" content="根据基线算出，目前写死">
@@ -248,7 +351,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="代码效率" width="164">
+            <el-table-column prop="add" label="代码效率" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">代码效率</span>
                 <el-popover
@@ -262,7 +365,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="工序效率" width="164">
+            <el-table-column prop="add" label="工序效率" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">工序效率</span>
                 <el-popover
@@ -276,7 +379,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="实际数量" width="164">
+            <el-table-column prop="add" label="实际数量" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">工序效率</span>
                 <el-popover
@@ -290,7 +393,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="实际工序效率" width="164">
+            <el-table-column prop="add" label="实际工序效率" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">实际工序效率</span>
                 <el-popover
@@ -319,11 +422,11 @@
 
               <!-- 主体内容 -->
               <template slot-scope="{row}">
-                <span class="warning">{{ row.add + 123 }}</span>
+                <span :class="calcRenderData(row.add, row.add)">{{ row.add }}</span>
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="实际代码效率" width="164">
+            <el-table-column prop="add" label="实际代码效率" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">实际代码效率</span>
                 <el-popover
@@ -337,7 +440,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="偏差资源" width="164">
+            <el-table-column prop="add" label="偏差资源" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">偏差资源</span>
                 <el-popover
@@ -351,7 +454,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column prop="add" label="预期总资源" width="164">
+            <el-table-column prop="add" label="预期总资源" min-width="164">
               <template #header>
                 <span style="margin-right: 5px">预期总资源</span>
                 <el-popover
@@ -367,10 +470,10 @@
           </el-table-column>
 
           <el-table-column label="12.X基线" align="center">
-            <el-table-column prop="add" label="代码量" width="164" />
-            <el-table-column prop="add" label="资源投入" width="164" />
-            <el-table-column prop="add" label="产出个数" width="164" />
-            <el-table-column prop="add" label="工序效率" width="478" />
+            <el-table-column prop="add" label="代码量" min-width="164" />
+            <el-table-column prop="add" label="资源投入" min-width="164" />
+            <el-table-column prop="add" label="产出个数" min-width="164" />
+            <el-table-column prop="add" label="工序效率" min-width="478" />
           </el-table-column>
         </el-table>
       </template>
@@ -817,6 +920,23 @@ export default {
       } else if (columnIndex === 1) {
         return [0, 0]
       }
+    },
+    // 计算渲染数据的类
+    calcRenderData(text, record) {
+      // value 是确定值， record 是记录值，确定所在的范围
+      const totalTarget =
+        record.target_summary === undefined ? 0 : Math.round(record.target_summary * 10) / 10
+      const totalTargetHalf =
+        record.target_summary === undefined ? 0 : Math.round(record.target_summary * 0.5 * 10) / 10
+      const value = text === undefined ? 0 : Math.round(text * 10) / 10
+
+      if (value <= totalTargetHalf) {
+        return 'normal'
+      } else if (totalTargetHalf < value && value <= totalTarget) {
+        return 'warning'
+      } else {
+        return 'error'
+      }
     }
   }
 }
@@ -825,11 +945,13 @@ export default {
 <style lang="scss" scoped>
 .warning {
   color: orange;
+  font-weight: bold;
   text-decoration: underline;
 }
 
 .error {
   color: red;
+  font-weight: bold;
   text-decoration: underline;
 }
 

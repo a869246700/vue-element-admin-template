@@ -77,7 +77,7 @@
                       fit
                       highlight-current-row
                     >
-                      <el-table-column prop="name" label="芯片平台 " width="115px">
+                      <el-table-column prop="name" label="芯片平台 " width="115px" show-overflow-tooltip>
                         <template slot-scope="{ row }">
                           <span style="color: #1890ff;">{{ row.name }}</span>
                         </template>
@@ -89,6 +89,7 @@
                         prop="case_total"
                         align="center"
                         :min-width="item.minWidth ? item.minWidth : 100"
+                        show-overflow-tooltip
                       />
                     </el-table>
                   </div>
@@ -122,7 +123,7 @@
                       :header-cell-style="{'background-color': '#FAFAFA' }"
                       highlight-current-row
                     >
-                      <el-table-column prop="name" label="芯片平台 " min-width="120px" />
+                      <el-table-column prop="name" label="芯片平台 " min-width="120px" show-overflow-tooltip />
                       <el-table-column
                         v-for="(item, index) in caseTableTitleList2"
                         :key="index"
@@ -130,6 +131,7 @@
                         prop="case_total"
                         align="center"
                         :min-width="item.minWidth ? item.minWidth + 'px' : '100px'"
+                        show-overflow-tooltip
                       />
                     </el-table>
                   </div>
@@ -182,7 +184,7 @@
             :header-cell-style="{'background-color': '#FAFAFA' }"
             highlight-current-row
           >
-            <el-table-column prop="area" label="域" min-width="103" />
+            <el-table-column prop="area" label="域" min-width="103" show-overflow-tooltip />
             <el-table-column
               v-for="(item, index) in desginTableTitleList"
               :key="index"
@@ -190,6 +192,7 @@
               :label="item.label"
               :min-width="item.width"
               align="center"
+              show-overflow-tooltip
             />
           </el-table>
           <!-- 分段器 -->
@@ -276,8 +279,8 @@
               :header-cell-style="{'background-color': '#FAFAFA' }"
               highlight-current-row
             >
-              <el-table-column prop="name" label="项目名" fixed min-width="89" />
-              <el-table-column prop="work_package" label="工作包" fixed min-width="186" />
+              <el-table-column prop="name" label="项目名" fixed min-width="89" show-overflow-tooltip />
+              <el-table-column prop="work_package" label="工作包" fixed min-width="186" show-overflow-tooltip />
               <el-table-column
                 v-for="(item, index) in reviewTableTitleList"
                 :key="index"
@@ -285,17 +288,19 @@
                 :label="item.label"
                 :min-width="item.minWidth"
                 align="center"
+                show-overflow-tooltip
               />
-              <el-table-column prop="software_opinion_count" label="软件意见数量" min-width="130" align="center" />
+              <el-table-column prop="software_opinion_count" label="软件意见数量" min-width="130" align="center" show-overflow-tooltip />
               <el-table-column
                 prop="quality_opinion_count"
                 label="质量意见个数"
                 min-width="210"
                 align="center"
+                show-overflow-tooltip
               >
-                <el-table-column prop="need" label="需求" :min-width="70" align="center" />
-                <el-table-column prop="desgin" label="需求" :min-width="70" align="center" />
-                <el-table-column prop="total" label="需求" :min-width="70" align="center" />
+                <el-table-column prop="need" label="需求" :min-width="70" align="center" show-overflow-tooltip />
+                <el-table-column prop="desgin" label="需求" :min-width="70" align="center" show-overflow-tooltip />
+                <el-table-column prop="total" label="需求" :min-width="70" align="center" show-overflow-tooltip />
               </el-table-column>
             </el-table>
 

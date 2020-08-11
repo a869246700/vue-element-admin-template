@@ -108,8 +108,11 @@
 
 .el-table .cell {
   padding: 0px 16px!important;
+  white-space: nowrap;
 }
 
-.el-select {
+.evolve .el-select,
+.quality .el-select,
+.cost .el-select {
   min-width: 250px;
 }
