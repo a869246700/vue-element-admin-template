@@ -1,28 +1,26 @@
 <template>
-  <div class="charts">
-    <el-row :gutter="32">
-      <el-col
-        :xs="{span: 24}"
-        :sm="{span: 24}"
-        :md="{span: 12}"
-        :lg="{span: 12}"
-        :xl="{span: 12}"
-        style="padding-right:8px;margin-bottom:30px;"
-      >
-        <chart v-loading="isChartLoading" :chart-data="mockData" title="风险类别" />
-      </el-col>
-      <el-col
-        :xs="{span: 24}"
-        :sm="{span: 24}"
-        :md="{span: 12}"
-        :lg="{span: 12}"
-        :xl="{span: 12}"
-        style="padding-right:8px;margin-bottom:30px;"
-      >
-        <chart v-loading="isChartLoading" :chart-data="mockData2" title="风险影响" />
-      </el-col>
-    </el-row>
-  </div>
+  <el-row :gutter="32">
+    <el-col
+      :xs="{span: 24}"
+      :sm="{span: 24}"
+      :md="{span: 12}"
+      :lg="{span: 12}"
+      :xl="{span: 12}"
+      style="padding-right:8px;margin-bottom:30px;"
+    >
+      <chart v-loading="isChartLoading" :chart-data="mockData" title="风险类别" />
+    </el-col>
+    <el-col
+      :xs="{span: 24}"
+      :sm="{span: 24}"
+      :md="{span: 12}"
+      :lg="{span: 12}"
+      :xl="{span: 12}"
+      style="padding-right:8px;margin-bottom:30px;"
+    >
+      <chart v-loading="isChartLoading" :chart-data="mockData2" title="风险影响" />
+    </el-col>
+  </el-row>
 </template>
 
 <script>
@@ -60,11 +58,9 @@ export default {
           { value: 150, name: '影响3' },
           { value: 250, name: '影响4' },
           { value: 200, name: '影响5' },
-          { value: 350, name: '影响6' },
-          { value: 300, name: '影响7' },
-          { value: 400, name: '影响8' }
+          { value: 350, name: '影响6' }
         ],
-        titleList: ['影响1', '影响2', '影响3', '影响4', '影响5', '影响6', '影响7', '影响8']
+        titleList: ['影响1', '影响2', '影响3', '影响4', '影响5', '影响6']
       },
       isChartLoading: false
     }

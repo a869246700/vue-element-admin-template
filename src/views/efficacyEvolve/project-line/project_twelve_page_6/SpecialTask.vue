@@ -1,6 +1,6 @@
 <template>
-  <!-- 问题&风险 -->
-  <div class="issue-risk">
+  <!-- 专项任务 -->
+  <div class="special-task">
     <!-- 通知栏 -->
     <div class="notify-bar">
       <div class="total">
@@ -19,27 +19,18 @@
       </el-radio-group>
     </div>
 
-    <!-- 中间的表格区域 -->
+    <!-- 表格区域 -->
     <div class="table">
-      <risk-table />
-    </div>
-
-    <!-- charts区域 -->
-    <div class="charts">
-      <risk-chart />
+      <task-table />
     </div>
   </div>
 </template>
 
 <script>
-import RiskTable from './components/RiskTable'
-import RiskChart from './components/RiskChart'
+import TaskTable from './components/TaskTable'
 
 export default {
-  components: {
-    RiskChart,
-    RiskTable
-  },
+  components: { TaskTable },
   data() {
     return {
       currentStage: '阶段一', // 当前选中阶段值
@@ -74,10 +65,5 @@ export default {
 
 .table {
   margin: 10px 0;
-}
-
-.charts {
-  padding-top: 30px;
-  border-top: 1px solid #ccc;
 }
 </style>

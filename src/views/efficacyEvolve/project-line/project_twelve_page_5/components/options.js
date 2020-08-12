@@ -42,12 +42,12 @@ export const tableTitleList = [
   {
     prop: 'risk_probability',
     label: '风险概率',
-    minWidth: 80
+    minWidth: 90
   },
   {
     prop: 'risk_level',
     label: '风险等级',
-    minWidth: 160
+    minWidth: 90
   },
   {
     prop: 'principal',
