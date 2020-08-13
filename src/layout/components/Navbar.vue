@@ -39,7 +39,7 @@
               <!-- 消息列表 -->
               <div v-if="true" class="notice-list-onfound">
                 <div>
-                  <img src="http://172.30.61.89:882/assets/message/message.svg" />
+                  <img src="http://172.30.61.89:882/assets/message/message.svg">
                   <div>您已读完所有消息</div>
                 </div>
               </div>
@@ -57,8 +57,8 @@
             :src="avatar"
             class="user-avatar"
             @load="avatarLoad"
-          />
-          <img v-show="!isAvatarExist" src="http://172.30.61.89:882/assets/avatar/user.png" class="user-avatar" />
+          >
+          <img v-show="!isAvatarExist" src="http://172.30.61.89:882/assets/avatar/user.png" class="user-avatar">
           <span class="user-name">{{ currentUser.userCn }}</span>
         </div>
         <el-dropdown-menu slot="dropdown">

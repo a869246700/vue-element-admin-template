@@ -90,12 +90,12 @@ export const detailTableList = [
   {
     prop: 'bugid',
     label: 'bugid',
-    minWidth: 80
+    minWidth: 100
   },
   {
     prop: 'bug_desc',
     label: 'bug描述',
-    minWidth: 100
+    minWidth: 120
   },
   {
     prop: 'omission_type',

@@ -437,7 +437,6 @@ export default {
       const isExist = await new Promise((resolve, reject) => {
         setTimeout(() => resolve(i > 5), 1500)
       })
-      console.log(i, isExist)
       this.bugIdIcon = isExist ? 'el-icon-success' : 'el-icon-warning'
     }
   }
