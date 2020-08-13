@@ -153,7 +153,11 @@ export default {
       ],
       downloadLoading: false, // 下载按钮加载
       listLoading: true, // 表单加载动画
-      list: [{ acceptance_method: '验证结项' }, { acceptance_method: '评审结项' }, {}],
+      list: [
+        { technical_issues: '课题1', acceptance_method: '验证结项' },
+        { technical_issues: '课题2', acceptance_method: '评审结项' },
+        { technical_issues: '课题3' }
+      ],
       textMap: {
         update: '编辑',
         create: '添加'
@@ -162,15 +166,15 @@ export default {
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
       temp: {
         id: undefined,
-        project_name: undefined,
-        task_name: undefined,
-        forecast_completion_time: new Date(),
-        principal: undefined,
-        target: undefined,
-        current_procress: undefined,
-        risk_issue: undefined,
-        solution: undefined,
-        deviation_reason: undefined
+        technical_issues: undefined,
+        technical_issues_code: undefined,
+        acceptance_method: undefined,
+        work_package_defect_total: undefined,
+        technical_issues_omission: undefined,
+        defect_rate: undefined,
+        functional_class: undefined,
+        performance_class: undefined,
+        no_functional_class: undefined
       },
       dataViewVisible: false // 控制数据视图的显示与隐藏
     }
@@ -228,15 +232,15 @@ export default {
     resetTemp() {
       this.temp = {
         id: undefined,
-        project_name: undefined,
-        task_name: undefined,
-        forecast_completion_time: new Date(),
-        principal: undefined,
-        target: undefined,
-        current_procress: undefined,
-        risk_issue: undefined,
-        solution: undefined,
-        deviation_reason: undefined
+        technical_issues: undefined,
+        technical_issues_code: undefined,
+        acceptance_method: undefined,
+        work_package_defect_total: undefined,
+        technical_issues_omission: undefined,
+        defect_rate: undefined,
+        functional_class: undefined,
+        performance_class: undefined,
+        no_functional_class: undefined
       }
     },
     // 点击添加按钮, 显示添加表单
@@ -266,45 +270,12 @@ export default {
     },
     // 点击编辑按钮，显示编辑表单
     handleUpdateClcik(row) {
+      console.log(row)
       this.temp = Object.assign({}, row) // 复制对象
       // 将 时间戳 修改为 date
-      this.temp.creation_time = this.temp.creation_time
-        ? new Date(this.temp.creation_time)
-        : new Date()
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      // 清除原有的校验内容
-      this.$nextTick(() => {
-        this.$refs.dataFormRef.clearValidate()
-      })
     },
     // 真正的修改数据
     updateData() {
-      // 1. 表单校验
-      this.$refs.dataFormRef.validate((valid) => {
-        if (valid) {
-          console.log('进行修改')
-          // 1. 对象深拷贝
-          const tempData = Object.assign({}, this.temp)
-          // 2. 将 date 修改为 时间戳
-          tempData.creation_time = +new Date(tempData.creation_time)
-          // 3. 根据 id 找到下标值
-          const index = this.list.findIndex((v) => v.id === this.temp.id)
-          // 4. 进行数据修改
-          this.list.splice(index, 1, this.temp)
-
-          // 5. 提示修改成功
-          this.$notify({
-            title: '成功',
-            message: '修改数据成功',
-            type: 'success',
-            duration: 2000
-          })
-
-          // 6. 隐藏添加窗口
-          this.dialogFormVisible = false
-        }
-      })
     },
     // 点击询问是否删除
     handleDeleteClick(row) {
@@ -328,10 +299,6 @@ export default {
             duration: 1500
           })
         })
-    },
-    // 点击显示数据视图
-    hanleShowDataViewClick() {
-      this.dataViewVisible = true
     }
   }
 }

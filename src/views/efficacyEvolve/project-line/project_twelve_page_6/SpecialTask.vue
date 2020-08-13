@@ -3,11 +3,13 @@
   <div class="special-task">
     <!-- 通知栏 -->
     <div class="notify-bar">
-      <div class="total">
+      <div>
         <el-tag type="info">项目风险项共计 10项, 其中HIGH 6项, MIDDLE 3项, LOW 1项</el-tag>
       </div>
-      <div class="detail">
+      <div>
         <el-tag type="danger" class="high">其中HIGH 风险中, 已闭环50%(3项), 还有3项未闭环</el-tag>
+      </div>
+      <div>
         <el-tag type="warning" class="medium">MEDIUM 风险中, 已闭环66%(2项), 还有1项未闭环, 需相关责任人继续推进</el-tag>
       </div>
     </div>
@@ -48,13 +50,8 @@ export default {
 
 <style lang="scss" scoped>
 .notify-bar {
-  .detail {
-    margin-top: 10px;
-    margin-bottom: 20px;
-
-    .high {
-      margin-right: 10px;
-    }
+  div {
+    margin-bottom: 10px;
   }
 
   span {

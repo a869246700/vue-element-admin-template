@@ -2,12 +2,12 @@ export const statisticsTableList = [
   {
     prop: 'technical_issues',
     label: '技术课题',
-    minWidth: 160
+    minWidth: 120
   },
   {
     prop: 'technical_issues_code',
-    label: '技术课题代码量',
-    minWidth: 140
+    label: '代码量',
+    minWidth: 100
   },
   {
     prop: 'acceptance_method',
@@ -16,13 +16,13 @@ export const statisticsTableList = [
   },
   {
     prop: 'work_package_defect_total',
-    label: '工作包缺陷总数',
+    label: '工作包缺陷',
     minWidth: 140
   },
   {
     prop: 'technical_issues_omission',
-    label: '技术课题遗漏个数',
-    minWidth: 160
+    label: '课题遗漏',
+    minWidth: 120
   },
   {
     prop: 'defect_rate',
@@ -42,7 +42,12 @@ export const statisticsTableList = [
   {
     prop: 'no_functional_class',
     label: '非功能类',
-    minWidth: 140
+    minWidth: 100
+  },
+  {
+    prop: 'no_unkonwn_defect',
+    label: '未知缺陷',
+    minWidth: 100
   }
 ]
 
@@ -65,12 +70,12 @@ export const detailTableList = [
   {
     prop: 'work_package',
     label: '工作包',
-    minWidth: 120
+    minWidth: 100
   },
   {
     prop: 'code_count',
     label: '代码量',
-    minWidth: 120
+    minWidth: 100
   },
   {
     prop: 'dev_principal',
@@ -85,17 +90,17 @@ export const detailTableList = [
   {
     prop: 'bugid',
     label: 'bugid',
-    minWidth: 120
+    minWidth: 80
   },
   {
     prop: 'bug_desc',
     label: 'bug描述',
-    minWidth: 120
+    minWidth: 100
   },
   {
     prop: 'omission_type',
     label: '遗漏类型归属',
-    minWidth: 120
+    minWidth: 140
   },
   {
     prop: 'omission_reason',
@@ -108,3 +113,11 @@ export const detailTableList = [
     minWidth: 120
   }
 ]
+
+export const rules = {
+  project_name: [{ required: true, message: '请填写项目名称', trigger: 'blur' }],
+  bugid: [{ required: true, message: '请填写bugid', trigger: 'blur' }],
+  omission_type: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
+  omission_reason: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
+  improve_solution: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+}
