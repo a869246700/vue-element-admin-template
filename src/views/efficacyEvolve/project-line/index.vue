@@ -22,6 +22,7 @@ import Quality from './project_twelve_page_3/Quality'
 import Cost from './project_twelve_page_4/Cost'
 import RiskManage from './project_twelve_page_5/RiskManage'
 import SpecialTask from './project_twelve_page_6/SpecialTask'
+import ProjectLongestPath from './project_twelve_page_7/ProjectLongestPath'
 import TechnologyProject from './project_twelve_page_8/TechnologyProject'
 
 export default {
@@ -32,12 +33,13 @@ export default {
     Cost,
     RiskManage,
     SpecialTask,
-    TechnologyProject
+    TechnologyProject,
+    ProjectLongestPath
   },
   data() {
     return {
       name: '12.5PL1',
-      activeName: '9',
+      activeName: '8',
       tabMapOptions: [
         { label: '总述', key: '1', name: 'Dashboard', disabled: false },
         { label: '进展', key: '2', name: 'Evolve', disabled: false },
@@ -46,7 +48,7 @@ export default {
         // { label: '问题&风险', key: '5', name: 'RiskManage' },
         { label: '风险管理', key: '6', name: 'RiskManage', disabled: false },
         { label: '专项任务', key: '7', name: 'SpecialTask', disabled: false },
-        { label: '项目最长路径', key: '8', disabled: false },
+        { label: '项目最长路径', key: '8', name: 'ProjectLongestPath', disabled: false },
         { label: '技术项目', key: '9', name: 'TechnologyProject', disabled: false },
         { label: '设计', key: '10', disabled: true },
         { label: 'WBS', key: '11', disabled: true },

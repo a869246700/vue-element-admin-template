@@ -82,6 +82,7 @@
 
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
+      height: $sideBarHeight !important; // 高度
       min-width: $sideBarWidth !important;
       background-color: $subMenuBg !important;
 
@@ -199,6 +200,9 @@
 
   .nest-menu .el-submenu>.el-submenu__title,
   .el-menu-item {
+    max-height: $sideBarHeight;
+    line-height: $sideBarHeight;
+
     &:hover {
       // you can use $subMenuHover
       background-color: $menuHover !important;
