@@ -1,6 +1,6 @@
 import Vue from 'vue'
 import Router from 'vue-router'
-// import zn from '@/locales/zh-CN'
+import zn from '@/locales/zh-CN'
 
 Vue.use(Router)
 
@@ -147,6 +147,10 @@ function formatter(data, parentName, validRouter) {
     }
 
     item.meta.title = locale
+
+    if (item.name === 'project_twelve_four') {
+      item.meta.title = zn[item.meta.title]
+    }
 
     const result = {
       ...item,

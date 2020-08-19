@@ -1,5 +1,12 @@
 <template>
   <div class="evolve">
+    <!-- 甘特图 -->
+    <h2>甘特图区域</h2>
+    <evolve-gantt v-if="isGanttVisible" class="gantt" />
+
+    <h2>任务统计</h2>
+    <evolve-chart height="500px" width="100%" class="gantt" />
+
     <!-- 执行卡片 -->
     <implement-card v-if="isImplementCardVisible" />
 
@@ -12,18 +19,23 @@
 </template>
 
 <script>
+import EvolveGantt from './components/EvolveGantt'
+import EvolveChart from './components/EvolveChart'
 import ImplementCard from './components/ImplementCard'
 import DesginCard from './components/DesginCard'
 import ReviewCard from './components/ReviewCard'
 
 export default {
   components: {
+    EvolveGantt,
+    EvolveChart,
     ImplementCard,
     DesginCard,
     ReviewCard
   },
   data() {
     return {
+      isGanttVisible: true, // 控制甘特图的显示与隐藏
       isImplementCardVisible: true, // 控制执行卡片的显示与隐藏
       isDesginCardVisible: true, // 控制设计卡片的显示与隐藏
       isReviewCardVisible: true // 控制评审卡片的显示与隐藏
@@ -77,3 +89,9 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.gantt {
+  margin-bottom: 20px;
+}
+</style>

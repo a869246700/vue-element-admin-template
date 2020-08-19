@@ -1,0 +1,24 @@
+@font-face {
+  font-family: "iconfont";
+  src: url('./iconfont.ttf');
+}
+
+.iconfont {
+  font-family            : "iconfont" !important;
+  font-size              : 16px;
+  font-style             : normal;
+  -webkit-font-smoothing : antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.icon-clock:before {
+  content: "\e711";
+}
+
+.icon-riqi:before {
+  content: "\e616";
+}
+
+.icon-riqi1:before {
+  content: "\e613";
+}

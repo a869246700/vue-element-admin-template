@@ -30,6 +30,11 @@ export const statisticsTableList = [
     minWidth: 100
   },
   {
+    prop: 'no_unkonwn_defect',
+    label: '未知缺陷',
+    minWidth: 100
+  },
+  {
     prop: 'functional_class',
     label: '功能类',
     minWidth: 100
@@ -42,11 +47,6 @@ export const statisticsTableList = [
   {
     prop: 'no_functional_class',
     label: '非功能类',
-    minWidth: 100
-  },
-  {
-    prop: 'no_unkonwn_defect',
-    label: '未知缺陷',
     minWidth: 100
   }
 ]

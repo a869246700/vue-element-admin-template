@@ -14,6 +14,11 @@
       </div>
     </div>
 
+    <!-- WBS区域 -->
+    <div class="wbs">
+      <risk-wbs />
+    </div>
+
     <!-- 表格-阶段值切换栏 -->
     <div class="stage-change">
       <el-radio-group v-model="currentStage" @change="handleStageChange">
@@ -34,11 +39,13 @@
 </template>
 
 <script>
+import RiskWbs from './components/RiskWbs'
 import RiskTable from './components/RiskTable'
 import RiskChart from './components/RiskChart'
 
 export default {
   components: {
+    RiskWbs,
     RiskChart,
     RiskTable
   },
@@ -67,6 +74,10 @@ export default {
     font-size: 16px;
     font-weight: bold;
   }
+}
+
+.wbs {
+  margin: 40px 0;
 }
 
 .table {
