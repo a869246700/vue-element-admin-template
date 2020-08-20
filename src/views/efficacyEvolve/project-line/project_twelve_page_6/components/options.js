@@ -63,3 +63,36 @@ export const rules = {
   solution: [{ required: true, message: '请填写对策', trigger: 'blur' }],
   current_procress: [{ required: true, message: '请填写对当前进展', trigger: 'blur' }]
 }
+
+export const wbsTableOptions = [
+  {
+    prop: 'plan_start_date',
+    label: '计划开始时间',
+    minWidth: '140'
+  },
+  {
+    prop: 'plan_end_date',
+    label: '计划结束时间',
+    minWidth: '140'
+  },
+  {
+    prop: 'priority',
+    label: '优先级',
+    minWidth: '80'
+  },
+  {
+    prop: 'progress',
+    label: '进度',
+    minWidth: '80'
+  },
+  {
+    prop: 'deviation',
+    label: '偏差',
+    minWidth: '80'
+  },
+  {
+    prop: 'remark',
+    label: '备注',
+    minWidth: '160'
+  }
+]

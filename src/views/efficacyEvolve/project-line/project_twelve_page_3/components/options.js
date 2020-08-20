@@ -36,80 +36,80 @@ export const executionCardSelectDefaultList = [
   '遗漏率'
 ]
 
-// 执行卡片的 table 的标题配置
-export const executionCardTableTitleList = [
+// 执行卡片 table 的配置
+export const tableOptions = [
   {
-    prop: 'total_defect_count',
+    prop: 'all_num',
     label: '总缺陷',
     minWidth: 89
   },
   {
-    prop: 'total_defect_rate',
+    prop: 'all_rate',
     label: '总缺陷率',
     minWidth: 89
   },
   {
-    prop: 'access_bug_count',
+    prop: 'zr_all_num',
     label: '准入BUG数',
     minWidth: 117
   },
   {
-    prop: 'access_defect',
+    prop: 'zr_all_rate',
     label: '准入缺陷',
     minWidth: 89
   },
   {
-    prop: 'first_bug_count',
+    prop: 'sl_all_num',
     label: '首轮BUG数',
     minWidth: 117
   },
   {
-    prop: 'first_defect_count',
+    prop: 'sl_all_rate',
     label: '首轮缺陷',
     minWidth: 89
   },
   {
-    prop: 'second_bug_count',
+    prop: 'cl_all_num',
     label: '次轮BUG数',
     minWidth: 117
   },
   {
-    prop: 'second_defect_count',
+    prop: 'cl_all_rate',
     label: '次轮缺陷',
     minWidth: 89
   },
   {
-    prop: 'regress_bug_count',
+    prop: 'hg_all_num',
     label: '回归BUG数',
     minWidth: 117
   },
   {
-    prop: 'regress_defect_count',
+    prop: 'hg_all_rate',
     label: '回归缺陷',
     minWidth: 89
   },
   {
-    prop: 'integration_bug_count',
+    prop: 'jc_all_num',
     label: '集成BUG数',
     minWidth: 117
   },
   {
-    prop: 'division_bug_count',
+    prop: 'shi_all_num',
     label: '事业部bug数',
     minWidth: 117
   },
   {
-    prop: 'division_defect_rate',
+    prop: 'shi_all_rate',
     label: '事业部缺陷率',
     minWidth: 117
   },
   {
-    prop: 'omission_count',
+    prop: 'omit_num',
     label: '遗漏个数',
     minWidth: 89
   },
   {
-    prop: 'omission_rate',
+    prop: 'omit_rate',
     label: '遗漏率',
     minWidth: 75
   }

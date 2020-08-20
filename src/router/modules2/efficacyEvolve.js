@@ -30,7 +30,7 @@ const projectLineChildrenRouter = [
     path: 'test_task',
     name: 'test_task',
     meta: { title: '测试任务' },
-    component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_6/SpecialTask')
+    component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_6/TestTask')
   },
   {
     path: 'technology_project',

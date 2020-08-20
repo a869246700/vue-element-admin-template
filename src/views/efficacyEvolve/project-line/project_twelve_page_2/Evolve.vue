@@ -1,11 +1,17 @@
 <template>
   <div class="evolve">
     <!-- 甘特图 -->
-    <h2>甘特图区域</h2>
-    <evolve-gantt v-if="isGanttVisible" class="gantt" />
-
-    <h2>任务统计</h2>
-    <evolve-chart height="500px" width="100%" class="gantt" />
+    <div class="evolve-gantt">
+      <div class="brief">
+        <div class="tag">
+          <el-tag>项目计划：当前项目阶段 XXX</el-tag>
+        </div>
+        <div class="tag">
+          <el-tag type="success">全部计划与工作：共X条，已完成X条</el-tag>
+        </div>
+      </div>
+      <evolve-gantt v-if="isGanttVisible" class="gantt" />
+    </div>
 
     <!-- 执行卡片 -->
     <implement-card v-if="isImplementCardVisible" />
@@ -20,7 +26,6 @@
 
 <script>
 import EvolveGantt from './components/EvolveGantt'
-import EvolveChart from './components/EvolveChart'
 import ImplementCard from './components/ImplementCard'
 import DesginCard from './components/DesginCard'
 import ReviewCard from './components/ReviewCard'
@@ -28,7 +33,6 @@ import ReviewCard from './components/ReviewCard'
 export default {
   components: {
     EvolveGantt,
-    EvolveChart,
     ImplementCard,
     DesginCard,
     ReviewCard
@@ -91,7 +95,16 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.gantt {
+.evolve-gantt {
   margin-bottom: 20px;
+
+  .brief {
+    margin-bottom: 10px;
+
+    .el-tag {
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+  }
 }
 </style>

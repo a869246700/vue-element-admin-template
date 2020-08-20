@@ -389,7 +389,6 @@ export default {
       // 1. 隐藏popover
       this.closePopover(key)
       // 2. 执行搜索
-      console.log(key)
       this.getList()
     },
     // 点击popover重置
@@ -405,6 +404,7 @@ export default {
     // 关闭 popover
     closePopover(key) {
       const list = this.$refs[key]
+      console.log(list)
       list.forEach((item) => {
         this.$nextTick(() => {
           item.doClose()

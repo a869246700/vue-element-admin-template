@@ -2,7 +2,23 @@
   <card title="执行">
     <!-- 按钮 -->
     <template #buttons>
-      <el-button type="primary">BUG解决</el-button>
+      <el-popover placement="bottom-end" width="1232" trigger="click">
+        <el-table
+          :data="tableData"
+          border
+          style="width: 100%"
+          :header-cell-style="{'background-color': '#FAFAFA' }"
+        >
+          <el-table-column prop="date" label="板块" width="180" />
+          <el-table-column prop="name" label="总BUG数" width="180" />
+          <el-table-column prop="address" label="严重BUG数" width="180" />
+          <el-table-column prop="name" label="未决BUG数" width="180" />
+          <el-table-column prop="name" label="未决率" width="180" />
+          <el-table-column prop="name" label="未决严重BUG数" width="180" />
+          <el-table-column prop="name" label="未推进CBD数" width="180" />
+        </el-table>
+        <el-button slot="reference" type="primary" size="small">BUG解决</el-button>
+      </el-popover>
     </template>
 
     <!-- 主体区域 -->
@@ -32,7 +48,7 @@
 
         <!-- 表格 -->
         <el-table
-          :data="tableData"
+          :data="list"
           style="width: 100%; margin-bottom: 30px;"
           border
           :header-cell-style="{'background-color': '#FAFAFA' }"
@@ -78,7 +94,7 @@
 
         <!-- 表格 -->
         <el-table
-          :data="tableData"
+          :data="list"
           style="width: 100%; margin-bottom: 10px; margin-top: 10px;"
           border
           :header-cell-style="{'background-color': '#FAFAFA' }"
@@ -117,11 +133,33 @@ export default {
   },
   data() {
     return {
+      tableData: [
+        {
+          date: '2016-05-02',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1518 弄'
+        },
+        {
+          date: '2016-05-04',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1517 弄'
+        },
+        {
+          date: '2016-05-01',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1519 弄'
+        },
+        {
+          date: '2016-05-03',
+          name: '王小虎',
+          address: '上海市普陀区金沙江路 1516 弄'
+        }
+      ],
       implementStageFirst: '整体',
       implementStageTypeListFirst: [{ stage: '整体' }, { stage: '主干' }, { stage: '组件' }],
       implementStageSecond: '阶段一',
       implementStageTypeListSecond: [{ stage: '阶段一' }, { stage: '阶段二' }],
-      tableData: [
+      list: [
         {
           id: 1,
           t1: '合计',

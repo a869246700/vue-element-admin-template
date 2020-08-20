@@ -267,6 +267,7 @@ export default {
       const { data: res } = await request(`/api/projectEvolveSta/queryByImplementStageType`, {
         method: 'GET'
       })
+
       this.implementStageTypeList = res
     },
 

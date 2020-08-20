@@ -107,7 +107,7 @@
 }
 
 .el-table .cell {
-  padding: 0px 16px!important;
+  padding: 0px 10px;
   white-space: nowrap;
 }
 
@@ -119,4 +119,8 @@
 
 .el-table__empty-block {
   min-height: 200px;
+}
+
+.quality-innerdialog .cell {
+  padding: 0 3px 0 8px!important;
 }
