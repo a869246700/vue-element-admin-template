@@ -4,297 +4,145 @@
     <card title="项目成本" style="margin-bottom: 10px">
       <template #buttons>
         <el-button type="primary">导出资源投入明细</el-button>
-        <el-button type="primary">阶段调偏</el-button>
+        <el-button type="primary" @click="handleStageAdjustClick">阶段调偏</el-button>
       </template>
 
       <template #content>
         <el-table
-          v-loading="listLoading"
-          :data="tableData"
+          v-loading="isFirstTableLoading"
+          :data="projectTotalRealmCost"
           style="width: 100%"
-          row-key="id"
+          row-key="name"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
           fit
           border
         >
-          <el-table-column prop="type" label="类型" min-width="220" fixed show-overflow-tooltip />
-          <el-table-column label="代码量" align="center">
-            <el-table-column prop="add" label="新增" min-width="121" />
-            <el-table-column prop="transplant" label="移植" min-width="121">
-              <template #header>
-                <span style="margin-right: 5px">移植</span>
-                <el-popover
-                  placement="top-start"
-                  width="220"
-                  trigger="hover"
-                  content="组件代码量, 目前代码量写死"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
+          <el-table-column
+            v-for="(item, index) in firstTableOptions"
+            :key="index"
+            :label="item.label"
+            :prop="item.prop"
+            :min-width="item.minWidth"
+            :fixed="item.fixed"
+            :show-overflow-tooltip="item.sot"
+            :align="item.children ? 'center' : ''"
+          >
+            <div v-if="item.children">
+              <el-table-column
+                v-for="(childItem, childIndex) in item.children"
+                :key="childIndex"
+                :prop="childItem.prop"
+                :min-width="childItem.minWidth"
+              >
+                <template #header>
+                  <span style="margin-right: 5px">{{ childItem.label }}</span>
+                  <el-popover
+                    v-if="childItem.content"
+                    placement="top-start"
+                    :width="childItem.contentWidth"
+                    trigger="hover"
+                  >
+                    <div v-html="childItem.content" />
+                    <i slot="reference" class="el-icon-question" />
+                  </el-popover>
+                </template>
 
-            <el-table-column prop="total" min-width="121">
-              <template #header>
-                <span style="margin-right: 5px">总计</span>
-                <el-popover
-                  placement="top-start"
-                  width="200"
-                  trigger="hover"
-                  content="总计 = 新增 + 移植 * 0.3"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-          </el-table-column>
+                <template slot-scope="{row}">
+                  <span
+                    v-if="childItem.prop==='total_target'"
+                  >{{ row[childItem.prop] | targetFilter }}</span>
 
-          <el-table-column label="总计" align="center">
-            <el-table-column prop="target" label="目标" min-width="141">
-              <template #header>
-                <span style="margin-right: 5px">目标</span>
-                <el-popover placement="top-start" width="800" trigger="hover">
-                  <div v-html="targetPopoverContent" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
+                  <span
+                    v-else-if="childItem.prop === 'total_actual'"
+                    :class="calcRenderData(row.total_actual, row.total_target, 1)"
+                    @click="handleActualTotalClick(row)"
+                  >{{ row.total_actual | fixedFilter }}</span>
 
-            <el-table-column prop="actual" label="实际" min-width="141">
-              <template #header>
-                <span style="margin-right: 5px">实际</span>
-                <el-popover placement="top-start" width="400" trigger="hover">
-                  <div v-html="actualPopoverContent" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
+                  <span
+                    v-else-if="childItem.prop === 'total_estimate' "
+                    :class="calcRenderData(row.total_estimate, row.total_target, 2)"
+                  >{{ row.total_estimate | fixedFilter }}</span>
 
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="141">
-              <template #header>
-                <span style="margin-right: 5px">还需</span>
-                <el-popover placement="top-start" width="800" trigger="hover">
-                  <div v-html="needPopoverContent" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="expected" label="预期" min-width="141">
-              <template #header>
-                <span style="margin-right: 5px">预期</span>
-                <el-popover placement="top-start" width="400" trigger="hover">
-                  <div v-html="expectedPopoverContent" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="141">
-              <template #header>
-                <span style="margin-right: 5px">偏差</span>
-                <el-popover
-                  placement="top-start"
-                  width="170"
-                  trigger="hover"
-                  content="偏差 = 预期 - 目标"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
+                  <span v-else>{{ row[childItem.prop] | fixedFilter }}</span>
+                </template>
+              </el-table-column>
+            </div>
           </el-table-column>
         </el-table>
 
-        <!-- 表格二 -->
         <el-table
-          v-loading="listLoading"
-          border
-          fit
-          highlight-current-row
-          :data="tableData"
+          v-loading="isSecondTableLoading"
+          :data="projectRealmCost"
           style="width: 100%; margin-top: 10px;"
-          row-key="id"
+          row-key="name"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+          fit
+          border
         >
-          <el-table-column prop="type" label="类型" min-width="220" fixed show-overflow-tooltip />
-          <el-table-column label="代码量" align="center">
-            <el-table-column prop="add" label="新增" min-width="94" />
-            <el-table-column prop="transplant" label="移植" min-width="94" />
-            <el-table-column prop="total" label="总计" min-width="94" />
-          </el-table-column>
+          <el-table-column
+            v-for="(item, index) in secondTableOptions"
+            :key="index"
+            :label="item.label"
+            :prop="item.prop"
+            :min-width="item.minWidth"
+            :fixed="item.fixed"
+            :show-overflow-tooltip="item.sot"
+            :align="item.children ? 'center' : ''"
+          >
+            <div v-if="item.children">
+              <el-table-column
+                v-for="(childItem, childIndex) in item.children"
+                :key="childIndex"
+                :prop="childItem.prop"
+                :min-width="childItem.minWidth"
+              >
+                <template #header>
+                  <span style="margin-right: 5px">{{ childItem.label }}</span>
+                  <el-popover
+                    v-if="childItem.content"
+                    placement="top-start"
+                    :width="childItem.contentWidth"
+                    trigger="hover"
+                  >
+                    <div v-html="childItem.content" />
+                    <i slot="reference" class="el-icon-question" />
+                  </el-popover>
+                </template>
 
-          <el-table-column label="总计" align="center">
-            <el-table-column prop="target" min-width="141">
-              <template #header>
-                <span style="margin-right: 5px">目标</span>
-                <el-popover placement="top-start" width="800" trigger="hover">
-                  <div v-html="stageTargetPopoverContent" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
+                <template slot-scope="{row}">
+                  <!-- 总计还需 -->
+                  <span
+                    v-if="childItem.prop === 'total_need'"
+                  >{{ Math.round((row.demand_need+row.design_need+row.admittance_need+row.test_first_need+row.test_second_need+row.regression_need+row.on_trial_need) * 10) / 10 }}</span>
+                  <!-- 总计预期 -->
+                  <span
+                    v-else-if="childItem.prop === 'total_estimate'"
+                  >{{ Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10 }}</span>
+                  <!-- 总计偏差 -->
+                  <span
+                    v-else-if="childItem.prop === 'total_deviation'"
+                  >{{ Math.round((row.demand_deviation+row.design_deviation+row.admittance_deviation+row.test_first_deviation+row.test_second_deviation+row.regression_deviation+row.on_trial_deviation) * 10) / 10 }}</span>
 
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
+                  <span
+                    v-else-if="childItem.prop.includes('_target')"
+                    style="word-spacing: 5px;"
+                  >{{ row[childItem.prop] | targetFilter }}</span>
 
-            <el-table-column prop="need" label="还需" min-width="94" />
+                  <span
+                    v-else-if="childItem.prop.includes('_actual')"
+                    :class="calcRenderData(row.total_actual, row.total_target, 1)"
+                    @click="handleActualTotalClick(row)"
+                  >{{ row[childItem.prop] | fixedFilter }}</span>
 
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
+                  <span
+                    v-else-if="childItem.prop.includes('_estimate') && childItem.prop !== 'total_estimate'"
+                    :class="calcRenderData(row.total_actual, row.total_target, 2)"
+                  >{{ row[childItem.prop] | fixedFilter }}</span>
 
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="需求" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="need" label="还需" min-width="94" />
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="设计" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="94" />
-
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="准入" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="94" />
-
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="首轮" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="94" />
-
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="次轮" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="94" />
-
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="回归" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="94" />
-
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
-          </el-table-column>
-
-          <el-table-column label="试点" align="center">
-            <el-table-column prop="target" label="目标" min-width="141" />
-
-            <el-table-column prop="actual" label="实际" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.actual, row.actual)">{{ row.actual }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="need" label="还需" min-width="94" />
-
-            <el-table-column prop="expected" label="预期" min-width="94">
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.expected, row.expected)">{{ row.expected }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="deviation" label="偏差" min-width="94" />
+                  <span v-else>{{ row[childItem.prop] | fixedFilter }}</span>
+                </template>
+              </el-table-column>
+            </div>
           </el-table-column>
         </el-table>
       </template>
@@ -305,184 +153,113 @@
       <template #buttons>
         <el-button type="primary">导出工序成本统计</el-button>
       </template>
-
       <template #content>
+        <div class="select-bar">
+          <el-tree
+            v-if="false"
+            ref="treeRef"
+            :data="thirdTableOptions"
+            show-checkbox
+            node-key="prop"
+            :default-checked-keys="['base', 'project', 'process_name']"
+            :props="{ children: 'children', label: 'label' }"
+          />
+        </div>
         <el-table
-          border
-          fit
-          highlight-current-row
-          :data="tableData"
-          style="width: 100%; margin-top: 10px;"
-          row-key="id"
+          v-loading="isThirdTableLoading"
+          :data="projectProcessEfficiency"
+          style="width: 100%"
+          row-key="process_name"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+          fit
+          border
         >
-          <el-table-column prop="type" min-width="220" fixed show-overflow-tooltip>
-            <template #header>
-              <span style="margin-right: 5px">工序</span>
-              <el-popover
-                placement="top-start"
-                width="325"
-                trigger="hover"
-                content="根据资源任务名称三级标签获取工序进行统计"
+          <el-table-column
+            v-for="(item, index) in thirdTableShow"
+            :key="index"
+            :label="item.label"
+            :prop="item.prop"
+            :min-width="item.minWidth"
+            :fixed="item.fixed"
+            :show-overflow-tooltip="item.sot"
+            :align="item.children ? 'center' : ''"
+          >
+            <div v-if="item.children">
+              <el-table-column
+                v-for="(childItem, childIndex) in item.children"
+                :key="childIndex"
+                :prop="childItem.prop"
+                :min-width="childItem.minWidth"
               >
-                <i slot="reference" class="el-icon-question" />
-              </el-popover>
-            </template>
-          </el-table-column>
+                <template #header>
+                  <span style="margin-right: 5px">{{ childItem.label }}</span>
+                  <el-popover
+                    v-if="childItem.content"
+                    placement="top-start"
+                    :width="childItem.contentWidth"
+                    trigger="hover"
+                  >
+                    <div v-html="childItem.content" />
+                    <i slot="reference" class="el-icon-question" />
+                  </el-popover>
+                </template>
 
-          <el-table-column label="12.5PL1" align="center">
-            <el-table-column prop="add" label="代码量" min-width="164" />
-
-            <el-table-column prop="add" label="目标系数" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">目标系数</span>
-                <el-popover placement="top-start" width="200" trigger="hover" content="根据基线算出，目前写死">
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="目标资源" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">目标资源</span>
-                <el-popover placement="top-start" width="200" trigger="hover" content="根据基线算出，目前写死">
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="代码效率" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">代码效率</span>
-                <el-popover
-                  placement="top-start"
-                  width="230"
-                  trigger="hover"
-                  content="代码效率 = 目标资源 / 代码量"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="工序效率" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">工序效率</span>
-                <el-popover
-                  placement="top-start"
-                  width="240"
-                  trigger="hover"
-                  content="工序效率 = 目标资源 / 目标数量"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="实际数量" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">工序效率</span>
-                <el-popover
-                  placement="top-start"
-                  width="665"
-                  trigger="hover"
-                  content="根据实际所得，目前只有5个工序有统计（需求分析、用例设计、bug处理、手工执行、自动化执行）"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="实际工序效率" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">实际工序效率</span>
-                <el-popover
-                  placement="top-start"
-                  width="500"
-                  trigger="hover"
-                  content="实际工序效率 = 实际资源 / 实际数量，如果实际数量为0，则除以目标数量"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="实际资源" min-width="164px">
-              <template #header>
-                <span style="margin-right: 5px; min-width: 164px;">实际资源</span>
-                <el-popover
-                  placement="top-start"
-                  width="480"
-                  trigger="hover"
-                  content="根据实际人员填写统计，因为四舍五入，可能和域维度成本有细微误差"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-
-              <!-- 主体内容 -->
-              <template slot-scope="{row}">
-                <span :class="calcRenderData(row.add, row.add)">{{ row.add }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="实际代码效率" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">实际代码效率</span>
-                <el-popover
-                  placement="top-start"
-                  width="260"
-                  trigger="hover"
-                  content="实际代码效率 = 实际资源 / 代码量"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="偏差资源" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">偏差资源</span>
-                <el-popover
-                  placement="top-start"
-                  width="240"
-                  trigger="hover"
-                  content="偏差资源 = 实际资源 - 目标资源"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="add" label="预期总资源" min-width="164">
-              <template #header>
-                <span style="margin-right: 5px">预期总资源</span>
-                <el-popover
-                  placement="top-start"
-                  width="490"
-                  trigger="hover"
-                  content="如果实际资源大于目标资源，则实际资源为预期总资源，反之为目标资源"
-                >
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-          </el-table-column>
-
-          <el-table-column label="12.X基线" align="center">
-            <el-table-column prop="add" label="代码量" min-width="164" />
-            <el-table-column prop="add" label="资源投入" min-width="164" />
-            <el-table-column prop="add" label="产出个数" min-width="164" />
-            <el-table-column prop="add" label="工序效率" min-width="478" />
+                <template slot-scope="{row}">
+                  <span
+                    :class="childItem.prop === 'total_time' ? calcRenderData(row[childItem.prop]) : 'normal'"
+                  >{{ row[childItem.prop] | fixedFilter }}</span>
+                </template>
+              </el-table-column>
+            </div>
           </el-table-column>
         </el-table>
       </template>
     </card>
+
+    <!-- 对话框 -->
+    <cost-dialog ref="dialogRef" :table-data="dialogTableData" />
+
+    <!-- 资源调偏 -->
+    <el-dialog title="资源调偏" :visible.sync="isDialogVisible" width="100%">
+      <!-- 表格 -->
+      <el-table
+        v-loading="isFourTableLoading"
+        :data="fourTableData"
+        fit
+        highlight-current-row
+        border
+        style="width: 100%"
+        class="cost-dialog-table"
+      >
+        <el-table-column
+          v-for="(item, index) in fourTableOptions"
+          :key="index"
+          :prop="item.prop"
+          :label="item.label"
+          :min-width="item.minWidth"
+          :show-overflow-tooltip="item.sot"
+        >
+          <template slot-scope="{row}">
+            <el-input-number
+              v-if="item.prop !== 'type'&& item.prop !== 'area' && item.prop !== 'realm'"
+              v-model.trim="row[item.prop]"
+              controls-position="right"
+              size="mini"
+              @change="handleNumberCountChnage(row)"
+            />
+
+            <span v-else>{{ row[item.prop] }}</span>
+          </template>
+        </el-table-column>
+      </el-table>
+    </el-dialog>
   </div>
 </template>
 
 <script>
 import Card from '@/components/Card/index'
+import request from '@/services/request'
+import CostDialog from './components/CostDialog'
 
 export default {
   filters: {
@@ -493,283 +270,30 @@ export default {
         deleted: 'danger'
       }
       return statusMap[status]
-    }
+    },
+    fixedFilter(value) {
+      const n = Number(value).toFixed(1)
+      return Number.isInteger(Number(n)) ? parseInt(n) : n
+    },
+    targetFilter(target) {
+      target = Number(target)
+      if (Number.isInteger(target)) {
+        return `${target} / ${target / 2}`
+      } else {
+        return ` ${target.toFixed(1)} / ${(target / 2).toFixed(1)}`
+      }
+    },
+    targetFilter2(target) {}
   },
   components: {
-    Card
+    Card,
+    CostDialog
   },
   data() {
     return {
-      tableData: [
-        {
-          id: 1,
-          type: '合计',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        },
-        {
-          id: 2,
-          type: '主干',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278,
-          children: [
-            {
-              id: 21,
-              type: '主干-业务域',
-              add: 314.1,
-              transplant: 153.7,
-              total: 360.2,
-              target: '4455.4 / 2227.7',
-              actual: 3376,
-              need: 1357.5,
-              expected: 4733.4,
-              deviation: 278,
-              children: [
-                {
-                  id: 221,
-                  type: '业务域-OM域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 222,
-                  type: '业务域-二层域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 223,
-                  type: '业务域-系统品质域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 224,
-                  type: '业务域-架构业务域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 225,
-                  type: '业务域-DC域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 226,
-                  type: '业务域-三层域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 227,
-                  type: '业务域-MPLS域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 228,
-                  type: '业务域-架构框架域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 229,
-                  type: '业务域-应用域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 2221,
-                  type: '业务域-安全认证域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 2222,
-                  type: '业务域-系统测试域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                },
-                {
-                  id: 2223,
-                  type: '业务域-VPN域',
-                  add: 314.1,
-                  transplant: 153.7,
-                  total: 360.2,
-                  target: '4455.4 / 2227.7',
-                  actual: 3376,
-                  need: 1357.5,
-                  expected: 4733.4,
-                  deviation: 278
-                }
-              ]
-            },
-            {
-              id: 22,
-              type: '主干-其他',
-              add: 314.1,
-              transplant: 153.7,
-              total: 360.2,
-              target: '4455.4 / 2227.7',
-              actual: 3376,
-              need: 1357.5,
-              expected: 4733.4,
-              deviation: 278
-            }
-          ]
-        },
-        {
-          id: 3,
-          type: '项目组件',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        },
-        {
-          id: 4,
-          type: '技术项目',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        },
-        {
-          id: 5,
-          type: '项目管理',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        },
-        {
-          id: 6,
-          type: '自动化',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        },
-        {
-          id: 7,
-          type: '专业改进',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        },
-        {
-          id: 8,
-          type: '验收测试',
-          add: 314.1,
-          transplant: 153.7,
-          total: 360.2,
-          target: '4455.4 / 2227.7',
-          actual: 3376,
-          need: 1357.5,
-          expected: 4733.4,
-          deviation: 278
-        }
-      ],
+      key: 0,
+      project: undefined, // 当前的项目名
+      tableData: [],
       // 目标悬浮窗显示
       targetPopoverContent: `<div>
           <p>目标 / 腾讯SR-TE目标</p>
@@ -818,7 +342,7 @@ export default {
               <li>阶段目标=总计目标*各阶段系数</li>
               <ul type="circle">
                 <li>需求系数=0.034；设计系数=0.289；准入系数=0.196</li>
-                <li>首轮测试系数=0.165；次轮测试系数=0.155；回归系数=0.15；试点系数=0.011</li>
+                <li>首轮测试系数=0.165；次轮测试系数=0.140；回归系数=0.15；试点系数=0.011</li>
               </ul>
             </ul>
             <li>项目管理</li>
@@ -833,7 +357,7 @@ export default {
               <li>阶段目标=总计目标*各阶段系数（阶段目标同主干）</li>
               <ul type="circle">
                 <li>需求系数=0.034；设计系数=0.289；准入系数=0.196</li>
-                <li>首轮测试系数=0.165；次轮测试系数=0.155；回归系数=0.15；试点系数=0.011</li>
+                <li>首轮测试系数=0.165；次轮测试系数=0.140；回归系数=0.15；试点系数=0.011</li>
               </ul>
             </ul>
           </ol>
@@ -890,53 +414,656 @@ export default {
             </ul>
           </ol>
         </div>`,
-      listLoading: true
+      listLoading: true,
+      // 表格一
+      projectTotalRealmCost: [],
+      isFirstTableLoading: false,
+      // 表格二
+      projectRealmCost: [],
+      isSecondTableLoading: false,
+      // 表格三
+      projectProcessEfficiency: [],
+      isThirdTableLoading: false,
+      // 对话框
+      dialogTableData: [], // 对话框表格数据
+      // 配置项
+      firstTableOptions: [
+        {
+          prop: 'name',
+          label: '类型',
+          minWidth: '220',
+          fixed: 'left',
+          sot: true
+        },
+        {
+          label: '代码量',
+          children: [
+            {
+              prop: 'total_code',
+              label: '总计',
+              minWidth: '121',
+              content: '总计 = 新增 + 移植 * 0.3',
+              contentWidth: 200
+            },
+            {
+              prop: 'code',
+              label: '新增',
+              minWidth: '121'
+            },
+            {
+              prop: 'transplant_code',
+              label: '移植',
+              minWidth: '121',
+              content: '组件代码量, 目前代码量写死',
+              contentWidth: 220
+            }
+          ]
+        },
+        {
+          label: '总计',
+          children: [
+            {
+              prop: 'total_deviation',
+              label: '偏差',
+              minWidth: '141',
+              content: '偏差 = 预期 - 目标',
+              contentWidth: 170
+            },
+            {
+              prop: 'total_target',
+              label: '目标',
+              minWidth: '141',
+              content: this.targetPopoverContent,
+              contentWidth: 800
+            },
+            {
+              prop: 'total_actual',
+              label: '实际',
+              minWidth: '141',
+              content: this.actualPopoverContent,
+              contentWidth: 400
+            },
+            {
+              prop: 'total_need',
+              label: '还需',
+              minWidth: '141',
+              content: this.needPopoverContent,
+              contentWidth: 800
+            },
+            {
+              prop: 'total_estimate',
+              label: '预期',
+              minWidth: '141',
+              content: this.expectedPopoverContent,
+              contentWidth: 400
+            }
+          ]
+        }
+      ],
+      secondTableOptions: [
+        {
+          prop: 'name',
+          label: '类型',
+          minWidth: '220',
+          fixed: 'left',
+          sot: true
+        },
+        {
+          label: '代码量',
+          children: [
+            {
+              prop: 'total_code',
+              label: '总计',
+              minWidth: '121'
+            },
+            {
+              prop: 'code',
+              label: '新增',
+              minWidth: '121'
+            },
+            {
+              prop: 'transplant_code',
+              label: '移植',
+              minWidth: '121'
+            }
+          ]
+        },
+        {
+          label: '总计',
+          children: [
+            {
+              prop: 'total_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'realm_target',
+              label: '目标',
+              minWidth: '141',
+              content: this.stageTargetPopoverContent,
+              contentWidth: 800
+            },
+            {
+              prop: 'total_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'total_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'total_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        },
+        {
+          label: '需求',
+          children: [
+            {
+              prop: 'demand_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'demand_target',
+              label: '目标',
+              minWidth: '141'
+            },
+            {
+              prop: 'demand_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'demand_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'demand_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        },
+        {
+          label: '设计',
+          children: [
+            {
+              prop: 'design_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'design_target',
+              label: '目标',
+              minWidth: '141'
+            },
+            {
+              prop: 'design_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'design_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'design_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        },
+        {
+          label: '准入',
+          children: [
+            {
+              prop: 'admittance_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'admittance_target',
+              label: '目标',
+              minWidth: '141'
+            },
+            {
+              prop: 'admittance_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'admittance_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'admittance_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        },
+        {
+          label: '次轮',
+          children: [
+            {
+              prop: 'test_second_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'test_second_target',
+              label: '目标',
+              minWidth: '141'
+            },
+            {
+              prop: 'test_second_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'test_second_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'test_second_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        },
+        {
+          label: '回归',
+          children: [
+            {
+              prop: 'regression_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'regression_target',
+              label: '目标',
+              minWidth: '141'
+            },
+            {
+              prop: 'regression_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'regression_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'regression_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        },
+        {
+          label: '试点',
+          children: [
+            {
+              prop: 'on_trial_deviation',
+              label: '偏差',
+              minWidth: '141'
+            },
+            {
+              prop: 'on_trial_target',
+              label: '目标',
+              minWidth: '141'
+            },
+            {
+              prop: 'on_trial_actual',
+              label: '实际',
+              minWidth: '141'
+            },
+            {
+              prop: 'on_trial_need',
+              label: '还需',
+              minWidth: '141'
+            },
+            {
+              prop: 'on_trial_estimate',
+              label: '预期',
+              minWidth: '141'
+            }
+          ]
+        }
+      ],
+      thirdTableOptions: [
+        {
+          prop: 'process_name',
+          label: '工序',
+          minWidth: '220',
+          fixed: 'left',
+          sot: true,
+          hide: false
+        },
+        {
+          prop: 'project',
+          label: '12.5PL1',
+          hide: false,
+          children: [
+            {
+              prop: 'expect_all_summary',
+              label: '预期总资源',
+              minWidth: '164',
+              content: '如果实际资源大于目标资源，则实际资源为预期总资源，反之为目标资源',
+              contentWidth: 480
+            },
+            {
+              prop: 'code',
+              label: '代码量',
+              minWidth: '121'
+            },
+            {
+              prop: 'target_coefficient',
+              label: '目标系数',
+              minWidth: '121',
+              content: '根据基线算出，目前写死',
+              contentWidth: 185
+            },
+            {
+              prop: 'target_summary',
+              label: '目标资源',
+              minWidth: '121',
+              content: '组件代码量, 目前代码量写死',
+              contentWidth: 210
+            },
+            {
+              prop: 'code_rate',
+              label: '代码效率',
+              minWidth: '164',
+              content: '代码效率 = 目标资源 / 代码量',
+              contentWidth: 210
+            },
+            {
+              prop: 'target_num',
+              label: '目标数量',
+              minWidth: '164',
+              content: '根据单位，K的使用代码量；其他根据基线算出，目前写死',
+              contentWidth: 390
+            },
+            {
+              prop: 'process_eff',
+              label: '工序效率',
+              minWidth: '164',
+              content: '工序效率 = 目标资源 / 目标数量',
+              contentWidth: 230
+            },
+            {
+              prop: 'num',
+              label: '实际数量',
+              minWidth: '164',
+              content:
+                '根据实际所得，目前只有5个工序有统计（需求分析、用例设计、bug处理、手工执行、自动化执行）',
+              contentWidth: 655
+            },
+            {
+              prop: 'actual_process_rate',
+              label: '实际工序效率',
+              minWidth: '164',
+              content: '实际工序效率=实际资源/实际数量，如果实际数量为0，则除以目标数量',
+              contentWidth: 470
+            },
+            {
+              prop: 'total_time',
+              label: '实际资源',
+              minWidth: '164',
+              content: '根据实际人员填写统计，因为四舍五入，可能和域维度成本有细微误差',
+              contentWidth: 470
+            },
+            {
+              prop: 'actual_code_rate',
+              label: '实际代码效率',
+              minWidth: '164',
+              content: '实际代码效率 = 实际资源 / 代码量',
+              contentWidth: 240
+            },
+            {
+              prop: 'need_summary',
+              label: '偏差资源',
+              minWidth: '164',
+              content: '偏差资源 = 实际资源 - 目标资源',
+              contentWidth: 233
+            }
+          ]
+        },
+        {
+          prop: 'base',
+          label: '12.X基线',
+          children: [
+            {
+              prop: 'process_rate',
+              label: '工序效率',
+              minWidth: '141'
+            },
+            {
+              prop: 'four_pl1_code',
+              label: '代码量',
+              minWidth: '141'
+            },
+            {
+              prop: 'four_pl1_summary',
+              label: '资源投入',
+              minWidth: '141'
+            },
+            {
+              prop: 'code_eff',
+              label: '代码效率',
+              minWidth: '141'
+            },
+            {
+              prop: 'four_pl1_num',
+              label: '产出个数',
+              minWidth: '141'
+            }
+          ]
+        }
+      ],
+      // 表格四
+      fourTableData: [],
+      fourTableOptions: [
+        {
+          prop: 'type',
+          label: '大类',
+          minWidth: 100
+        },
+        {
+          prop: 'area',
+          label: '类型',
+          minWidth: 110
+        },
+        {
+          prop: 'realm',
+          label: '域',
+          minWidth: 320,
+          sot: true
+        },
+        {
+          prop: 'demand_add_time',
+          label: '需求阶段调偏',
+          minWidth: 140
+        },
+        {
+          prop: 'design_add_time',
+          label: '设计阶段调偏',
+          minWidth: 140
+        },
+        {
+          prop: 'admittance_add_time',
+          label: '准入阶段调偏',
+          minWidth: 140
+        },
+        {
+          prop: 'test_first_add_time',
+          label: '首轮阶段调偏',
+          minWidth: 140
+        },
+        {
+          prop: 'test_second_add_time',
+          label: '次轮阶段调偏',
+          minWidth: 140
+        },
+        {
+          prop: 'regression_add_time',
+          label: '回归阶段调偏',
+          minWidth: 140
+        },
+        {
+          prop: 'on_trial_add_time',
+          label: '试点阶段调偏',
+          minWidth: 140
+        }
+      ],
+      isFourTableLoading: false,
+      isDialogVisible: false
+    }
+  },
+  computed: {
+    thirdTableShow() {
+      return this.thirdTableOptions
+        .map((ele) => {
+          if (ele.hide) {
+            return null
+          } else {
+            if (ele.children) {
+              ele.children.map((e) => (e.hide ? null : e)).filter((e) => e)
+            }
+            return ele
+          }
+        })
+        .filter((e) => e)
     }
   },
   created() {
-    this.getList()
+    this.init()
   },
   methods: {
-    getList() {
-      this.listLoading = true
-      const timer = setTimeout(() => {
-        this.listLoading = false
-        clearTimeout(timer)
-      }, 3000)
+    // 初始化
+    init() {
+      this.project = this.$t(this.$route.matched[2].meta.title) // 获取项目名称
+      this.getProjectTotalRealmCost(this.project)
+      this.getProjectRealmCost(this.project)
+      this.getProjectProcessEfficiency(this.project)
+      this.getRealmAdjustList(this.project)
     },
-    renderHeader(h, { column }) {
-      return h('div', [
-        h('span', column.label),
-        h('i', {
-          class: 'el-icon-question',
-          style: 'color: #686869; margin-left: 5px; font-size: 18px;'
-        })
-      ])
-    },
-    // 合并列的方法
-    arraySpanMethod({ row, column, rowIndex, columnIndex }) {
-      if (columnIndex === 0) {
-        return [1, 2]
-      } else if (columnIndex === 1) {
-        return [0, 0]
-      }
-    },
-    // 计算渲染数据的类
-    calcRenderData(text, record) {
-      // value 是确定值， record 是记录值，确定所在的范围
-      const totalTarget =
-        record.target_summary === undefined ? 0 : Math.round(record.target_summary * 10) / 10
-      const totalTargetHalf =
-        record.target_summary === undefined ? 0 : Math.round(record.target_summary * 0.5 * 10) / 10
-      const value = text === undefined ? 0 : Math.round(text * 10) / 10
+    // 计算渲染数据的类, flag 控制是否有下划线
+    calcRenderData(value, target, flag) {
+      value = value === undefined ? 0 : Math.round(value * 10) / 10
+      target = target === undefined ? 0 : Math.round(target * 10) / 10
+      const half = target === undefined ? 0 : Math.round(target * 0.5 * 10) / 10
 
-      if (value <= totalTargetHalf) {
-        return 'normal'
-      } else if (totalTargetHalf < value && value <= totalTarget) {
-        return 'warning'
-      } else {
-        return 'error'
+      if (half <= value && value < target) {
+        return flag === 1 ? 'normal warning' : 'warning'
+      } else if (value >= target) {
+        return flag === 1 ? 'normal error' : 'error'
       }
+      return flag === 1 ? 'normal' : ''
+    },
+    // 点击实际列表项
+    handleActualTotalClick(row) {
+      this.getProjectDetailSummary(this.project, row.type, row.area, row.realm, '', '')
+      console.log(this.dialogTableData)
+    },
+    // 点击资源调偏
+    handleStageAdjustClick() {
+      // 显示窗口
+      this.isDialogVisible = true
+    },
+    // 处理计数器改变
+    handleNumberCountChnage(row) {
+      console.log(row)
+    },
+    // 成本-项目成本-总计
+    async getProjectTotalRealmCost(project) {
+      this.isFirstTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectTotalRealmCost', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+
+      this.projectTotalRealmCost = res
+      this.$nextTick(() => {
+        this.isFirstTableLoading = false
+      })
+    },
+    // 成本-项目成本-域统计
+    async getProjectRealmCost(project) {
+      this.isSecondTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectRealmCost', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+
+      this.projectRealmCost = res
+      this.$nextTick(() => {
+        this.isSecondTableLoading = false
+      })
+    },
+    // 成本-项目成本-资源明细
+    async getProjectDetailSummary(project, type, area, realm, stage, process) {
+      this.$refs.dialogRef.isDialogVisible = true
+      this.$refs.dialogRef.isLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectDetailSummary', {
+        method: 'GET',
+        params: {
+          project,
+          type,
+          area,
+          realm,
+          stage,
+          process
+        }
+      })
+      this.dialogTableData = res
+      this.$nextTick(() => {
+        this.$refs.dialogRef.isLoading = false
+      })
+    },
+    // 成本-工序成本
+    async getProjectProcessEfficiency(project) {
+      this.isThirdTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByProcessEfficiency', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+
+      this.projectProcessEfficiency = res
+      this.isThirdTableLoading = false
+    },
+    // 成本-项目成本-项目阶段资源调偏列表
+    async getRealmAdjustList(project) {
+      this.isFourTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/findByUserProjectRealmStageList', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+
+      this.fourTableData = res
+      console.log(res)
+      this.$nextTick(() => {
+        this.isFourTableLoading = false
+      })
     }
   }
 }
@@ -946,16 +1073,15 @@ export default {
 .warning {
   color: orange;
   font-weight: bold;
-  text-decoration: underline;
 }
 
 .error {
   color: red;
   font-weight: bold;
-  text-decoration: underline;
 }
 
 .normal {
   text-decoration: underline;
+  cursor: pointer;
 }
 </style>

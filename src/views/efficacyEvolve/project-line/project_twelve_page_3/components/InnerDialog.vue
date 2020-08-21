@@ -177,7 +177,6 @@
     <!-- 内层dialog -->
     <el-dialog
       width="30%"
-      title="内层 Dialog"
       :visible.sync="innerDialogVisible"
       append-to-body
     />

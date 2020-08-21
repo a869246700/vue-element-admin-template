@@ -164,28 +164,7 @@ export default {
       key: 1,
       project: undefined, // 当前项目名
       tableType: ['sta', 'main', 'assembly'], // 请求的tableType
-      tableData: [
-        {
-          date: '2016-05-02',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1518 弄'
-        },
-        {
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄'
-        },
-        {
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄'
-        },
-        {
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄'
-        }
-      ],
+      tableData: [],
       /* --- 整体 --- */
       totalTableLoading: false, // 是否加载中
       totalStageName: '整体',
@@ -216,12 +195,18 @@ export default {
     }
   },
   created() {
-    this.project = this.$t(this.$route.meta.title) // 获取项目名称
-
-    this.queryByQualityDefectList(this.project, 'sta', 'realm', '')
-    this.queryByQualityZrDefectList(this.project, 'sta', 'type', this.zrStageName)
+    this.init()
   },
   methods: {
+    // 初始化
+    init() {
+      this.project = this.$t(this.$route.matched[2].meta.title) // 获取项目名称
+      this.queryByQualityDefectList(this.project, 'sta', 'realm', '')
+      console.log(this.project, 'sta', 'type', this.zrStageName)
+      this.queryByQualityZrDefectList(this.project, 'sta', 'type', this.zrStageName)
+      this.queryByBugSolve(this.project)
+      this.queryByProjectStage(this.project)
+    },
     // 类型切换
     handleTotalRadioChange() {
       const index = this.totalStageNameList.findIndex((e) => e.stage === this.totalStageName)
@@ -315,12 +300,33 @@ export default {
 
       this.workPackageBugTableData = res
       // 2. 取消加载
-      this.$refs.dialogRef.isLoading = false
+      this.$$nextTick(() => {
+        this.$refs.dialogRef.isLoading = false
+      })
     },
     // 质量-执行-BUG解决
-    queryByBugSolve() {},
+    async queryByBugSolve(project) {
+      const { data: res } = await request('/api/projectEvolveSta/listProjectBugSolveProcessSta', {
+        methods: 'GET',
+        params: {
+          project,
+          userTypeL: ''
+        }
+      })
+
+      console.log(res)
+    },
     // 查询项目阶段
-    queryByProjectStage() {}
+    async queryByProjectStage(project) {
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectStage', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+
+      console.log(res)
+    }
   }
 }
 </script>
