@@ -13,7 +13,8 @@
         <!-- 用例卡片 -->
         <template #content>
           <div class="content">
-            <el-radio-group v-model="implementStage" size="small">
+            <el-radio-group v-model="iStage" size="small" @change="handleImplementStageChange">
+              <el-radio-button key="9" label="汇总" />
               <el-radio-button
                 v-for="(item, index) in implementStageTypeList"
                 :key="index"
@@ -65,30 +66,42 @@
                   </el-select>
                 </div>
 
-                <!-- 表格 -->
+                <!-- 产品表格 -->
                 <div class="table">
                   <el-table
-                    :data="caseTableData"
+                    v-loading="productTableLoading"
+                    :data="implementNumProductList"
                     border
                     style="width: 100%"
                     :header-cell-style="{'background-color': '#FAFAFA' }"
                     fit
                     highlight-current-row
                   >
-                    <el-table-column prop="name" label="芯片平台 " width="115px" show-overflow-tooltip>
+                    <el-table-column
+                      prop="product_name"
+                      label="芯片平台 "
+                      width="115px"
+                      show-overflow-tooltip
+                    >
                       <template slot-scope="{ row }">
-                        <span style="color: #1890ff;">{{ row.name }}</span>
+                        <span class="title" @click="handleSystemClick(row)">{{ row.product_name }}</span>
                       </template>
                     </el-table-column>
                     <el-table-column
                       v-for="(item, index) in caseTableTitleList"
                       :key="index"
                       :label="item.label"
-                      prop="case_total"
-                      align="center"
+                      :prop="item.prop"
                       :min-width="item.minWidth ? item.minWidth : 100"
                       show-overflow-tooltip
-                    />
+                    >
+                      <template slot-scope="{ row }">
+                        <span
+                          v-if="row.product_name === '合计' && item.prop === 'exe_day_num'"
+                        >{{ Math.ceil(row.tomorrow_num === 0 ? 0 : (row.no_num / row.tomorrow_num)) }}</span>
+                        <span v-else>{{ row[item.prop] }}</span>
+                      </template>
+                    </el-table-column>
                   </el-table>
                 </div>
               </template>
@@ -115,7 +128,7 @@
                 <!-- 表格 -->
                 <div class="table">
                   <el-table
-                    :data="caseTableData2"
+                    :data="implementNumTypeList"
                     border
                     style="width: 100%"
                     :header-cell-style="{'background-color': '#FAFAFA' }"
@@ -131,11 +144,15 @@
                       v-for="(item, index) in caseTableTitleList2"
                       :key="index"
                       :label="item.label"
-                      prop="case_total"
+                      :prop="item.prop"
                       align="center"
                       :min-width="item.minWidth ? item.minWidth + 'px' : '100px'"
                       show-overflow-tooltip
-                    />
+                    >
+                      <template slot-scope="{row}">
+                        <span>{{ row[item.prop] }}</span>
+                      </template>
+                    </el-table-column>
                   </el-table>
                 </div>
               </template>
@@ -159,11 +176,33 @@ export default {
     Card,
     Chart
   },
+  props: {
+    project: {
+      type: String,
+      default: ''
+    },
+    currentStage: {
+      type: String,
+      default: '阶段一'
+    },
+    currentStageTypeList: {
+      type: Array,
+      default: () => []
+    },
+    implementStage: {
+      type: String,
+      default: ''
+    },
+    implementStageTypeList: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       key: 1,
-      implementStage: '准入',
-      implementStageTypeList: [{ stage: '准入' }],
+      cStage: this.currentStage,
+      iStage: this.implementStage,
       chartData: {
         data: [
           { value: 10, name: 'rose1' },
@@ -184,8 +223,8 @@ export default {
       caseCheckboxVal2: caseCardSelectDefaultList, // select 的选中项列表
       caseTableTitleList2: caseCardTableTitleList.filter(
         (i) => caseCardSelectDefaultList.indexOf(i.label) >= 0
-      ), // 用例卡片表格2的配置项
-      caseTableData: [
+      ),
+      implementNumProductList: [
         {
           name: '合计',
           case_total: 323
@@ -222,8 +261,9 @@ export default {
           name: 'S7810C',
           case_total: 323
         }
-      ],
-      caseTableData2: [
+      ], // 产品统计
+      productTableLoading: false, // 控制产品表格的加载
+      implementNumTypeList: [
         {
           name: '合计',
           case_total: 323
@@ -244,7 +284,99 @@ export default {
           name: '存量自动化',
           case_total: 323
         }
+      ], // 类型统计
+      typeTableLoading: false // 控制类型表格的加载
+    }
+  },
+  computed: {
+    productTableOptions() {
+      return [
+        {
+          prop: 'name',
+          label: '芯片平台',
+          minWidth: 115,
+          fixed: 'left',
+          sot: true
+        },
+        {
+          prop: 'case_total',
+          label: '用例总数',
+          minWidth: 89
+        },
+        {
+          prop: 'executed',
+          label: '已执行',
+          minWidth: 75
+        },
+        {
+          prop: 'execute_rate',
+          label: '执行率',
+          minWidth: 78
+        },
+        {
+          prop: 'no_execute',
+          label: '未执行',
+          minWidth: 75
+        },
+        {
+          prop: 'skip',
+          label: 'SKIP',
+          minWidth: 70
+        },
+        {
+          prop: 'pass_count',
+          label: 'PASS数',
+          minWidth: 89
+        },
+        {
+          prop: 'pass_rate',
+          label: 'PASS率',
+          minWidth: 89
+        },
+        {
+          prop: 'fail_count',
+          label: 'FAIL数',
+          minWidth: 80
+        },
+        {
+          prop: 'fail_rate',
+          label: 'FAIL率',
+          minWidth: 78
+        },
+        {
+          prop: 'no_analyze',
+          label: '未分析',
+          minWidth: 75
+        },
+        {
+          prop: 'td_execute_total',
+          label: '今日执行总数',
+          minWidth: 117
+        },
+        {
+          prop: 'td_pass_total',
+          label: '今日PASS总数',
+          minWidth: 132
+        },
+        {
+          prop: 'plan_tm_execute_count',
+          label: '计划明日执行个数',
+          minWidth: 145
+        },
+        {
+          prop: 'need_execute_day',
+          label: '还需执行天数',
+          minWidth: 117
+        },
+        {
+          prop: 'carry_analyze',
+          label: '执行分析',
+          minWidth: 200
+        }
       ]
+    },
+    implementStageComputed() {
+      return this.implementStage
     }
   },
   watch: {
@@ -256,46 +388,63 @@ export default {
     caseCheckboxVal2(valArr) {
       this.caseTableTitleList2 = caseCardTableTitleList.filter((i) => valArr.indexOf(i.label) >= 0)
       this.key = this.key + 1
+    },
+    implementStageComputed(newV, oldV) {
+      this.iStage = newV
     }
   },
-  created() {
-    this.queryImplementStageType()
+  mounted() {
+    this.getDataList()
   },
   methods: {
-    // 用例执行-阶段类型
-    async queryImplementStageType() {
-      const { data: res } = await request(`/api/projectEvolveSta/queryByImplementStageType`, {
-        method: 'GET'
+    // 获取数据列表
+    getDataList() {
+      // 获取类型数据统计
+      this.queryImplementNumType(this.project, this.iStage, this.cStage)
+      // 获取产品数据统计
+      this.queryImplementNumProduct(this.project, this.iStage, this.cStage)
+    },
+    // radio 切换
+    handleImplementStageChange() {
+      this.getDataList()
+    },
+    // 点击产品
+    handleSystemClick(row) {
+      this.$emit('system-click', row.product_name)
+    },
+    // 用例执行-阶段类型 数据
+    async queryImplementNumType(project, stage, projectStage) {
+      this.typeTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumType', {
+        method: 'GET',
+        params: {
+          project,
+          stage,
+          projectStage,
+          isSpec: 0
+        }
       })
 
-      this.implementStageTypeList = res
+      this.implementNumTypeList = res
+      this.typeTableLoading = false
     },
-
-    // 用例执行-阶段类型
-    async queryImplementNumType(project, stage) {
-      const { data: res } = await request(
-        `/api/projectEvolveSta/queryByImplementNumType?project=` + project + '&stage=' + stage,
-        { method: 'GET' }
-      )
-      console.log(res)
-    },
-
     // 用例执行-产品统计
-    async queryImplementNumProduct(project, stage) {
-      const {
-        data: res
-      } = await request(
-        `/api/projectEvolveSta/queryByImplementNumProduct?project=` + project + '&stage=' + stage,
-        { method: 'GET' }
-      )
+    async queryImplementNumProduct(project, stage, projectStage) {
+      this.productTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumProduct', {
+        method: 'GET',
+        params: {
+          project,
+          stage,
+          projectStage,
+          isSpec: 0
+        }
+      })
+
+      this.implementNumProductList = res.list
+      this.productTableLoading = false
       console.log(res)
-    },
-
-    // 用例执行-域统计
-    async queryImplementNumSystem(project, stage, product) {},
-
-    // 执行-SPEC统计
-    async queryExeSpecSta(project) {}
+    }
   }
 }
 </script>
@@ -307,5 +456,10 @@ export default {
 
 .card {
   margin-bottom: 20px;
+}
+
+.title {
+  color: #1890ff;
+  cursor: pointer;
 }
 </style>

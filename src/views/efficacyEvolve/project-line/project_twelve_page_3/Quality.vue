@@ -300,7 +300,7 @@ export default {
 
       this.workPackageBugTableData = res
       // 2. 取消加载
-      this.$$nextTick(() => {
+      this.$nextTick(() => {
         this.$refs.dialogRef.isLoading = false
       })
     },

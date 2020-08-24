@@ -36,32 +36,32 @@ export const caseCardSelectDefaultList = [
 // 用例卡片的 table 的标题列表
 export const caseCardTableTitleList = [
   {
-    prop: 'case_total',
+    prop: 'all_num',
     label: '用例总数',
     minWidth: 89
   },
   {
-    prop: 'executed',
+    prop: 'exe_num',
     label: '已执行',
     minWidth: 75
   },
   {
-    prop: 'execute_rate',
+    prop: 'exe_rate',
     label: '执行率',
     minWidth: 78
   },
   {
-    prop: 'no_execute',
+    prop: 'no_num',
     label: '未执行',
     minWidth: 75
   },
   {
-    prop: 'skip',
+    prop: 'skip_num',
     label: 'SKIP',
     minWidth: 70
   },
   {
-    prop: 'pass_count',
+    prop: 'pass_num',
     label: 'PASS数',
     minWidth: 89
   },
@@ -71,7 +71,7 @@ export const caseCardTableTitleList = [
     minWidth: 89
   },
   {
-    prop: 'fail_count',
+    prop: 'fail_num',
     label: 'FAIL数',
     minWidth: 80
   },
@@ -81,35 +81,34 @@ export const caseCardTableTitleList = [
     minWidth: 78
   },
   {
-    prop: 'no_analyze',
+    prop: 'no_analyse_num',
     label: '未分析',
     minWidth: 75
   },
   {
-    prop: 'td_execute_total',
+    prop: 'day_all_num',
     label: '今日执行总数',
     minWidth: 117
   },
   {
-    prop: 'td_pass_total',
+    prop: 'day_pass_num',
     label: '今日PASS总数',
     minWidth: 132
   },
   {
-    prop: 'plan_tm_execute_count',
+    prop: 'tomorrow_num',
     label: '计划明日执行个数',
     minWidth: 145
   },
   {
-    prop: 'need_execute_day',
+    prop: 'exe_day_num',
     label: '还需执行天数',
     minWidth: 117
   },
   {
-    prop: 'carry_analyze',
+    prop: 'analyse',
     label: '执行分析',
     minWidth: 200
-    // minWidth: 553
   }
 ]
 
