@@ -4,13 +4,7 @@
       <el-button type="primary" size="small">导出资源明细数据</el-button>
     </div>
     <!-- 表格 -->
-    <el-table
-      v-loading="isLoading"
-      :data="list"
-      highlight-current-row
-      border
-      style="width: 100%"
-    >
+    <el-table v-loading="isLoading" :data="list" highlight-current-row border style="width: 100%">
       <el-table-column
         v-for="(item, index) in tableOptions"
         :key="index"
@@ -30,7 +24,11 @@
               :width="200"
               trigger="click"
             >
-              <el-input v-model.trim="listQuery[item.prop]" style="margin-bottom: 5px" />
+              <el-input
+                v-model.trim="listQuery[item.prop]"
+                style="margin-bottom: 5px"
+                @blur="handleSearchClcik(item.prop)"
+              />
               <div style="display: flex">
                 <el-button
                   size="mini"
@@ -42,7 +40,11 @@
                 <el-button size="mini" style="width: 50%" @click="handleResetClick(item.prop)">重置</el-button>
               </div>
 
-              <i slot="reference" :class="listQuery[item.prop] !== undefined ? 'active': ''" class="el-icon-help table-title-icon" />
+              <i
+                slot="reference"
+                :class="listQuery[item.prop] !== undefined && listQuery[item.prop] !== ''? 'active': ''"
+                class="el-icon-help table-title-icon"
+              />
             </el-popover>
           </div>
         </template>
@@ -112,7 +114,7 @@ export default {
         type: {
           prop: 'type',
           label: '大类',
-          minWidth: 70
+          minWidth: 80
         },
         area: {
           prop: 'area',

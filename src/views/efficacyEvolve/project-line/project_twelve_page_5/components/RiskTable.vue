@@ -7,9 +7,16 @@
         placeholder="风险项"
         style="width: 150px;"
         @keyup.enter.native="handleSearchClick"
+        @blur="handleSearchClick"
       />
 
-      <el-select v-model="listQuery.type" placeholder="类型" clearable style="width: 100px">
+      <el-select
+        v-model="listQuery.type"
+        placeholder="类型"
+        clearable
+        style="width: 120px"
+        @change="handleSearchClick"
+      >
         <el-option
           v-for="item in typeOptions"
           :key="item.id"
@@ -18,7 +25,13 @@
         />
       </el-select>
 
-      <el-select v-model="listQuery.risk_level" placeholder="风险等级" clearable style="width: 120px">
+      <el-select
+        v-model="listQuery.risk_level"
+        placeholder="风险等级"
+        clearable
+        style="width: 120px"
+        @change="handleSearchClick"
+      >
         <el-option
           v-for="item in riskLevelOptions"
           :key="item.id"
@@ -32,7 +45,13 @@
         </el-option>
       </el-select>
 
-      <el-select v-model="listQuery.risk_status" placeholder="风险状态" clearable style="width: 120px">
+      <el-select
+        v-model="listQuery.risk_status"
+        placeholder="风险状态"
+        clearable
+        style="width: 120px"
+        @change="handleSearchClick"
+      >
         <el-option
           v-for="item in riskStatusOptions"
           :key="item.id"
@@ -71,54 +90,48 @@
     <!-- 表格 -->
     <div class="table-content">
       <el-table
-        v-loading="listLoading"
-        :data="list"
+        v-loading="tableLoading"
+        :data="tableData"
         style="width: 100%"
         border
         fit
         :header-cell-style="{'background-color': '#FAFAFA' }"
         highlight-current-row
       >
-        <el-table-column prop="name" label="主干/组件" min-width="120 " show-overflow-tooltip />
         <el-table-column
-          v-for="(item, index) in tableTitleList"
+          v-for="(item, index) in tableOptions"
           :key="index"
-          :prop="item.prop"
           :label="item.label"
+          :prop="item.prop"
+          :fixed="item.fixed"
           :min-width="item.minWidth"
-          align="center"
+          :show-overflow-tooltip="item.sot"
         >
           <template slot-scope="{row}">
-            <!-- 如果是风险概率 或者 风险等级 时，采用 tag 的方式进行渲染 -->
-            <div v-if="item.prop === 'risk_level' || item.prop === 'risk_probability'">
+            <!-- 日期格式化 -->
+            <span
+              v-if="item.prop === 'createTime' || item.prop === 'target_finish_data' || item.prop === 'update_date'"
+            >{{ row[item.prop] | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
+            <!-- tag标签 -->
+            <div v-else-if="item.prop === 'probability' || item.prop === 'effect'">
               <el-tag
                 v-if="row[item.prop]"
                 :type="row[item.prop] | statusFilter"
                 effect="dark"
               >{{ row[item.prop] }}</el-tag>
             </div>
-            <!-- 如果是创建时间 | 希望解决时间 | 最后更新时间 则进行时间格式过滤 -->
-            <span
-              v-else-if="item.prop === 'creation_time' || item.prop === 'hope_resolution_time' || item.prop === 'last_update_time'"
-            >{{ row[item.prop] | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
-            <!-- 正常输出 -->
+            <!-- switch 切换 -->
+            <el-switch
+              v-else-if="item.prop === 'is_top' || item.prop === 'is_close'"
+              v-model="row[item.prop]"
+              @change="handleSwitchChange(row, item.prop)"
+            />
             <span v-else>{{ row[item.prop] }}</span>
           </template>
         </el-table-column>
 
-        <el-table-column label="优先" min-width="75" fixed="right" align="center">
-          <template slot-scope="{row}">
-            <el-switch v-model="row.isTop" @change="handlePriorityChange(row)" />
-          </template>
-        </el-table-column>
-
-        <el-table-column label="闭环" min-width="75" fixed="right" align="center">
-          <template slot-scope="{row}">
-            <el-switch v-model="row.isRound" @change="handleCloseLoopChange(row)" />
-          </template>
-        </el-table-column>
-
-        <el-table-column min-width="120" fixed="right" align="center">
+        <!-- 操作 -->
+        <el-table-column min-width="96" fixed="right" align="center">
           <template #header>
             <span style="margin-right: 5px">操作</span>
             <el-popover placement="top-start" :width="170" trigger="hover" content="删除操作 / 编辑操作">
@@ -148,12 +161,12 @@
     <!-- 分段器 -->
     <div class="pagination">
       <pagination
-        v-show="total > 0"
+        v-if="total > pageSize"
         :total="total"
-        :page.sync="listQuery.page"
-        :limit.sync="listQuery.limit"
+        :page.sync="currentPage"
+        :limit.sync="pageSize"
         :auto-scroll="false"
-        @pagination="getList"
+        @pagination="handlePaginationChange"
       />
     </div>
 
@@ -167,24 +180,24 @@
         label-width="100px"
         style="width: 60%; margin: 0 auto;"
       >
-        <el-form-item label="主干/组件" prop="name">
-          <el-input v-model.trim="temp.name" style="width: 100%" clearable />
+        <el-form-item label="主干/组件" prop="project_type">
+          <el-input v-model.trim="temp.project_type" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="阶段" prop="stage">
-          <el-input v-model.trim="temp.stage" style="width: 100%" clearable />
+        <el-form-item label="阶段" prop="project_stage">
+          <el-input v-model.trim="temp.project_stage" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="创建时间" prop="creation_time">
-          <el-date-picker v-model="temp.creation_time" type="datetime" style="width: 100%" />
+        <el-form-item label="创建时间" prop="createTime">
+          <el-date-picker v-model="temp.createTime" type="datetime" style="width: 100%" />
         </el-form-item>
 
-        <el-form-item label="风险项" prop="risk_item">
-          <el-input v-model.trim="temp.risk_item" style="width: 100%" clearable />
+        <el-form-item label="风险项" prop="risk">
+          <el-input v-model.trim="temp.risk" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="风险描述" prop="risk_desc">
-          <el-input v-model.trim="temp.risk_desc" type="textarea" autosize style="width: 100%" />
+        <el-form-item label="风险描述" prop="risk_describe">
+          <el-input v-model.trim="temp.risk_describe" type="textarea" autosize style="width: 100%" />
         </el-form-item>
 
         <el-form-item label="影响" prop="influence">
@@ -213,8 +226,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="发生阶段" prop="occurrence_stage">
-          <el-select v-model="temp.occurrence_stage" placeholder="请选择发生阶段" style="width: 100%">
+        <el-form-item label="发生阶段" prop="stage">
+          <el-select v-model="temp.stage" placeholder="请选择发生阶段" style="width: 100%">
             <el-option
               v-for="item in occurrenceStageOptions"
               :key="item.key"
@@ -224,8 +237,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="风险概率" prop="risk_probability">
-          <el-select v-model="temp.risk_probability" placeholder="请选择风险概率" style="width: 100%">
+        <el-form-item label="风险概率" prop="probability">
+          <el-select v-model="temp.probability" placeholder="请选择风险概率" style="width: 100%">
             <el-option
               v-for="item in riskLevelOptions"
               :key="item.key"
@@ -240,8 +253,8 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="风险等级" prop="risk_level">
-          <el-select v-model="temp.risk_level" placeholder="请选择风险等级" style="width: 100%">
+        <el-form-item label="风险等级" prop="effect">
+          <el-select v-model="temp.effect" placeholder="请选择风险等级" style="width: 100%">
             <el-option
               v-for="item in riskLevelOptions"
               :key="item.key"
@@ -256,12 +269,12 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="责任人" prop="principal">
-          <el-input v-model.trim="temp.principal" style="width: 100%" clearable />
+        <el-form-item label="责任人" prop="duty_name">
+          <el-input v-model.trim="temp.duty_name" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="风险状态" prop="risk_status">
-          <el-select v-model="temp.risk_status" placeholder="请选择风险状态" style="width: 100%">
+        <el-form-item label="风险状态" prop="state">
+          <el-select v-model="temp.state" placeholder="请选择风险状态" style="width: 100%">
             <el-option
               v-for="item in riskStatusOptions"
               :key="item.key"
@@ -271,21 +284,21 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="当前进展" prop="current_progress">
+        <el-form-item label="当前进展" prop="newest_progress">
           <el-input
-            v-model.trim="temp.current_progress"
+            v-model.trim="temp.newest_progress"
             type="textarea"
             autosize
             style="width: 100%"
           />
         </el-form-item>
 
-        <el-form-item label="希望解决时间" prop="hope_resolution_time">
-          <el-date-picker v-model="temp.hope_resolution_time" type="datetime" style="width: 100%" />
+        <el-form-item label="希望解决时间" prop="target_finish_data">
+          <el-date-picker v-model="temp.target_finish_data" type="datetime" style="width: 100%" />
         </el-form-item>
 
-        <el-form-item label="最后更新时间" prop="last_update_time">
-          <el-date-picker v-model="temp.last_update_time" type="datetime" style="width: 100%" />
+        <el-form-item label="最后更新时间" prop="update_date">
+          <el-date-picker v-model="temp.update_date" type="datetime" style="width: 100%" disabled />
         </el-form-item>
       </el-form>
 
@@ -297,14 +310,14 @@
 
     <!-- 数据视图 -->
     <el-dialog :visible.sync="dataViewVisible">
-      <div class="content">123</div>
+      <div class="content">数据视图</div>
     </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves'
-import { tableTitleList, rules } from './options'
+import { rules } from './options'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils'
 
@@ -322,18 +335,22 @@ export default {
     },
     parseTime
   },
+  props: {
+    tableData: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       tableKey: 0, // 用来强制视图的刷新
-      total: 50, // 搜索到的数据条数
-      tableTitleList, // 表格头列表配置
+      currentPage: 1, // 当前页码
+      pageSize: 10, // 每页数据量
       // 筛选的条件
       listQuery: {
-        page: 1, // 第几页
-        limit: 20, // 每页多少个
-        risk_status: undefined, // 风险状态
-        risk_item: undefined, // 风险项
-        risk_level: undefined, // 影响
+        state: undefined, // 风险状态
+        risk: undefined, // 风险项
+        effect: undefined, // 影响
         type: undefined // 类型
       },
       // 来源 select 配置项
@@ -376,52 +393,7 @@ export default {
         { label: '发布', id: 7 }
       ],
       downloadLoading: false, // 下载按钮加载
-      listLoading: true, // 表单加载动画
-      list: [
-        {
-          id: 1,
-          creation_time: 1597205131699,
-          current_progress: '1',
-          influence: '1',
-          name: '王小虎',
-          occurrence_stage: '需求',
-          principal: '1',
-          risk_desc: '1',
-          risk_item: '1',
-          risk_level: 'High',
-          risk_probability: 'High',
-          risk_status: '识别',
-          source: 'PTTL',
-          stage: '1',
-          type: '资源风险',
-          isRound: true,
-          isTop: false
-        },
-        {
-          id: 2,
-          date: '2016-05-04',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1517 弄',
-          isTop: true,
-          isRound: true
-        },
-        {
-          id: 3,
-          date: '2016-05-01',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1519 弄',
-          isTop: false,
-          isRound: true
-        },
-        {
-          id: 4,
-          date: '2016-05-03',
-          name: '王小虎',
-          address: '上海市普陀区金沙江路 1516 弄',
-          isTop: false,
-          isRound: true
-        }
-      ],
+      tableLoading: false, // 表单加载动画
       textMap: {
         update: '编辑',
         create: '添加'
@@ -430,42 +402,143 @@ export default {
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
       temp: {
         id: undefined,
-        name: undefined,
-        stage: undefined,
-        creation_time: new Date(),
-        risk_item: undefined,
-        risk_desc: undefined,
+        project_type: undefined,
+        project_stage: undefined,
+        createTime: new Date(),
+        risk: undefined,
+        risk_describe: undefined,
         influence: undefined,
         source: undefined,
         type: undefined,
-        occurrence_stage: undefined,
-        risk_probability: undefined,
-        risk_level: undefined,
-        principal: undefined,
-        risk_status: undefined,
-        current_progress: undefined,
-        hope_resolution_time: undefined,
-        last_update_time: undefined
+        stage: undefined,
+        probability: undefined,
+        effect: undefined,
+        duty_name: undefined,
+        state: undefined,
+        newest_progress: undefined,
+        target_finish_data: undefined,
+        update_date: undefined
       },
       rules, // 表单规则
       dataViewVisible: false // 控制数据视图的显示与隐藏
     }
   },
-  mounted() {
-    setTimeout(() => {
-      this.listLoading = false
-    }, 2000)
+  computed: {
+    tableShowData() {
+      return this.tableData
+    },
+    total() {
+      return this.tableShowData.length || 0
+    },
+    tableOptions() {
+      return [
+        {
+          prop: 'project_type',
+          label: '主干/组件',
+          minWidth: 120,
+          sot: true
+        },
+        {
+          prop: 'project_stage',
+          label: '阶段',
+          minWidth: 120
+        },
+        {
+          prop: 'createTime',
+          label: '创建时间',
+          minWidth: 140
+        },
+        {
+          prop: 'risk',
+          label: '风险项',
+          minWidth: 120
+        },
+        {
+          prop: 'risk_describe',
+          label: '风险描述',
+          minWidth: 160
+        },
+        {
+          prop: 'influence',
+          label: '影响',
+          minWidth: 80
+        },
+        {
+          prop: 'source',
+          label: '来源',
+          minWidth: 80
+        },
+        {
+          prop: 'type',
+          label: '类别',
+          minWidth: 80
+        },
+        {
+          prop: 'stage',
+          label: '发生的阶段',
+          minWidth: 160
+        },
+        {
+          prop: 'probability',
+          label: '风险概率',
+          minWidth: 90
+        },
+        {
+          prop: 'effect',
+          label: '风险等级',
+          minWidth: 90
+        },
+        {
+          prop: 'duty_name',
+          label: '责任人',
+          minWidth: 120
+        },
+        {
+          prop: 'state',
+          label: '风险状态',
+          minWidth: 120
+        },
+        {
+          prop: 'newest_progress',
+          label: '当前进展',
+          minWidth: 120
+        },
+        {
+          prop: 'target_finish_data',
+          label: '希望解决时间',
+          minWidth: 120
+        },
+        {
+          prop: 'update_date',
+          label: '最后更新时间',
+          minWidth: 140
+        },
+        {
+          prop: 'is_top',
+          label: '优先',
+          minWidth: 62,
+          fixed: 'right'
+        },
+        {
+          prop: 'is_close',
+          label: '闭环',
+          minWidth: 62,
+          fixed: 'right'
+        }
+      ]
+    }
   },
   methods: {
     // 点击搜索
     handleSearchClick() {
-      this.listLoading = true
+      this.tableLoading = true
 
+      console.log(this.listQuery)
       // 重置页面为第一页
       this.listQuery.page = 1
       setTimeout(() => {
-        this.listLoading = false
-      }, 2000)
+        this.tableLoading = false
+      }, 1000)
     },
     // 点击下载
     handleDownloadClick() {
@@ -479,42 +552,34 @@ export default {
         this.downloadLoading = false
       }, 2000)
     },
-    getList(e) {
-      console.log(this.listQuery)
+    handlePaginationChange(e) {
+      this.pageSize = e.limit
+      this.currentPage = e.page
     },
     // 修改优先级
-    handlePriorityChange(row) {
-      console.log(row)
-    },
-    // 修改是否闭环
-    handleCloseLoopChange(row) {
-      this.$notify({
-        title: '修改',
-        message: '成功修改闭环状态',
-        type: 'success',
-        duration: 2000
-      })
+    handleSwitchChange(row, prop) {
+      console.log(prop)
     },
     // 重置 temp
     resetTemp() {
       this.temp = {
         id: undefined,
-        name: undefined,
-        stage: undefined,
-        creation_time: new Date(),
-        risk_item: undefined,
-        risk_desc: undefined,
+        project_type: undefined,
+        project_stage: undefined,
+        createTime: new Date(),
+        risk: undefined,
+        risk_describe: undefined,
         influence: undefined,
         source: undefined,
         type: undefined,
-        occurrence_stage: undefined,
-        risk_probability: undefined,
-        risk_level: undefined,
-        principal: undefined,
-        risk_status: undefined,
-        current_progress: undefined,
-        hope_resolution_time: undefined,
-        last_update_time: undefined
+        stage: undefined,
+        probability: undefined,
+        effect: undefined,
+        duty_name: undefined,
+        state: undefined,
+        newest_progress: undefined,
+        target_finish_data: undefined,
+        update_date: undefined
       }
     },
     // 点击添加按钮, 显示添加表单
@@ -533,10 +598,10 @@ export default {
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
           // 模拟 id
-          this.temp.id = this.list[this.list.length - 1].id + 1
-          console.log(this.temp)
+          this.temp.id = this.tableData[this.tableData.length - 1].id + 1
           // 添加数据
-          this.list.push(this.temp)
+          this.tableData.push(this.temp)
+          this.$emit('create', this.temp)
           // 隐藏添加窗口
           this.dialogFormVisible = false
         }
@@ -561,16 +626,15 @@ export default {
       // 1. 表单校验
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
-          console.log('进行修改')
           // 1. 对象深拷贝
           const tempData = Object.assign({}, this.temp)
           // 2. 将 date 修改为 时间戳
           tempData.creation_time = +new Date(tempData.creation_time)
           // 3. 根据 id 找到下标值
-          const index = this.list.findIndex((v) => v.id === this.temp.id)
+          const index = this.tableData.findIndex((v) => v.id === this.temp.id)
           // 4. 进行数据修改
-          this.list.splice(index, 1, this.temp)
-
+          this.tableData.splice(index, 1, this.temp)
+          this.$emit('update', this.temp)
           // 5. 提示修改成功
           this.$notify({
             title: '成功',

@@ -33,7 +33,7 @@
 
     <!-- 中间的表格区域 -->
     <div class="table">
-      <risk-table />
+      <risk-table :table-data="tableData" @create="handleRiskCreate" @update="handleRiskUpdate" />
     </div>
 
     <!-- charts区域 -->
@@ -49,6 +49,8 @@ import RiskWbs from './components/RiskWbs'
 import RiskTable from './components/RiskTable'
 import RiskChart from './components/RiskChart'
 
+import request from '@/services/request'
+
 export default {
   components: {
     TaskChart,
@@ -58,14 +60,76 @@ export default {
   },
   data() {
     return {
+      project: undefined,
       currentStage: '阶段一', // 当前选中阶段值
-      stageList: [{ stage: '阶段一' }, { stage: '阶段二' }] // 阶段列表
+      stageList: [{ stage: '阶段一' }, { stage: '阶段二' }], // 阶段列表
+      tableData: []
     }
+  },
+  created() {
+    this.project = this.$t(this.$route.matched[2].meta.title)
+    this.stageList.forEach((item) => {
+      this.getTableList(this.project, item.stage)
+    })
   },
   methods: {
     // 处理阶段值的改变
     handleStageChange(e) {
       console.log(e)
+    },
+    // 添加风险信息
+    handleRiskCreate(risk) {
+      console.log(risk)
+    },
+    // 更新风险信息
+    handleRiskUpdate(risk) {
+      console.log(risk)
+    },
+    // 获取数据列表
+    async getTableList(project, projectStage) {
+      const { data: res1 } = await request('/api/projectEvolveSta/queryByProblemList', {
+        methods: 'GET',
+        params: {
+          project,
+          projectStage
+        }
+      })
+      const { data: res2 } = await request('/api/projectEvolveSta/queryByRiskList', {
+        methods: 'GET',
+        params: {
+          project,
+          projectStage
+        }
+      })
+      // res1 res2 两个数组对象，需要将两个数组对象链接
+      const result = Object.assign(res1, res2)
+      result.project_stage = projectStage // 项目阶段
+      this.tableData.push(result)
+    },
+    // 获取具体风险的信息
+    async getProjectRiskProgressList(id) {
+      const { data: res } = await request('/api/projectEvolveSta/queryByRiskProgressList', {
+        methods: 'GET',
+        params: {
+          id
+        }
+      })
+      console.log(res)
+    },
+    // 查询人员列表
+    async queryByUserSelect() {
+      const { data: res } = await request('/api/authority/user/listUserSelect', { method: 'GET' })
+      console.log(res)
+    },
+    // 查询项目阶段
+    async queryByProjectStage(project) {
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectStage', {
+        methods: 'GET',
+        params: {
+          project
+        }
+      })
+      console.log(res)
     }
   }
 }

@@ -175,7 +175,7 @@
           border
         >
           <el-table-column
-            v-for="(item, index) in thirdTableShow"
+            v-for="(item, index) in thirdTableOptions"
             :key="index"
             :label="item.label"
             :prop="item.prop"
@@ -426,8 +426,15 @@ export default {
       isThirdTableLoading: false,
       // 对话框
       dialogTableData: [], // 对话框表格数据
-      // 配置项
-      firstTableOptions: [
+      // 表格四
+      fourTableData: [],
+      isFourTableLoading: false,
+      isDialogVisible: false
+    }
+  },
+  computed: {
+    firstTableOptions() {
+      return [
         {
           prop: 'name',
           label: '类型',
@@ -499,8 +506,10 @@ export default {
             }
           ]
         }
-      ],
-      secondTableOptions: [
+      ]
+    },
+    secondTableOptions() {
+      return [
         {
           prop: 'name',
           label: '类型',
@@ -740,8 +749,10 @@ export default {
             }
           ]
         }
-      ],
-      thirdTableOptions: [
+      ]
+    },
+    thirdTableOptions() {
+      return [
         {
           prop: 'process_name',
           label: '工序',
@@ -871,10 +882,10 @@ export default {
             }
           ]
         }
-      ],
-      // 表格四
-      fourTableData: [],
-      fourTableOptions: [
+      ]
+    },
+    fourTableOptions() {
+      return [
         {
           prop: 'type',
           label: '大类',
@@ -926,25 +937,7 @@ export default {
           label: '试点阶段调偏',
           minWidth: 140
         }
-      ],
-      isFourTableLoading: false,
-      isDialogVisible: false
-    }
-  },
-  computed: {
-    thirdTableShow() {
-      return this.thirdTableOptions
-        .map((ele) => {
-          if (ele.hide) {
-            return null
-          } else {
-            if (ele.children) {
-              ele.children.map((e) => (e.hide ? null : e)).filter((e) => e)
-            }
-            return ele
-          }
-        })
-        .filter((e) => e)
+      ]
     }
   },
   created() {
@@ -974,8 +967,8 @@ export default {
     },
     // 点击实际列表项
     handleActualTotalClick(row) {
+      this.$refs.dialogRef.isDialogVisible = true // 显示对话框
       this.getProjectDetailSummary(this.project, row.type, row.area, row.realm, '', '')
-      console.log(this.dialogTableData)
     },
     // 点击资源调偏
     handleStageAdjustClick() {
@@ -1018,7 +1011,6 @@ export default {
     },
     // 成本-项目成本-资源明细
     async getProjectDetailSummary(project, type, area, realm, stage, process) {
-      this.$refs.dialogRef.isDialogVisible = true
       this.$refs.dialogRef.isLoading = true
       const { data: res } = await request('/api/projectEvolveSta/queryByProjectDetailSummary', {
         method: 'GET',
