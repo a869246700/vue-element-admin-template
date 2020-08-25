@@ -1,7 +1,7 @@
 <template>
   <div class="evolve">
     <!-- 甘特图 -->
-    <div v-if="false" class="evolve-gantt">
+    <div class="evolve-gantt">
       <div class="brief">
         <div class="tag">
           <el-tag>项目计划：当前项目阶段 XXX</el-tag>
@@ -10,30 +10,42 @@
           <el-tag type="success">全部计划与工作：共X条，已完成X条</el-tag>
         </div>
       </div>
-      <evolve-gantt v-if="isGanttVisible" class="gantt" />
+      <evolve-gantt v-if="evolveGanttVisible" class="gantt" />
     </div>
 
     <!-- 执行卡片 -->
-    <implement-card
-      v-if="isImplementCardVisible"
+    <evolve-implement-card
+      v-if="evolveImplementCardVisible"
       :project="project"
       :current-stage.sync="currentStage"
       :implement-stage.sync="implementStage"
       :current-stage-type-list="currentStageTypeList"
       :implement-stage-type-list="implementStageTypeList"
-      @system-click="handleSystemClick"
+      @system-click="handleCaseSystemClick"
+    />
+
+    <!-- SPEC卡片 -->
+    <evolve-spec-card
+      v-if="evolveSepcCardVisible"
+      :project="project"
+      :current-stage.sync="specCurrentStage"
+      :implement-stage.sync="implementSpecStage"
+      :current-stage-type-list="currentStageTypeList"
+      :implement-stage-type-list="implementStageTypeList"
+      @system-click="handleSpecSystemClick"
     />
 
     <!-- 设计卡片 -->
-    <desgin-card v-if="isDesginCardVisible" />
+    <evolve-desgin-card v-if="evolveDesginCardVisible" :project="project" />
 
     <!-- 评审卡片 -->
-    <review-card v-if="isReviewCardVisible" />
+    <evolve-review-card v-if="evolveReviewCardVisible" :project="project" />
 
     <!-- system dialog -->
     <el-dialog title="合计芯片用例执行统计" :visible.sync="isSystemDialogVisible" width="70%" lock-scroll>
-      <case-implement
+      <evolve-case-implement
         ref="systemDialogRef"
+        :project="project"
         :implement-stage="implementStage"
         :implement-stage-type-list="implementStageTypeList"
         :implement-num-system-list="implementNumSystemList"
@@ -45,30 +57,35 @@
 
 <script>
 import EvolveGantt from './components/EvolveGantt'
-import ImplementCard from './components/ImplementCard'
-import DesginCard from './components/DesginCard'
-import ReviewCard from './components/ReviewCard'
-import CaseImplement from './components/CaseImplement'
+import EvolveImplementCard from './components/EvolveImplementCard'
+import EvolveSpecCard from './components/EvolveSpecCard'
+import EvolveDesginCard from './components/EvolveDesginCard'
+import EvolveReviewCard from './components/EvolveReviewCard'
+import EvolveCaseImplement from './components/EvolveCaseImplement'
 
 import request from '@/services/request'
 
 export default {
   components: {
     EvolveGantt,
-    ImplementCard,
-    DesginCard,
-    ReviewCard,
-    CaseImplement
+    EvolveImplementCard,
+    EvolveSpecCard,
+    EvolveDesginCard,
+    EvolveReviewCard,
+    EvolveCaseImplement
   },
   data() {
     return {
-      isGanttVisible: true, // 控制甘特图的显示与隐藏
-      isImplementCardVisible: true, // 控制执行卡片的显示与隐藏
-      isDesginCardVisible: true, // 控制设计卡片的显示与隐藏
-      isReviewCardVisible: true, // 控制评审卡片的显示与隐藏
+      evolveGanttVisible: true, // 控制甘特图的显示与隐藏
+      evolveImplementCardVisible: true, // 控制执行卡片的显示与隐藏
+      evolveSepcCardVisible: true, // 控制 SPEC 卡片的显示与隐藏
+      evolveDesginCardVisible: true, // 控制设计卡片的显示与隐藏
+      evolveReviewCardVisible: true, // 控制评审卡片的显示与隐藏
       currentStage: '阶段一',
+      specCurrentStage: '阶段一',
       currentStageTypeList: [{ stage: '阶段一' }, { stage: '阶段二' }],
       implementStage: '次轮',
+      implementSpecStage: '次轮',
       implementStageTypeList: [{ stage: '准入' }],
       isSystemDialogVisible: false, // 控制 system 对话框显示与隐藏
       implementNumSystemList: undefined
@@ -79,30 +96,50 @@ export default {
       return this.$t(this.$route.matched[2].meta.title)
     }
   },
-  mounted() {
+  created() {
     this.queryProjectMilepostList(this.project)
     this.queryImplementStageType()
   },
   methods: {
-    // 用例产品点击
-    handleSystemClick(product_name) {
+    handleSystemTypeChange(product_name, stage, type, isSpec) {
       this.isSystemDialogVisible = true
+
       this.$nextTick(() => {
         this.$refs.systemDialogRef.tableLoading = true
         this.$refs.systemDialogRef.product_name = product_name
+        this.$refs.systemDialogRef.isSpec = isSpec
       })
-      // 查询域信息
-      this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工')
+
+      this.queryImplementNumSystem(this.project, stage, product_name, type, 0)
+
       this.$nextTick(() => {
         this.$refs.systemDialogRef.tableLoading = false
       })
     },
-    // 修改 system 对话框 type
-    handleSystemTypeChange(product_name, stage, type) {
-      this.$refs.systemDialogRef.tableLoading = true
-      console.log(this.$refs.systemDialogRef.product_name)
+    // 用例产品点击
+    handleCaseSystemClick(product_name) {
+      this.isSystemDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.systemDialogRef.tableLoading = true
+        this.$refs.systemDialogRef.product_name = product_name
+        this.$refs.systemDialogRef.isSpec = 0
+      })
       // 查询域信息
-      this.queryImplementNumSystem(this.project, stage, product_name, type)
+      this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工', 0)
+      this.$nextTick(() => {
+        this.$refs.systemDialogRef.tableLoading = false
+      })
+    },
+    // Spec产品点击
+    handleSpecSystemClick(product_name) {
+      this.isSystemDialogVisible = true
+      this.$nextTick(() => {
+        this.$refs.systemDialogRef.tableLoading = true
+        this.$refs.systemDialogRef.product_name = product_name
+        this.$refs.systemDialogRef.isSpec = 1
+      })
+      // 查询域信息
+      this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工', 1)
       this.$nextTick(() => {
         this.$refs.systemDialogRef.tableLoading = false
       })
@@ -123,7 +160,7 @@ export default {
       this.implementStageTypeList = res
     },
     // 用例执行-域统计
-    async queryImplementNumSystem(project, stage, product, type) {
+    async queryImplementNumSystem(project, stage, product, type, isSpec) {
       const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumSystem', {
         method: 'GET',
         params: {
@@ -131,7 +168,7 @@ export default {
           stage,
           product,
           type,
-          isSpec: 0
+          isSpec
         }
       })
       this.implementNumSystemList = res
@@ -145,26 +182,14 @@ export default {
     // 进展-性能SPEC产品统计列表
     async queryNatureSpecTotal(project) {},
 
-    // 进展-执行-控制面执行数据
-    queryByCaseImplement() {},
-
-    // 进展-执行-数据面执行数据
-    queryByDataCaseImplement() {},
-
-    // 进展-执行-数据面SPEC明细数据
-    specProductStaInfoList() {},
-
-    // 进展-执行-数据面SPEC明细数据清空
-    specProductStaInfoListIsNull() {},
-
-    // 进展-执行-数据面性能SPEC明细数据
-    specNatureProductStaInfoList() {},
-
-    // 进展-执行-数据面SPEC明细数据清空
-    specNatureProductStaInfoListIsNull() {},
-
     // 进展-设计-TP用例总计
-    evolveTpCaseTotal() {},
+    async evolveTpCaseTotal(project) {
+      const { data: res } = await request('/api/projectEvolveSta/queryByTpCaseTotal', {
+        method: 'GET',
+        params: { project }
+      })
+      console.log(res)
+    },
 
     // 进展-设计-专业分组TP用例统计
     evolveTpCaseProfessionalDivide() {},
@@ -176,10 +201,7 @@ export default {
     evolveReviewWorkPackage() {},
 
     // 进展-评审-PTGTTM维度统计
-    evolveReviewPerson() {},
-
-    // 进展-执行-用例-BUG阻塞
-    queryByBugChoke() {}
+    evolveReviewPerson() {}
   }
 }
 </script>

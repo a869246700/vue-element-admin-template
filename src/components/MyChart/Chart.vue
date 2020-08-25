@@ -30,9 +30,9 @@ export default {
       type: Boolean,
       default: true
     },
-    chartData: {
+    optionRate: {
       type: Object,
-      required: true
+      default: () => {}
     }
   },
   data() {
@@ -41,17 +41,12 @@ export default {
     }
   },
   watch: {
-    chartData: {
+    optionRate: {
       deep: true,
       handler(val) {
-        this.setOptions(val)
+        this.initChart()
       }
     }
-  },
-  mounted() {
-    this.$nextTick(() => {
-      this.initChart()
-    })
   },
   beforeDestroy() {
     if (!this.chart) {
@@ -64,43 +59,10 @@ export default {
     // 初始化 chart
     initChart() {
       this.chart = echarts.init(this.$el, 'macarons')
-      this.setOptions(this.chartData)
+      this.setOptions(this.optionRate)
     },
     // 设置 chart 的配置项
-    setOptions({ data } = []) {
-      // 配置项配置
-      const options = {
-        title: {
-          text: this.title,
-          left: 'center'
-        },
-        tooltip: {
-          trigger: 'item',
-          formatter: '{b} : {c} ({d}%)'
-        },
-        series: [
-          {
-            name: '',
-            type: 'pie',
-            radius: '55%',
-            center: ['50%', '50%'],
-            data: [
-              { value: 335, name: '直接访问' },
-              { value: 310, name: '邮件营销' },
-              { value: 234, name: '联盟广告' },
-              { value: 135, name: '视频广告' },
-              { value: 1548, name: '搜索引擎' }
-            ],
-            emphasis: {
-              itemStyle: {
-                shadowBlur: 10,
-                shadowOffsetX: 0,
-                shadowColor: 'rgba(0, 0, 0, 0.5)'
-              }
-            }
-          }
-        ]
-      }
+    setOptions(options) {
       // 设置配置
       this.chart.setOption(options)
     }

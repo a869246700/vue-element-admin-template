@@ -3,10 +3,7 @@ import { Message } from 'element-ui'
 
 const service = axios.create({
   baseURL: 'http://172.30.61.89:9528/v1', // 设置请求的基本路径
-  timeout: 5000, // 请求超时
-  headers: {
-    'Content-Type': 'application/x-www-form-urlencoded'
-  },
+  timeout: 8000, // 请求超时
   withCredentials: true // 允许携带 cookie
 })
 

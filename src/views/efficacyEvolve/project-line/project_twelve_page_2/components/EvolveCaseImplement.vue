@@ -73,11 +73,32 @@
           :label="item.stage"
         />
       </el-radio-group>
+
+      <el-table
+        v-loading="innerTableLoading"
+        :data="innerTableData"
+        border
+        style="width: 100%; margin-top: 20px;"
+        :header-cell-style="{'background-color': '#FAFAFA' }"
+        fit
+        highlight-current-row
+      >
+        <el-table-column
+          v-for="(item, index) in innerTableOptions"
+          :key="index"
+          :prop="item.prop"
+          :label="item.label"
+          :min-width="item.minWidth"
+          show-overflow-tooltip
+        />
+      </el-table>
     </el-dialog>
   </div>
 </template>
 
 <script>
+import request from '@/services/request'
+
 export default {
   props: {
     project: {
@@ -106,8 +127,13 @@ export default {
       tableLoading: false, // 外部表格加载状态
       innerDialogVisible: false, // 控制内部对话框的显示与隐藏
       temp: {},
+      isSpec: 0, // 是否是 spec 的点击事件
       // ----------内部----------
-      innerImplementStage: this.iStage
+      innerTableLoading: false,
+      innerImplementStage: undefined, // 内部表格当前 stage
+      innerTableData: [], // 内部表格数据
+      innerProductName: undefined,
+      innerCurrentSystem: undefined
     }
   },
   computed: {
@@ -197,11 +223,87 @@ export default {
           minWidth: 105
         }
       ]
+    },
+    // 内部表单配置项
+    innerTableOptions() {
+      return [
+        {
+          prop: 'product_name',
+          label: '芯片平台',
+          minWidth: 120
+        },
+        {
+          prop: 'system',
+          label: '归属测试域',
+          minWidth: 120
+        },
+        {
+          prop: 'type',
+          label: '用例属性',
+          minWidth: 78
+        },
+        {
+          prop: 'all_num',
+          label: '用例总数',
+          minWidth: 78
+        },
+        {
+          prop: 'exe_num',
+          label: '已执行',
+          minWidth: 78
+        },
+        {
+          prop: 'exe_rate',
+          label: '执行率',
+          minWidth: 73
+        },
+        {
+          prop: 'skip_num',
+          label: 'SKIP',
+          minWidth: 73
+        },
+        {
+          prop: 'pass_num',
+          label: 'PASS数',
+          minWidth: 73
+        },
+        {
+          prop: 'pass_rate',
+          label: 'PASS率',
+          minWidth: 73
+        },
+        {
+          prop: 'fail_rate',
+          label: 'FAIL率',
+          minWidth: 73
+        },
+        {
+          prop: 'day_all_num',
+          label: '今日执行总数',
+          minWidth: 105
+        },
+        {
+          prop: 'day_pass_num',
+          label: '今日PASS总数',
+          minWidth: 116
+        },
+        {
+          prop: 'tomorrow_num',
+          label: '计划明日执行个数',
+          minWidth: 137
+        },
+        {
+          prop: 'exe_day_num',
+          label: '还需执行天数',
+          minWidth: 105
+        }
+      ]
     }
   },
   watch: {
     iStageComputed(newV, oldV) {
       this.iStage = newV
+      this.handleTypeChange()
     },
     list(newV, oldV) {
       this.tableData = newV
@@ -209,16 +311,50 @@ export default {
   },
   methods: {
     handleTypeChange() {
-      this.$emit('change', this.product_name, this.iStage, this.implementType)
+      this.$emit('change', this.product_name, this.iStage, this.implementType, this.isSpec)
     },
     handleItemClick(row) {
-      this.temp = row
       this.innerDialogVisible = true
-      this.innerImplementStage = this.implementStage
+      this.innerImplementStage = this.iStageComputed
+      this.innerProductName = row.product_name
+      this.innerCurrentSystem = row.system
+
+      this.handleInnerTypeChange()
     },
     // -----------内部---------
     handleInnerTypeChange() {
-      console.log(this.innerImplementStage)
+      console.log(
+        this.project,
+        this.innerImplementStage,
+        this.innerProductName,
+        this.innerCurrentSystem
+      )
+      this.queryImplementNumType(
+        this.project,
+        this.innerImplementStage,
+        this.innerProductName,
+        this.innerCurrentSystem
+      )
+      console.log(this.innerTableData)
+    },
+    // 用例执行-类型统计
+    async queryImplementNumType(project, stage, product, system) {
+      this.innerTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumInfo', {
+        method: 'GET',
+        params: {
+          project,
+          stage,
+          product,
+          system,
+          isSpec: 0
+        }
+      })
+
+      this.innerTableData = res
+      this.$nextTick(() => {
+        this.innerTableLoading = false
+      })
     }
   }
 }
