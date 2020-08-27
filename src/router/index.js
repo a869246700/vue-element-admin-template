@@ -179,4 +179,15 @@ export function resetRouter() {
   router.matcher = newRouter.matcher // reset router
 }
 
+router.beforeEach((to, from, next) => {
+  // let temp = to.path
+  // while (temp.indexOf('/') >= 0) {
+  //   temp = temp.replace('/', '.')
+  // }
+  // temp = 'menu' + temp
+  // to.meta.title = temp
+  // console.log(temp)
+  next()
+})
+
 export default router

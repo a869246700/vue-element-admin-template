@@ -6,8 +6,8 @@
     <!-- 表格 -->
     <el-table v-loading="isLoading" :data="list" highlight-current-row border style="width: 100%">
       <el-table-column
-        v-for="(item, index) in tableOptions"
-        :key="index"
+        v-for="item in tableOptions"
+        :key="item.prop"
         :prop="item.prop"
         :label="item.label"
         :min-width="item.minWidth"

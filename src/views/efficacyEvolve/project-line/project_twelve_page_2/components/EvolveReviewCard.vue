@@ -85,7 +85,7 @@
               :label="item.label"
               :min-width="item.minWidth"
               show-overflow-tooltip
-              align="center"
+              :align="item.align"
             />
 
             <el-table-column
@@ -243,6 +243,7 @@ export default {
         {
           prop: 'quality_num',
           label: '质量意见个数',
+          align: 'center',
           children: [
             {
               prop: 'quality_demand_num',
@@ -323,6 +324,7 @@ export default {
         params: { project, type }
       })
       this.evolveReviewWorkPackageData = res
+      this.total = res.length
 
       this.$nextTick(() => {
         this.evolveReviewWorkPackageLoading = false
@@ -535,12 +537,6 @@ export default {
 
 .charts {
   margin-top: 20px;
-}
-
-.pagination {
-  display: flex;
-  justify-content: flex-end;
-  padding: 20px;
 }
 
 // review 评审

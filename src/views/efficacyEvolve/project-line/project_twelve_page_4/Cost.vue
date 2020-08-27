@@ -9,6 +9,7 @@
 
       <template #content>
         <el-table
+          v-if="false"
           v-loading="isFirstTableLoading"
           :data="projectTotalRealmCost"
           style="width: 100%"
@@ -56,17 +57,54 @@
                     v-else-if="childItem.prop === 'total_actual'"
                     :class="calcRenderData(row.total_actual, row.total_target, 1)"
                     @click="handleActualTotalClick(row)"
-                  >{{ row.total_actual | fixedFilter }}</span>
+                  >{{ row.total_actual | roundFilter }}</span>
 
                   <span
                     v-else-if="childItem.prop === 'total_estimate' "
                     :class="calcRenderData(row.total_estimate, row.total_target, 2)"
-                  >{{ row.total_estimate | fixedFilter }}</span>
+                  >{{ row.total_estimate | roundFilter }}</span>
 
-                  <span v-else>{{ row[childItem.prop] | fixedFilter }}</span>
+                  <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
                 </template>
               </el-table-column>
             </div>
+          </el-table-column>
+        </el-table>
+
+        <el-table
+          v-loading="isSecondTableLoading"
+          :data="projectRealmCost"
+          style="width: 100%; margin-top: 10px;"
+          row-key="name"
+          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+          :fit="false"
+          border
+        >
+          <el-table-column prop="name" label="类型" width="220" fixed show-overflow-tooltip />
+          <el-table-column prop="code_total" label="代码量" fixed>
+            <el-table-column prop="code" label="新增" width="121" />
+            <el-table-column prop="transplant_code" label="移植" width="121" />
+            <el-table-column prop="total_code" label="总计" width="121" />
+          </el-table-column>
+
+          <el-table-column prop="total" label="总计">
+            <el-table-column prop="realm_target" label="目标" width="121">
+              <template #header>
+                <span style="margin-right: 5px">目标</span>
+                <el-popover
+                  placement="top-start"
+                  :width="800"
+                  trigger="hover"
+                >
+                  <div v-html="stageTargetPopoverContent" />
+                  <i slot="reference" class="el-icon-question" />
+                </el-popover>
+              </template>
+            </el-table-column>
+            <el-table-column prop="total_actual" label="实际" width="121" />
+            <el-table-column prop="total_need" label="还需" width="121" />
+            <el-table-column prop="total_estimate" label="预期" width="121" />
+            <el-table-column prop="total_deviation" label="偏差" width="121" />
           </el-table-column>
         </el-table>
 
@@ -89,85 +127,84 @@
             :show-overflow-tooltip="item.sot"
             :align="item.children ? 'center' : ''"
           >
-            <div v-if="item.children">
-              <el-table-column
-                v-for="(childItem, childIndex) in item.children"
-                :key="childIndex"
-                :prop="childItem.prop"
-                :min-width="childItem.minWidth"
-              >
-                <template #header>
-                  <span style="margin-right: 5px">{{ childItem.label }}</span>
-                  <el-popover
-                    v-if="childItem.content"
-                    placement="top-start"
-                    :width="childItem.contentWidth"
-                    trigger="hover"
-                  >
-                    <div v-html="childItem.content" />
-                    <i slot="reference" class="el-icon-question" />
-                  </el-popover>
-                </template>
+            <el-table-column
+              v-for="(childItem, childIndex) in item.children"
+              :key="childIndex"
+              :prop="childItem.prop"
+              :min-width="childItem.minWidth"
+            >
+              <template #header>
+                <span style="margin-right: 5px">{{ childItem.label }}</span>
+                <el-popover
+                  v-if="childItem.content"
+                  placement="top-start"
+                  :width="childItem.contentWidth"
+                  trigger="hover"
+                >
+                  <div v-html="childItem.content" />
+                  <i slot="reference" class="el-icon-question" />
+                </el-popover>
+              </template>
 
-                <template slot-scope="{row}">
-                  <!-- 总计还需 -->
-                  <span
-                    v-if="childItem.prop === 'total_need'"
-                  >{{ Math.round((row.demand_need+row.design_need+row.admittance_need+row.test_first_need+row.test_second_need+row.regression_need+row.on_trial_need) * 10) / 10 }}</span>
-                  <!-- 总计预期 -->
-                  <span
-                    v-else-if="childItem.prop === 'total_estimate'"
-                  >{{ Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10 }}</span>
-                  <!-- 总计偏差 -->
-                  <span
-                    v-else-if="childItem.prop === 'total_deviation'"
-                  >{{ Math.round((row.demand_deviation+row.design_deviation+row.admittance_deviation+row.test_first_deviation+row.test_second_deviation+row.regression_deviation+row.on_trial_deviation) * 10) / 10 }}</span>
+              <template slot-scope="{row}">
+                <!-- 总计还需 -->
+                <span
+                  v-if="childItem.prop === 'total_need'"
+                >{{ (Math.round((row.demand_need+row.design_need+row.admittance_need+row.test_first_need+row.test_second_need+row.regression_need+row.on_trial_need) * 10) / 10) }}</span>
+                <!-- 总计预期 -->
+                <span
+                  v-else-if="childItem.prop === 'total_estimate'"
+                >{{ (Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10) }}</span>
+                <!-- 总计偏差 -->
+                <span
+                  v-else-if="childItem.prop === 'total_deviation'"
+                >{{ (Math.round((row.demand_deviation+row.design_deviation+row.admittance_deviation+row.test_first_deviation+row.test_second_deviation+row.regression_deviation+row.on_trial_deviation) * 10) / 10) }}</span>
 
-                  <span
-                    v-else-if="childItem.prop.includes('_target')"
-                    style="word-spacing: 5px;"
-                  >{{ row[childItem.prop] | targetFilter }}</span>
+                <span
+                  v-else-if="childItem.prop.includes('_target')"
+                  style="word-spacing: 5px;"
+                >{{ row[childItem.prop] | targetFilter }}</span>
 
-                  <span
-                    v-else-if="childItem.prop.includes('_actual')"
-                    :class="calcRenderData(row.total_actual, row.total_target, 1)"
-                    @click="handleActualTotalClick(row)"
-                  >{{ row[childItem.prop] | fixedFilter }}</span>
+                <span
+                  v-else-if="childItem.prop.indexOf('_actual') >= 0"
+                  :class="actualColor(row[childItem.prop], row)"
+                  @click="handleActualTotalClick(row)"
+                >{{ row[childItem.prop] | roundFilter }}</span>
 
-                  <span
-                    v-else-if="childItem.prop.includes('_estimate') && childItem.prop !== 'total_estimate'"
-                    :class="calcRenderData(row.total_actual, row.total_target, 2)"
-                  >{{ row[childItem.prop] | fixedFilter }}</span>
+                <span
+                  v-else-if="childItem.prop.indexOf('_estimate') >= 0"
+                  :class="actualColor(row[childItem.prop], row)"
+                >{{ row[childItem.prop] | roundFilter }}</span>
 
-                  <span v-else>{{ row[childItem.prop] | fixedFilter }}</span>
-                </template>
-              </el-table-column>
-            </div>
+                <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
+              </template>
+            </el-table-column>
           </el-table-column>
         </el-table>
       </template>
     </card>
 
     <!-- 工序成本卡片 -->
-    <card title="工序成本" class="card">
+    <card v-if="false" title="工序成本" class="card">
       <template #buttons>
         <el-button type="primary">导出工序成本统计</el-button>
       </template>
       <template #content>
         <div class="select-bar">
-          <el-tree
-            v-if="false"
-            ref="treeRef"
-            :data="thirdTableOptions"
-            show-checkbox
-            node-key="prop"
-            :default-checked-keys="['base', 'project', 'process_name']"
-            :props="{ children: 'children', label: 'label' }"
-          />
+          <el-select v-model="selectVal" multiple collapse-tags placeholder="请选择">
+            <el-option
+              v-for="(item, index) in selectOptions"
+              :key="index"
+              :label="item"
+              :value="item"
+            />
+          </el-select>
         </div>
+
         <el-table
           v-loading="isThirdTableLoading"
           :data="projectProcessEfficiency"
+          height="500"
           style="width: 100%"
           row-key="process_name"
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
@@ -175,8 +212,8 @@
           border
         >
           <el-table-column
-            v-for="(item, index) in thirdTableOptions"
-            :key="index"
+            v-for="item in thirdTableOptions"
+            :key="item.prop"
             :label="item.label"
             :prop="item.prop"
             :min-width="item.minWidth"
@@ -186,8 +223,8 @@
           >
             <div v-if="item.children">
               <el-table-column
-                v-for="(childItem, childIndex) in item.children"
-                :key="childIndex"
+                v-for="childItem in item.children"
+                :key="childItem.prop"
                 :prop="childItem.prop"
                 :min-width="childItem.minWidth"
               >
@@ -206,8 +243,8 @@
 
                 <template slot-scope="{row}">
                   <span
-                    :class="childItem.prop === 'total_time' ? calcRenderData(row[childItem.prop]) : 'normal'"
-                  >{{ row[childItem.prop] | fixedFilter }}</span>
+                    :class="childItem.prop === 'total_time' ? calcRenderData(row[childItem.prop]) : ''"
+                  >{{ row[childItem.prop] | roundFilter }}</span>
                 </template>
               </el-table-column>
             </div>
@@ -220,39 +257,7 @@
     <cost-dialog ref="dialogRef" :table-data="dialogTableData" />
 
     <!-- 资源调偏 -->
-    <el-dialog title="资源调偏" :visible.sync="isDialogVisible" width="100%">
-      <!-- 表格 -->
-      <el-table
-        v-loading="isFourTableLoading"
-        :data="fourTableData"
-        fit
-        highlight-current-row
-        border
-        style="width: 100%"
-        class="cost-dialog-table"
-      >
-        <el-table-column
-          v-for="(item, index) in fourTableOptions"
-          :key="index"
-          :prop="item.prop"
-          :label="item.label"
-          :min-width="item.minWidth"
-          :show-overflow-tooltip="item.sot"
-        >
-          <template slot-scope="{row}">
-            <el-input-number
-              v-if="item.prop !== 'type'&& item.prop !== 'area' && item.prop !== 'realm'"
-              v-model.trim="row[item.prop]"
-              controls-position="right"
-              size="mini"
-              @change="handleNumberCountChnage(row)"
-            />
-
-            <span v-else>{{ row[item.prop] }}</span>
-          </template>
-        </el-table-column>
-      </el-table>
-    </el-dialog>
+    <cost-source-adjust ref="costSourceAdjustRef" :list="fourTableData" />
   </div>
 </template>
 
@@ -260,6 +265,9 @@
 import Card from '@/components/Card/index'
 import request from '@/services/request'
 import CostDialog from './components/CostDialog'
+import CostSourceAdjust from './components/CostSourceAdjust'
+
+import { deepClone } from '@/utils'
 
 export default {
   filters: {
@@ -271,23 +279,19 @@ export default {
       }
       return statusMap[status]
     },
-    fixedFilter(value) {
-      const n = Number(value).toFixed(1)
-      return Number.isInteger(Number(n)) ? parseInt(n) : n
-    },
     targetFilter(target) {
-      target = Number(target)
-      if (Number.isInteger(target)) {
-        return `${target} / ${target / 2}`
-      } else {
-        return ` ${target.toFixed(1)} / ${(target / 2).toFixed(1)}`
-      }
+      return `${Math.round(target * 10) / 10} / ${Math.round((target / 2) * 10) / 10}`
     },
-    targetFilter2(target) {}
+    roundFilter(value) {
+      return Math.round(value * 10) / 10
+    },
+    // 实际
+    actualFilter(text, record) {}
   },
   components: {
     Card,
-    CostDialog
+    CostDialog,
+    CostSourceAdjust
   },
   data() {
     return {
@@ -428,8 +432,8 @@ export default {
       dialogTableData: [], // 对话框表格数据
       // 表格四
       fourTableData: [],
-      isFourTableLoading: false,
-      isDialogVisible: false
+      selectOptions: ['工序', '12.5PL1', '12.X基线'],
+      selectVal: ['工序', '12.5PL1', '12.X基线']
     }
   },
   computed: {
@@ -519,12 +523,8 @@ export default {
         },
         {
           label: '代码量',
+          prop: 'code_total',
           children: [
-            {
-              prop: 'total_code',
-              label: '总计',
-              minWidth: '121'
-            },
             {
               prop: 'code',
               label: '新增',
@@ -534,17 +534,18 @@ export default {
               prop: 'transplant_code',
               label: '移植',
               minWidth: '121'
+            },
+            {
+              prop: 'total_code',
+              label: '总计',
+              minWidth: '121'
             }
           ]
         },
         {
           label: '总计',
+          prop: 'total',
           children: [
-            {
-              prop: 'total_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'realm_target',
               label: '目标',
@@ -566,17 +567,18 @@ export default {
               prop: 'total_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'total_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         },
         {
           label: '需求',
+          prop: 'demand',
           children: [
-            {
-              prop: 'demand_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'demand_target',
               label: '目标',
@@ -596,17 +598,18 @@ export default {
               prop: 'demand_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'demand_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         },
         {
           label: '设计',
+          prop: 'design',
           children: [
-            {
-              prop: 'design_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'design_target',
               label: '目标',
@@ -626,17 +629,18 @@ export default {
               prop: 'design_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'design_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         },
         {
           label: '准入',
+          prop: 'admittance',
           children: [
-            {
-              prop: 'admittance_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'admittance_target',
               label: '目标',
@@ -656,17 +660,18 @@ export default {
               prop: 'admittance_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'admittance_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         },
         {
           label: '次轮',
+          prop: 'second',
           children: [
-            {
-              prop: 'test_second_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'test_second_target',
               label: '目标',
@@ -686,17 +691,18 @@ export default {
               prop: 'test_second_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'test_second_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         },
         {
           label: '回归',
+          prop: 'regression',
           children: [
-            {
-              prop: 'regression_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'regression_target',
               label: '目标',
@@ -716,17 +722,18 @@ export default {
               prop: 'regression_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'regression_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         },
         {
           label: '试点',
+          prop: 'on_trial',
           children: [
-            {
-              prop: 'on_trial_deviation',
-              label: '偏差',
-              minWidth: '141'
-            },
             {
               prop: 'on_trial_target',
               label: '目标',
@@ -746,13 +753,18 @@ export default {
               prop: 'on_trial_estimate',
               label: '预期',
               minWidth: '141'
+            },
+            {
+              prop: 'on_trial_deviation',
+              label: '偏差',
+              minWidth: '141'
             }
           ]
         }
       ]
     },
     thirdTableOptions() {
-      return [
+      const options = [
         {
           prop: 'process_name',
           label: '工序',
@@ -883,77 +895,23 @@ export default {
           ]
         }
       ]
-    },
-    fourTableOptions() {
-      return [
-        {
-          prop: 'type',
-          label: '大类',
-          minWidth: 100
-        },
-        {
-          prop: 'area',
-          label: '类型',
-          minWidth: 110
-        },
-        {
-          prop: 'realm',
-          label: '域',
-          minWidth: 320,
-          sot: true
-        },
-        {
-          prop: 'demand_add_time',
-          label: '需求阶段调偏',
-          minWidth: 140
-        },
-        {
-          prop: 'design_add_time',
-          label: '设计阶段调偏',
-          minWidth: 140
-        },
-        {
-          prop: 'admittance_add_time',
-          label: '准入阶段调偏',
-          minWidth: 140
-        },
-        {
-          prop: 'test_first_add_time',
-          label: '首轮阶段调偏',
-          minWidth: 140
-        },
-        {
-          prop: 'test_second_add_time',
-          label: '次轮阶段调偏',
-          minWidth: 140
-        },
-        {
-          prop: 'regression_add_time',
-          label: '回归阶段调偏',
-          minWidth: 140
-        },
-        {
-          prop: 'on_trial_add_time',
-          label: '试点阶段调偏',
-          minWidth: 140
-        }
-      ]
+      return options.filter((item) => this.selectVal.indexOf(item.label) >= 0)
     }
   },
   created() {
+    this.project = this.$t(this.$route.matched[2].meta.title) // 获取项目名称
     this.init()
   },
   methods: {
     // 初始化
     init() {
-      this.project = this.$t(this.$route.matched[2].meta.title) // 获取项目名称
       this.getProjectTotalRealmCost(this.project)
       this.getProjectRealmCost(this.project)
       this.getProjectProcessEfficiency(this.project)
       this.getRealmAdjustList(this.project)
     },
     // 计算渲染数据的类, flag 控制是否有下划线
-    calcRenderData(value, target, flag) {
+    calcRenderData(value, target, flag = 1) {
       value = value === undefined ? 0 : Math.round(value * 10) / 10
       target = target === undefined ? 0 : Math.round(target * 10) / 10
       const half = target === undefined ? 0 : Math.round(target * 0.5 * 10) / 10
@@ -965,6 +923,30 @@ export default {
       }
       return flag === 1 ? 'normal' : ''
     },
+    actualColor(text, record) {
+      const totalTarget = Math.round(record.demand_target * 10) / 10
+      let totalTargetHalf = Math.round(record.demand_target * 0.5 * 10) / 10
+      if (
+        record.type === '组件项目' ||
+        record.type === '技术项目' ||
+        record.type === '专业改进' ||
+        record.type === '验收测试' ||
+        record.type === '其他'
+      ) {
+        totalTargetHalf = Math.round(record.demand_target * 0.9 * 10) / 10
+      }
+
+      if (text <= totalTargetHalf) {
+        return 'normal'
+      }
+      if (totalTargetHalf < text && text <= totalTarget) {
+        return 'warning normal'
+      }
+      if (totalTarget < text) {
+        console.log(1)
+        return 'error normal'
+      }
+    },
     // 点击实际列表项
     handleActualTotalClick(row) {
       this.$refs.dialogRef.isDialogVisible = true // 显示对话框
@@ -972,12 +954,10 @@ export default {
     },
     // 点击资源调偏
     handleStageAdjustClick() {
+      // 深拷贝一份传递
+      this.$refs.costSourceAdjustRef.tableData = deepClone(this.fourTableData)
       // 显示窗口
-      this.isDialogVisible = true
-    },
-    // 处理计数器改变
-    handleNumberCountChnage(row) {
-      console.log(row)
+      this.$refs.costSourceAdjustRef.isDialogVisible = true
     },
     // 成本-项目成本-总计
     async getProjectTotalRealmCost(project) {
@@ -1052,7 +1032,6 @@ export default {
       })
 
       this.fourTableData = res
-      console.log(res)
       this.$nextTick(() => {
         this.isFourTableLoading = false
       })
@@ -1062,6 +1041,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.select-bar {
+  margin-bottom: 20px;
+}
+
 .warning {
   color: orange;
   font-weight: bold;

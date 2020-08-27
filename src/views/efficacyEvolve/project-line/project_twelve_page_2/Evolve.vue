@@ -173,15 +173,6 @@ export default {
       })
       this.implementNumSystemList = res
     },
-    // 执行-SPEC统计
-    async queryExeSpecSta(project) {},
-
-    // 进展-SPEC产品统计列表
-    async queryExeSpecProductSta(project) {},
-
-    // 进展-性能SPEC产品统计列表
-    async queryNatureSpecTotal(project) {},
-
     // 进展-设计-TP用例总计
     async evolveTpCaseTotal(project) {
       const { data: res } = await request('/api/projectEvolveSta/queryByTpCaseTotal', {
@@ -189,19 +180,7 @@ export default {
         params: { project }
       })
       console.log(res)
-    },
-
-    // 进展-设计-专业分组TP用例统计
-    evolveTpCaseProfessionalDivide() {},
-
-    // 进展-评审-评审总计
-    evolveReviewTotal() {},
-
-    // 进展-评审-工作包维度统计
-    evolveReviewWorkPackage() {},
-
-    // 进展-评审-PTGTTM维度统计
-    evolveReviewPerson() {}
+    }
   }
 }
 </script>

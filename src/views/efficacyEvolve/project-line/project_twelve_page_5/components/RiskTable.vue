@@ -99,8 +99,8 @@
         highlight-current-row
       >
         <el-table-column
-          v-for="(item, index) in tableOptions"
-          :key="index"
+          v-for="item in tableOptions"
+          :key="item.prop"
           :label="item.label"
           :prop="item.prop"
           :fixed="item.fixed"

@@ -56,11 +56,11 @@
           :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
           fit
         >
-          <el-table-column prop="t1" label="类型" fixed width="220" show-overflow-tooltip />
-          <el-table-column prop="t2" label="代码量" fixed min-width="89" align="center" />
+          <el-table-column prop="type" label="类型" fixed width="220" show-overflow-tooltip />
+          <el-table-column prop="code" label="代码量" fixed min-width="89" align="center" />
           <el-table-column
-            v-for="(item, index) in desginTableTitleList"
-            :key="index"
+            v-for="item in desginTableTitleList"
+            :key="item.prop"
             :prop="item.prop"
             :label="item.label"
             :min-width="item.minWidth"

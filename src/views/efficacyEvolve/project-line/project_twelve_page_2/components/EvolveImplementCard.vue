@@ -68,7 +68,7 @@
                 <template #content>
                   <!-- select -->
                   <div class="filter-container">
-                    <el-select v-model="caseCheckboxVal" multiple collapse-tags placeholder="请选择">
+                    <el-select v-model="FirstSelectVal" multiple collapse-tags placeholder="请选择">
                       <el-option
                         v-for="(item, index) in caseSelectOptions"
                         :key="index"
@@ -100,8 +100,8 @@
                         </template>
                       </el-table-column>
                       <el-table-column
-                        v-for="(item, index) in caseTableTitleList"
-                        :key="index"
+                        v-for="item in firstTableOptions"
+                        :key="item.prop"
                         :label="item.label"
                         :prop="item.prop"
                         :min-width="item.minWidth ? item.minWidth : 100"
@@ -131,7 +131,7 @@
 
                 <template #content>
                   <div class="filter-container">
-                    <el-select v-model="caseCheckboxVal2" multiple collapse-tags placeholder="请选择">
+                    <el-select v-model="secondSelectVal" multiple collapse-tags placeholder="请选择">
                       <el-option
                         v-for="(item, index) in caseSelectOptions"
                         :key="index"
@@ -151,14 +151,14 @@
                       highlight-current-row
                     >
                       <el-table-column
-                        prop="name"
-                        label="芯片平台 "
+                        prop="type"
+                        label="类型 "
                         min-width="120px"
                         show-overflow-tooltip
                       />
                       <el-table-column
-                        v-for="(item, index) in caseTableTitleList2"
-                        :key="index"
+                        v-for="item in secondTableOptions"
+                        :key="item.prop"
                         :label="item.label"
                         :prop="item.prop"
                         align="center"
@@ -193,7 +193,6 @@ import Chart from '@/components/MyChart/Chart'
 import EvolveBugChoke from './EvolveBugChoke'
 import EvolveAddCaseImplement from './EvolveAddCaseImplement'
 
-import { caseCardSelectList, caseCardSelectDefaultList, caseCardTableTitleList } from './options'
 import request from '@/services/request'
 
 export default {
@@ -230,15 +229,48 @@ export default {
       key: 1,
       cStage: this.currentStage,
       iStage: this.implementStage,
-      caseSelectOptions: caseCardSelectList, // select 的选项列表
-      caseCheckboxVal: caseCardSelectDefaultList, // select 的选中项列表
-      caseTableTitleList: caseCardTableTitleList.filter(
-        (i) => caseCardSelectDefaultList.indexOf(i.label) >= 0
-      ), // 用例卡片表格1的配置项
-      caseCheckboxVal2: caseCardSelectDefaultList, // select 的选中项列表
-      caseTableTitleList2: caseCardTableTitleList.filter(
-        (i) => caseCardSelectDefaultList.indexOf(i.label) >= 0
-      ),
+      caseSelectOptions: [
+        '用例总数',
+        '已执行',
+        '执行率',
+        '未执行',
+        'SKIP',
+        'PASS数',
+        'PASS率',
+        'FAIL数',
+        'FAIL率',
+        '未分析',
+        '今日执行总数',
+        '今日PASS总数'
+      ],
+      FirstSelectVal: [
+        '用例总数',
+        '已执行',
+        '执行率',
+        '未执行',
+        'SKIP',
+        'PASS数',
+        'PASS率',
+        'FAIL数',
+        'FAIL率',
+        '未分析',
+        '今日执行总数',
+        '今日PASS总数'
+      ],
+      secondSelectVal: [
+        '用例总数',
+        '已执行',
+        '执行率',
+        '未执行',
+        'SKIP',
+        'PASS数',
+        'PASS率',
+        'FAIL数',
+        'FAIL率',
+        '未分析',
+        '今日执行总数',
+        '今日PASS总数'
+      ],
       implementNumProductList: [
         {
           name: '合计',
@@ -312,39 +344,32 @@ export default {
     productTableOptions() {
       return [
         {
-          prop: 'name',
-          label: '芯片平台',
-          minWidth: 115,
-          fixed: 'left',
-          sot: true
-        },
-        {
-          prop: 'case_total',
+          prop: 'all_num',
           label: '用例总数',
           minWidth: 89
         },
         {
-          prop: 'executed',
+          prop: 'exe_num',
           label: '已执行',
           minWidth: 75
         },
         {
-          prop: 'execute_rate',
+          prop: 'exe_rate',
           label: '执行率',
           minWidth: 78
         },
         {
-          prop: 'no_execute',
+          prop: 'no_num',
           label: '未执行',
-          minWidth: 78
+          minWidth: 75
         },
         {
-          prop: 'skip',
+          prop: 'skip_num',
           label: 'SKIP',
           minWidth: 70
         },
         {
-          prop: 'pass_count',
+          prop: 'pass_num',
           label: 'PASS数',
           minWidth: 89
         },
@@ -354,7 +379,7 @@ export default {
           minWidth: 89
         },
         {
-          prop: 'fail_count',
+          prop: 'fail_num',
           label: 'FAIL数',
           minWidth: 80
         },
@@ -364,32 +389,32 @@ export default {
           minWidth: 78
         },
         {
-          prop: 'no_analyze',
+          prop: 'no_analyse_num',
           label: '未分析',
           minWidth: 75
         },
         {
-          prop: 'td_execute_total',
+          prop: 'day_all_num',
           label: '今日执行总数',
           minWidth: 117
         },
         {
-          prop: 'td_pass_total',
+          prop: 'day_pass_num',
           label: '今日PASS总数',
           minWidth: 132
         },
         {
-          prop: 'plan_tm_execute_count',
+          prop: 'tomorrow_num',
           label: '计划明日执行个数',
           minWidth: 145
         },
         {
-          prop: 'need_execute_day',
+          prop: 'exe_day_num',
           label: '还需执行天数',
           minWidth: 117
         },
         {
-          prop: 'carry_analyze',
+          prop: 'analyse',
           label: '执行分析',
           minWidth: 200
         }
@@ -397,18 +422,15 @@ export default {
     },
     implementStageComputed() {
       return this.implementStage
+    },
+    firstTableOptions() {
+      return this.productTableOptions.filter((item) => this.FirstSelectVal.indexOf(item.label) >= 0)
+    },
+    secondTableOptions() {
+      return this.productTableOptions.filter((item) => this.secondSelectVal.indexOf(item.label) >= 0)
     }
   },
   watch: {
-    // 用例卡片 select1 的选中项改变
-    caseCheckboxVal(valArr) {
-      this.caseTableTitleList = caseCardTableTitleList.filter((i) => valArr.indexOf(i.label) >= 0)
-      this.key = this.key + 1
-    },
-    caseCheckboxVal2(valArr) {
-      this.caseTableTitleList2 = caseCardTableTitleList.filter((i) => valArr.indexOf(i.label) >= 0)
-      this.key = this.key + 1
-    },
     implementStageComputed(newV, oldV) {
       this.iStage = newV
     }

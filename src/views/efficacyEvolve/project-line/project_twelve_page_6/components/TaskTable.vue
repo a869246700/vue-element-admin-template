@@ -48,8 +48,8 @@
         highlight-current-row
       >
         <el-table-column
-          v-for="(item, index) in tableTitleList"
-          :key="index"
+          v-for="item in tableTitleList"
+          :key="item.prop"
           :prop="item.prop"
           :label="item.label"
           :min-width="item.minWidth"

@@ -198,8 +198,8 @@
         style="width: 100%"
       >
         <el-table-column
-          v-for="(item, index) in innerTableOptions"
-          :key="index"
+          v-for="item in innerTableOptions"
+          :key="item.prop"
           :prop="item.prop"
           :label="item.label"
           :min-width="item.minWidth"
@@ -416,6 +416,7 @@ export default {
     },
     // 点击工作包
     handleWorkPackClick(row) {
+      this.$emit('click', row)
       const project = this.$t(this.$route.meta.title)
       this.innerDialogVisible = true
       this.queryByQualityDefectInfoList(project, 'sta', row.type, '', row.work_package)
