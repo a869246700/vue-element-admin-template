@@ -531,7 +531,6 @@ export default {
     // 初始化
     init() {
       this.queryByQualityDefectList(this.project, 'sta', 'realm', '')
-      console.log(this.project)
       this.queryByQualityZrDefectList(this.project, 'sta', 'type', this.zrStageName)
       this.queryByBugSolve(this.project)
       this.queryByProjectStage(this.project)

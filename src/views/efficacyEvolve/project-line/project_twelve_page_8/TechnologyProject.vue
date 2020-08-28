@@ -2,7 +2,7 @@
   <!-- 技术项目 -->
   <div class="technology-project">
     <!-- 通知栏 -->
-    <div class="notify-bar">
+    <div v-if="false" class="notify-bar">
       <div>
         <el-tag type="info">技术课题共计 X 项，代码量共 X kloc，其中测试验证结项 X 项，评审结项 X 项</el-tag>
       </div>
@@ -14,39 +14,86 @@
       </div>
     </div>
 
-    <!-- 课题分析统计卡片 -->
-    <card title="课题分析统计" class="card">
-      <template #content>
-        <div class="statistics-table">
-          <statistics-table />
-        </div>
-      </template>
-    </card>
+    <!-- 课题分析统计 -->
+    <statistics-table :project="project" @topic-click="handleTopicClick" />
 
     <!-- 课题分析明细 -->
-    <card title="课题分析明细" class="card">
-      <template #content>
-        <div class="detail-table">
-          <detail-table />
-        </div>
-      </template>
-    </card>
+    <detail-table ref="detailRef" :project="project" />
+
+    <topic-work-package-dialog
+      ref="topWorkPackageRef"
+      :table-data="topicWorkPackageData"
+      :object="objectProject"
+    />
   </div>
 </template>
 
 <script>
-import Card from '@/components/Card/index'
 import StatisticsTable from './components/StatisticsTable'
 import DetailTable from './components/DetailTable'
+import TopicWorkPackageDialog from './components/TopicWorkPackageDialog'
+
+import request from '@/services/request'
 
 export default {
   components: {
-    Card,
     StatisticsTable,
-    DetailTable
+    DetailTable,
+    TopicWorkPackageDialog
   },
   data() {
-    return {}
+    return {
+      project: undefined, // 项目线名称
+      topicWorkPackageData: undefined, // 课题工作包统计
+      objectProject: undefined // 点击的对象
+    }
+  },
+  created() {
+    // 获取项目名
+    this.project = this.$t(this.$route.matched[2].meta.title)
+  },
+  methods: {
+    handleTopicClick(row) {
+      this.objectProject = row
+      this.getTechnologyTopicWorkPackageStaList(this.project, row.topic_name)
+    },
+    // 技术项目-课题工作包统计
+    async getTechnologyTopicWorkPackageStaList(project, topic) {
+      this.$refs.topWorkPackageRef.topic = topic
+      this.$refs.topWorkPackageRef.isLoading = true
+      this.$refs.topWorkPackageRef.dialogVisible = true
+      const { data: res } = await request(
+        '/api/projectEvolveSta/queryByTechnologyTopicWorkPackageSta',
+        {
+          method: 'GET',
+          params: {
+            project,
+            topic
+          }
+        }
+      )
+      this.topicWorkPackageData = res
+      this.$nextTick(() => {
+        this.$refs.topWorkPackageRef.getList()
+        this.$refs.topWorkPackageRef.isLoading = false
+      })
+    },
+    // 技术项目-修改课题验收方式
+    async updateTechnologyCheckMode(topic, value) {
+      const values = {
+        topic_name: topic,
+        check_mode: value,
+        project: this.project
+      }
+      const { data: res } = await request(
+        '/api/projectEvolveSta/technologyTopicInfo/updateCheckMode',
+        {
+          method: 'POST',
+          data: values
+        }
+      )
+      console.log(res)
+    }
   }
 }
 </script>

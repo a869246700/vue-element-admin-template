@@ -1,116 +1,199 @@
 export const statisticsTableList = [
   {
-    prop: 'technical_issues',
+    prop: 'topic_name',
     label: '技术课题',
-    minWidth: 120
+    minWidth: 180
   },
   {
-    prop: 'technical_issues_code',
+    prop: 'code',
     label: '代码量',
-    minWidth: 100
+    minWidth: 80
   },
   {
-    prop: 'acceptance_method',
+    prop: 'check_mode',
     label: '验收方式',
-    minWidth: 140
+    minWidth: 130
   },
   {
-    prop: 'work_package_defect_total',
+    prop: 'all_num',
     label: '工作包缺陷',
-    minWidth: 140
+    minWidth: 100
   },
   {
-    prop: 'technical_issues_omission',
+    prop: 'type_all_num',
     label: '课题遗漏',
-    minWidth: 120
+    minWidth: 80
   },
   {
-    prop: 'defect_rate',
+    prop: 'type_all_rate',
     label: '缺陷率',
-    minWidth: 100
+    minWidth: 80
   },
   {
-    prop: 'no_unkonwn_defect',
+    prop: 'unknown_defect',
     label: '未知缺陷',
-    minWidth: 100
+    minWidth: 80
   },
   {
-    prop: 'functional_class',
+    prop: 'function_type',
     label: '功能类',
-    minWidth: 100
+    minWidth: 80
   },
   {
-    prop: 'performance_class',
+    prop: 'performance_type',
     label: '性能类',
-    minWidth: 100
+    minWidth: 80
   },
   {
-    prop: 'no_functional_class',
+    prop: 'no_function_type',
     label: '非功能类',
-    minWidth: 100
+    minWidth: 80
   }
 ]
 
 export const detailTableList = [
   {
-    prop: 'project_name',
+    prop: 'project',
     label: '项目名称',
-    minWidth: 120
+    minWidth: 120,
+    search: true
   },
   {
-    prop: 'technical_issues',
+    prop: 'topic',
     label: '技术课题',
-    minWidth: 120
+    minWidth: 120,
+    search: true
   },
   {
-    prop: 'acceptance_method',
+    prop: 'check_mode',
     label: '验收方式',
-    minWidth: 140
+    minWidth: 140,
+    search: true
   },
   {
     prop: 'work_package',
     label: '工作包',
-    minWidth: 100
+    minWidth: 100,
+    search: true
   },
   {
-    prop: 'code_count',
+    prop: 'code',
     label: '代码量',
     minWidth: 100
   },
   {
-    prop: 'dev_principal',
+    prop: 'deve_name',
     label: '开发负责人',
-    minWidth: 120
+    minWidth: 120,
+    search: true
   },
   {
-    prop: 'test_principal',
+    prop: 'test_name',
     label: '测试负责人',
-    minWidth: 120
+    minWidth: 120,
+    search: true
   },
   {
     prop: 'bugid',
     label: 'bugid',
+    minWidth: 100,
+    search: true
+  },
+  {
+    prop: 'summary',
+    label: 'bug描述',
+    minWidth: 120,
+    search: true
+  },
+  {
+    prop: 'omit_type',
+    label: '遗漏类型归属',
+    minWidth: 140,
+    search: true
+  },
+  {
+    prop: 'omit_cause',
+    label: '遗漏原因',
+    minWidth: 120,
+    search: true
+  },
+  {
+    prop: 'improve',
+    label: '改进对策',
+    minWidth: 120,
+    search: true
+  }
+]
+
+export const tableOptions = [
+  {
+    prop: 'topic_name',
+    label: '技术课题',
     minWidth: 100
   },
   {
-    prop: 'bug_desc',
-    label: 'bug描述',
-    minWidth: 120
+    prop: 'topic_code',
+    label: '技术课题代码量',
+    minWidth: 115
   },
   {
-    prop: 'omission_type',
-    label: '遗漏类型归属',
-    minWidth: 140
+    prop: 'check_mode',
+    label: '验收方式',
+    minWidth: 90,
+    search: true
   },
   {
-    prop: 'omission_reason',
-    label: '遗漏原因',
-    minWidth: 120
+    prop: 'work_package',
+    label: '工作包',
+    minWidth: 140,
+    search: true
   },
   {
-    prop: 'improve_solution',
-    label: '改进对策',
-    minWidth: 120
+    prop: 'code',
+    label: '代码量',
+    minWidth: 60
+  },
+  {
+    prop: 'workPacketManager',
+    label: '开发负责人',
+    minWidth: 100,
+    search: true
+  },
+  {
+    prop: 'ptgttm',
+    label: '测试负责人',
+    minWidth: 100,
+    search: true
+  },
+  {
+    prop: 'all_num',
+    label: '工作包缺陷总数',
+    minWidth: 115
+  },
+  {
+    prop: 'type_all_num',
+    label: '技术课题遗漏个数',
+    minWidth: 128
+  },
+  {
+    prop: 'type_all_rate',
+    label: '缺陷率',
+    minWidth: 65
+  },
+  {
+    prop: 'function_type',
+    label: '功能类',
+    minWidth: 65
+  },
+  {
+    prop: 'performance_type',
+    label: '性能类',
+    minWidth: 65
+  },
+  {
+    prop: 'no_function_type',
+    label: '非功能类',
+    minWidth: 80
   }
 ]
 
