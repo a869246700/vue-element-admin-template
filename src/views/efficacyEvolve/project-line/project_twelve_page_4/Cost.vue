@@ -8,8 +8,8 @@
       </template>
 
       <template #content>
+        <!-- 总计 -->
         <el-table
-          v-if="false"
           v-loading="isFirstTableLoading"
           :data="projectTotalRealmCost"
           style="width: 100%"
@@ -55,13 +55,13 @@
 
                   <span
                     v-else-if="childItem.prop === 'total_actual'"
-                    :class="calcRenderData(row.total_actual, row.total_target, 1)"
-                    @click="handleActualTotalClick(row)"
+                    :class="calcRenderColor(row.total_actual, row, 1)"
+                    @click="handleActualTotalClick(row, item.label)"
                   >{{ row.total_actual | roundFilter }}</span>
 
                   <span
                     v-else-if="childItem.prop === 'total_estimate' "
-                    :class="calcRenderData(row.total_estimate, row.total_target, 2)"
+                    :class="actualColor(row.total_estimate, row, 2)"
                   >{{ row.total_estimate | roundFilter }}</span>
 
                   <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
@@ -71,43 +71,7 @@
           </el-table-column>
         </el-table>
 
-        <el-table
-          v-loading="isSecondTableLoading"
-          :data="projectRealmCost"
-          style="width: 100%; margin-top: 10px;"
-          row-key="name"
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          :fit="false"
-          border
-        >
-          <el-table-column prop="name" label="类型" width="220" fixed show-overflow-tooltip />
-          <el-table-column prop="code_total" label="代码量" fixed>
-            <el-table-column prop="code" label="新增" width="121" />
-            <el-table-column prop="transplant_code" label="移植" width="121" />
-            <el-table-column prop="total_code" label="总计" width="121" />
-          </el-table-column>
-
-          <el-table-column prop="total" label="总计">
-            <el-table-column prop="realm_target" label="目标" width="121">
-              <template #header>
-                <span style="margin-right: 5px">目标</span>
-                <el-popover
-                  placement="top-start"
-                  :width="800"
-                  trigger="hover"
-                >
-                  <div v-html="stageTargetPopoverContent" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-            </el-table-column>
-            <el-table-column prop="total_actual" label="实际" width="121" />
-            <el-table-column prop="total_need" label="还需" width="121" />
-            <el-table-column prop="total_estimate" label="预期" width="121" />
-            <el-table-column prop="total_deviation" label="偏差" width="121" />
-          </el-table-column>
-        </el-table>
-
+        <!-- 域 -->
         <el-table
           v-loading="isSecondTableLoading"
           :data="projectRealmCost"
@@ -154,26 +118,30 @@
                 <!-- 总计预期 -->
                 <span
                   v-else-if="childItem.prop === 'total_estimate'"
+                  :class="actualColor((Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10), row, item.prop, 2)"
                 >{{ (Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10) }}</span>
                 <!-- 总计偏差 -->
                 <span
                   v-else-if="childItem.prop === 'total_deviation'"
                 >{{ (Math.round((row.demand_deviation+row.design_deviation+row.admittance_deviation+row.test_first_deviation+row.test_second_deviation+row.regression_deviation+row.on_trial_deviation) * 10) / 10) }}</span>
 
+                <!-- 目标 -->
                 <span
                   v-else-if="childItem.prop.includes('_target')"
                   style="word-spacing: 5px;"
                 >{{ row[childItem.prop] | targetFilter }}</span>
 
+                <!-- 实际 -->
                 <span
                   v-else-if="childItem.prop.indexOf('_actual') >= 0"
-                  :class="actualColor(row[childItem.prop], row)"
-                  @click="handleActualTotalClick(row)"
+                  :class="actualColor(row[childItem.prop], row, item.prop, 1)"
+                  @click="handleActualTotalClick(row, item.label)"
                 >{{ row[childItem.prop] | roundFilter }}</span>
 
+                <!-- 预期 -->
                 <span
-                  v-else-if="childItem.prop.indexOf('_estimate') >= 0"
-                  :class="actualColor(row[childItem.prop], row)"
+                  v-else-if="item.prop !== 'regression' && item.prop !== 'on_trial' && item.prop !== 'total' && childItem.prop.indexOf('_estimate') >= 0"
+                  :class="actualColor(row[childItem.prop], row, item.prop, 2)"
                 >{{ row[childItem.prop] | roundFilter }}</span>
 
                 <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
@@ -185,7 +153,7 @@
     </card>
 
     <!-- 工序成本卡片 -->
-    <card v-if="false" title="工序成本" class="card">
+    <card title="工序成本" class="card">
       <template #buttons>
         <el-button type="primary">导出工序成本统计</el-button>
       </template>
@@ -243,8 +211,14 @@
 
                 <template slot-scope="{row}">
                   <span
-                    :class="childItem.prop === 'total_time' ? calcRenderData(row[childItem.prop]) : ''"
+                    v-if="childItem.prop === 'total_time'"
+                    :class="calcRenderColor2(row.total_time, row, 1)"
+                    @click="handleActualTotalClick(row, '')"
                   >{{ row[childItem.prop] | roundFilter }}</span>
+
+                  <span
+                    v-else
+                  >{{ row[childItem.prop] === undefined ? 0 : Math.round(row[childItem.prop] * 10) / 10 }}</span>
                 </template>
               </el-table-column>
             </div>
@@ -910,22 +884,38 @@ export default {
       this.getProjectProcessEfficiency(this.project)
       this.getRealmAdjustList(this.project)
     },
-    // 计算渲染数据的类, flag 控制是否有下划线
-    calcRenderData(value, target, flag = 1) {
-      value = value === undefined ? 0 : Math.round(value * 10) / 10
-      target = target === undefined ? 0 : Math.round(target * 10) / 10
-      const half = target === undefined ? 0 : Math.round(target * 0.5 * 10) / 10
-
-      if (half <= value && value < target) {
-        return flag === 1 ? 'normal warning' : 'warning'
-      } else if (value >= target) {
-        return flag === 1 ? 'normal error' : 'error'
+    calcRenderColor(text, record, flag) {
+      const totalTarget = Math.round(record.total_target * 10) / 10
+      let totalTargetHalf = Math.round(record.total_target * 0.5 * 10) / 10
+      if (
+        record.type === '组件项目' ||
+        record.type === '技术项目' ||
+        record.type === '专业改进' ||
+        record.type === '验收测试' ||
+        record.type === '其他'
+      ) {
+        totalTargetHalf = Math.round(record.total_target * 0.9 * 10) / 10
       }
-      return flag === 1 ? 'normal' : ''
+
+      if (text <= totalTargetHalf) {
+        return flag === 1 ? 'normal' : ''
+      }
+      if (totalTargetHalf < text && text <= totalTarget) {
+        return flag === 1 ? 'warning normal' : 'warning'
+      }
+      if (totalTarget < text) {
+        return flag === 1 ? 'error normal' : 'error'
+      }
     },
-    actualColor(text, record) {
-      const totalTarget = Math.round(record.demand_target * 10) / 10
-      let totalTargetHalf = Math.round(record.demand_target * 0.5 * 10) / 10
+    actualColor(text, record, parentProp, flag) {
+      let totalTarget = Math.round(record[parentProp + '_target'] * 10) / 10
+      let totalTargetHalf = Math.round(record[parentProp + '_target'] * 0.5 * 10) / 10
+
+      if (parentProp === 'total') {
+        totalTarget = Math.round(record.realm_target * 10) / 10
+        totalTargetHalf = Math.round(record.realm_target * 0.5 * 10) / 10
+      }
+
       if (
         record.type === '组件项目' ||
         record.type === '技术项目' ||
@@ -937,20 +927,47 @@ export default {
       }
 
       if (text <= totalTargetHalf) {
-        return 'normal'
+        return flag === 1 ? 'normal' : ''
       }
       if (totalTargetHalf < text && text <= totalTarget) {
-        return 'warning normal'
+        return flag === 1 ? 'warning normal' : 'warning'
       }
       if (totalTarget < text) {
-        console.log(1)
-        return 'error normal'
+        return flag === 1 ? 'error normal' : 'error'
+      }
+    },
+    // 处理工序卡片中实际资源颜色方法
+    calcRenderColor2(text, record, flag) {
+      const totalTarget =
+        record.target_summary === undefined ? 0 : Math.round(record.target_summary * 10) / 10
+      const totalTargetHalf =
+        record.target_summary === undefined ? 0 : Math.round(record.target_summary * 0.5 * 10) / 10
+      const value = text === undefined ? 0 : Math.round(text * 10) / 10
+
+      if (value <= totalTargetHalf) {
+        return flag === 1 ? 'normal' : ''
+      }
+      if (totalTargetHalf < value && value <= totalTarget) {
+        return flag === 1 ? 'warning normal' : 'warning'
+      }
+      if (totalTarget < value) {
+        return flag === 1 ? 'error normal' : 'error'
       }
     },
     // 点击实际列表项
-    handleActualTotalClick(row) {
+    handleActualTotalClick(row, stage) {
+      if (stage === '总计' || stage === undefined) {
+        stage = ''
+      }
       this.$refs.dialogRef.isDialogVisible = true // 显示对话框
-      this.getProjectDetailSummary(this.project, row.type, row.area, row.realm, '', '')
+      this.getProjectDetailSummary(
+        this.project,
+        !row.type ? '' : row.type,
+        !row.area ? '' : row.area,
+        !row.realm ? '' : row.realm,
+        stage,
+        !row.process_name ? '' : row.process_name
+      )
     },
     // 点击资源调偏
     handleStageAdjustClick() {
@@ -1046,12 +1063,12 @@ export default {
 }
 
 .warning {
-  color: orange;
+  color: #ff8000;
   font-weight: bold;
 }
 
 .error {
-  color: red;
+  color: #ff0000;
   font-weight: bold;
 }
 
