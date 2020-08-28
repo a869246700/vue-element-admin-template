@@ -105,7 +105,6 @@ export const constantRoutes = [
 
 export const asyncRoutes = []
 
-initRouterList()
 // 初始化路由
 export async function initRouterList() {
   const { data: res } = await listRouter()
@@ -116,8 +115,10 @@ export async function initRouterList() {
     return item
   })
 
+  console.log('路由被初始化')
   formatter(asyncRoutes)
   formatter(constantRoutes, null, res)
+  flag = true
 }
 
 // 将路由转换成菜单
@@ -172,6 +173,8 @@ const createRouter = () => new Router({
   routes: constantRoutes
 })
 
+initRouterList()
+
 const router = createRouter()
 
 export function resetRouter() {
@@ -179,15 +182,17 @@ export function resetRouter() {
   router.matcher = newRouter.matcher // reset router
 }
 
+let flag = false
 router.beforeEach((to, from, next) => {
-  // let temp = to.path
-  // while (temp.indexOf('/') >= 0) {
-  //   temp = temp.replace('/', '.')
-  // }
-  // temp = 'menu' + temp
-  // to.meta.title = temp
-  // console.log(temp)
-  next()
+  console.log(flag)
+  if (flag) {
+    next()
+  } else {
+    const timer = setTimeout(() => {
+      next()
+      clearTimeout(timer)
+    }, 300)
+  }
 })
 
 export default router
