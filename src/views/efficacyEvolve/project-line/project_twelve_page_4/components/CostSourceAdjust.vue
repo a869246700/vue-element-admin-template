@@ -42,7 +42,7 @@
 </template>
 
 <script>
-import request from '@/services/request'
+import request from '@/services/post'
 
 export default {
   props: {

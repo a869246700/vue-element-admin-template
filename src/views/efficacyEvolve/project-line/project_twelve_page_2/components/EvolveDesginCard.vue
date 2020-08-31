@@ -1,11 +1,16 @@
 <template>
   <card title="设计" class="desgin card">
     <template #buttons>
-      <el-button type="primary" size="small">导出TP明细</el-button>
+      <el-button
+        :loading="butLoading"
+        type="primary"
+        size="small"
+        @click="handleExportExcelClick"
+      >导出TP明细</el-button>
     </template>
 
     <template #content>
-      <div class="notice-board">
+      <div v-loading="infoLoading" class="notice-board">
         <el-row :gutter="24">
           <el-col :span="6">
             <el-alert
@@ -38,7 +43,7 @@
         </el-row>
       </div>
 
-      <div class="desgin-table">
+      <div v-loading="tableLoading" class="desgin-table">
         <div class="filter-container">
           <!-- select -->
           <el-select v-model="desginSelectVal" multiple collapse-tags placeholder="请选择">
@@ -92,6 +97,7 @@ import Card from '@/components/Card/index'
 import Pagination from '@/components/Pagination/index'
 
 import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: {
@@ -107,6 +113,8 @@ export default {
   data() {
     return {
       key: 1,
+      infoLoading: false,
+      tableLoading: false,
       tpCaseTotal: undefined, // 数据
       desginSelectVal: [
         '总计TP个数',
@@ -129,15 +137,15 @@ export default {
       desginTableData: [],
       currentPage: 1, // 当前页码
       limit: 10, // 每页数量
-      total: 0 // 总数
+      total: 0, // 总数
+      butLoading: false
     }
   },
   computed: {
     list() {
-      return this.desginTableData.slice(
-        (this.desginTableCurrentPage - 1) * 10,
-        this.desginTableCurrentPage * 10
-      )
+      const page = this.currentPage
+      const limit = this.limit
+      return this.desginTableData.slice((page - 1) * limit, page * limit)
     },
     tableOptions() {
       const options = [
@@ -190,20 +198,47 @@ export default {
   },
   created() {
     this.evolveTpCaseTotal(this.project)
+    this.evolveTpCaseProfessionalDivide(this.project)
   },
   methods: {
+    // 导出 excel
+    handleExportExcelClick() {
+      const url = '/api/export/tpDesignCaseInfo'
+      const obj = { conditions: { project: this.project }}
+      const fileName = this.project + '-TP明细.xls'
+      DownFiles(url, obj, fileName, this)
+    },
+    // 分页器修改
     handlePageUpdate(e) {
       this.currentPage = e.page
       this.limit = e.limit
     },
     async evolveTpCaseTotal(project) {
+      this.infoLoading = true
       const { data: res } = await request('/api/projectEvolveSta/queryByTpCaseTotal', {
         method: 'GET',
         params: { project }
       })
-
       this.tpCaseTotal = !res ? undefined : res
-      // console.log(res)
+
+      this.$nextTick(() => {
+        this.infoLoading = false
+      })
+    },
+    async evolveTpCaseProfessionalDivide(project) {
+      this.tableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByTpCaseProfessionalDivide', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+      this.total = res.length
+      this.desginTableData = res
+
+      this.$nextTick(() => {
+        this.tableLoading = false
+      })
     }
   }
 }

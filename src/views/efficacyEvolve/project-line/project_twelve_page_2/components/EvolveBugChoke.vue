@@ -1,13 +1,16 @@
 <template>
   <el-dialog title="BUG阻塞" :visible.sync="dialogVisible" width="70%">
-    <card class="bug-choke-card">
+    <card v-loading="tableLoading" class="bug-choke-card">
       <template #buttons>
-        <el-button type="primary" @click="handleExportChokeCaseClick">导出阻塞用例列表</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          @click="handleExportChokeCaseClick"
+        >导出阻塞用例列表</el-button>
       </template>
 
       <template #content>
         <el-table
-          v-loading="tableLoading"
           :data="tableData"
           show-header
           border
@@ -41,6 +44,7 @@
 <script>
 import Card from '@/components/Card/index'
 import Pagination from '@/components/Pagination/index'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: { Card, Pagination },
@@ -52,6 +56,10 @@ export default {
     pageSize: {
       type: Number,
       default: 10
+    },
+    project: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -59,7 +67,9 @@ export default {
       currentPage: 1, // 当前页码
       limit: this.pageSize, // 每页数量
       dialogVisible: false, // 控制对话框的显示与隐藏
-      tableLoading: false // 表单加载中
+      tableLoading: false, // 表单加载中
+      downloadLoading: false, // 是否在下载中
+      butLoading: false
     }
   },
   computed: {
@@ -132,13 +142,11 @@ export default {
       this.currentPage = e.page
       this.limit = e.limit
     },
-    handleExportChokeCaseClick() {
-      this.$notify({
-        title: '导出阻塞用例列表',
-        message: '方法位置 EvolveBugChoke',
-        type: 'success',
-        duration: 2000
-      })
+    async handleExportChokeCaseClick() {
+      const url = '/api/export/projectBugChoke'
+      const fileName = this.project + '阻塞用例列表.xls'
+
+      DownFiles(url, { conditions: { project: this.project }}, fileName, this)
     }
   }
 }

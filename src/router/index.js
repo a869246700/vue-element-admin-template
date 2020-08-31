@@ -184,7 +184,6 @@ export function resetRouter() {
 
 let flag = false
 router.beforeEach((to, from, next) => {
-  console.log(flag)
   if (flag) {
     next()
   } else {

@@ -27,6 +27,17 @@ import '@/assets/iconfont/iconfont.css'
 import WlGantt from 'wl-gantt'
 Vue.use(WlGantt)
 
+// 引入 AFTableColumn
+// import AFTableColumn from 'af-table-column'
+// // 定义字体比例
+// const fontRate = {
+//   CHAR_RATE: 1.2, // 汉字比率
+//   NUM_RATE: 1.2, // 数字
+//   OTHER_RATE: 1.2 // 除汉字和数字以外的字符的比率
+// }
+// const fontSize = 16
+// Vue.use(AFTableColumn, { fontRate, fontSize })
+
 import * as filters from './filters' // global filters
 
 if (process.env.NODE_ENV === 'production') {

@@ -106,9 +106,16 @@
   line-height: $sideBarHeight;
 }
 
-.el-table .cell {
+// .el-table .cell {
+//   padding    : 0px 10px;
+//   white-space: nowrap;
+// }
+
+.el-table .cell,
+.el-table th>.cell {
   padding    : 0px 10px;
   white-space: nowrap;
+  width      : fit-content;
 }
 
 .evolve .el-select,
@@ -127,5 +134,5 @@
 }
 
 .cost-dialog-table .cell {
-  padding: 0px 5px!important;
+  padding: 0px 5px !important;
 }

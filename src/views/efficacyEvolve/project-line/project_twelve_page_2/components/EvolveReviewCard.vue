@@ -1,7 +1,12 @@
 <template>
   <card title="评审" class="review card">
     <template #buttons>
-      <el-button type="primary" size="small">导出评审明细</el-button>
+      <el-button
+        :loading="butLoading"
+        type="primary"
+        size="small"
+        @click="handleExportExcelClick"
+      >导出评审明细</el-button>
     </template>
 
     <template #content>
@@ -134,6 +139,7 @@ import Chart from '@/components/MyChart/Chart'
 import Pagination from '@/components/Pagination/index'
 
 import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: {
@@ -183,7 +189,8 @@ export default {
       reviewDocumentChartOptions: undefined, // 评审文档统计图表配置
       currentPage: 1,
       limit: 10,
-      total: 0
+      total: 0,
+      butLoading: false
     }
   },
   computed: {
@@ -297,7 +304,7 @@ export default {
     const timer = setTimeout(() => {
       this.init()
       clearTimeout(timer)
-    }, 500)
+    }, 200)
   },
   methods: {
     // 初始化组件
@@ -307,6 +314,15 @@ export default {
       this.reviewStaEcharts(this.project, this.reviewStage)
       this.reviewFileStaEcharts(this.project, this.reviewStage)
     },
+    // 导出 execl 文件
+    handleExportExcelClick() {
+      const url = '/api/export/projectReviewInfo'
+      const reviewTypeData = this.reviewStage.replace('+', '')
+      const obj = { conditions: { project: this.project, reviewTypeData }}
+      console.log(obj)
+      const fileName = this.project + '-评审明细.xls'
+      DownFiles(url, obj, fileName, this)
+    },
     // 分页器变化
     handlePageUpdate(e) {
       this.currentPage = e.page
@@ -315,6 +331,7 @@ export default {
     // 主干 / 组件 切换
     handleReviewStageChange(e) {
       this.init()
+      this.reviewStage = e
     },
     // 进展-评审-工作包维度统计
     async evolveReviewWorkPackage(project, type) {

@@ -39,27 +39,18 @@ export default {
   data() {
     return {
       name: '12.5PL1',
-      activeName: '9',
+      activeName: '2',
       tabMapOptions: [
         { label: '总述', key: '1', name: 'Dashboard', disabled: false },
-        { label: '进展', key: '2', name: 'Evolve', disabled: false },
-        { label: '质量', key: '3', name: 'Quality', disabled: false },
-        { label: '成本', key: '4', name: 'Cost', disabled: false },
-        // { label: '问题&风险', key: '5', name: 'RiskManage' },
-        { label: '风险管理', key: '6', name: 'RiskManage', disabled: false },
-        { label: '专项任务', key: '7', name: 'SpecialTask', disabled: false },
-        { label: '项目最长路径', key: '8', name: 'ProjectLongestPath', disabled: false },
-        { label: '技术项目', key: '9', name: 'TechnologyProject', disabled: false },
-        { label: '设计', key: '10', disabled: true },
-        { label: 'WBS', key: '11', disabled: true },
-        { label: '沟通管理', key: '12', disabled: false },
-        { label: '流程', key: '13', disabled: true },
-        { label: '人员管理', key: '14', disabled: true },
-        { label: '积分管理', key: '15', disabled: true },
-        { label: '绩效考核', key: '16', disabled: true },
-        { label: '资质审查  ', key: '17', disabled: false },
-        { label: '组件项目', key: '18', disabled: false },
-        { label: '需求变更', key: '19', disabled: false }
+        { label: '进展管理', key: '2', name: 'Evolve', disabled: false },
+        { label: '质量管理', key: '3', name: 'Quality', disabled: false },
+        { label: '成本管理', key: '4', name: 'Cost', disabled: false },
+        { label: '风险管理', key: '5', name: 'RiskManage', disabled: false },
+        { label: '测试任务', key: '6', name: 'SpecialTask', disabled: false },
+        { label: '技术项目', key: '7', name: 'TechnologyProject', disabled: false },
+        { label: '积分考核', key: '8', disabled: true },
+        { label: '项目报告推送', key: '9', disabled: true },
+        { label: '项目要素设计管理', key: '10', disabled: false }
       ]
     }
   }

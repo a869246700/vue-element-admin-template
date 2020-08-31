@@ -1,45 +1,47 @@
 <template>
   <div class="evolve">
-    <!-- 甘特图 -->
-    <div class="evolve-gantt">
-      <div class="brief">
-        <div class="tag">
-          <el-tag>项目计划：当前项目阶段 XXX</el-tag>
+    <el-tabs v-model="active" type="card" lazy>
+      <el-tab-pane v-if="evolveGanttVisible" key="1" label="甘特图">
+        <div class="brief">
+          <div class="tag">
+            <el-tag>项目计划：当前项目阶段 XXX</el-tag>
+          </div>
+          <div class="tag">
+            <el-tag type="success">全部计划与工作：共X条，已完成X条</el-tag>
+          </div>
         </div>
-        <div class="tag">
-          <el-tag type="success">全部计划与工作：共X条，已完成X条</el-tag>
-        </div>
-      </div>
-      <evolve-gantt v-if="evolveGanttVisible" class="gantt" />
-    </div>
+        <evolve-gantt class="gantt" />
+      </el-tab-pane>
 
-    <!-- 执行卡片 -->
-    <evolve-implement-card
-      v-if="evolveImplementCardVisible"
-      :project="project"
-      :current-stage.sync="currentStage"
-      :implement-stage.sync="implementStage"
-      :current-stage-type-list="currentStageTypeList"
-      :implement-stage-type-list="implementStageTypeList"
-      @system-click="handleCaseSystemClick"
-    />
+      <el-tab-pane v-if="evolveImplementCardVisible" key="2" label="用例">
+        <evolve-implement-card
+          :project="project"
+          :current-stage.sync="currentStage"
+          :implement-stage.sync="implementStage"
+          :current-stage-type-list="currentStageTypeList"
+          :implement-stage-type-list="implementStageTypeList"
+          @system-click="handleCaseSystemClick"
+        />
+      </el-tab-pane>
 
-    <!-- SPEC卡片 -->
-    <evolve-spec-card
-      v-if="evolveSepcCardVisible"
-      :project="project"
-      :current-stage.sync="specCurrentStage"
-      :implement-stage.sync="implementSpecStage"
-      :current-stage-type-list="currentStageTypeList"
-      :implement-stage-type-list="implementStageTypeList"
-      @system-click="handleSpecSystemClick"
-    />
+      <el-tab-pane v-if="evolveSepcCardVisible" key="3" label="SPEC">
+        <evolve-spec-card
+          :project="project"
+          :current-stage.sync="specCurrentStage"
+          :implement-stage.sync="implementSpecStage"
+          :current-stage-type-list="currentStageTypeList"
+          :implement-stage-type-list="implementStageTypeList"
+          @system-click="handleSpecSystemClick"
+        />
+      </el-tab-pane>
 
-    <!-- 设计卡片 -->
-    <evolve-desgin-card v-if="evolveDesginCardVisible" :project="project" />
-
-    <!-- 评审卡片 -->
-    <evolve-review-card v-if="evolveReviewCardVisible" :project="project" />
+      <el-tab-pane v-if="evolveDesginCardVisible" key="4" label="设计">
+        <evolve-desgin-card :project="project" />
+      </el-tab-pane>
+      <el-tab-pane v-if="evolveReviewCardVisible" key="5" label="评审">
+        <evolve-review-card :project="project" />
+      </el-tab-pane>
+    </el-tabs>
 
     <!-- system dialog -->
     <el-dialog title="合计芯片用例执行统计" :visible.sync="isSystemDialogVisible" width="70%" lock-scroll>
@@ -76,6 +78,7 @@ export default {
   },
   data() {
     return {
+      active: '3',
       evolveGanttVisible: true, // 控制甘特图的显示与隐藏
       evolveImplementCardVisible: true, // 控制执行卡片的显示与隐藏
       evolveSepcCardVisible: true, // 控制 SPEC 卡片的显示与隐藏
@@ -88,7 +91,8 @@ export default {
       implementSpecStage: '次轮',
       implementStageTypeList: [{ stage: '准入' }],
       isSystemDialogVisible: false, // 控制 system 对话框显示与隐藏
-      implementNumSystemList: undefined
+      implementNumSystemList: undefined,
+      butLoading: false
     }
   },
   computed: {

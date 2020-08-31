@@ -33,7 +33,7 @@
 </template>
 
 <script>
-import request from '@/services/request'
+import request from '@/services/post'
 
 export default {
   props: {
@@ -135,7 +135,7 @@ export default {
           url = '/api/projectEvolveSta/implementAnalyse/update'
         }
         request(url, {
-          method: 'POST',
+          method: 'post',
           data: item
         })
       })

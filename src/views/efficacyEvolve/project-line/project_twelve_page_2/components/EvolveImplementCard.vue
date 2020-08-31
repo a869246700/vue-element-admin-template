@@ -7,8 +7,18 @@
         <card title="用例" class="case card">
           <template #buttons>
             <el-button type="primary" size="small" @click="handleBugChokeClick">Bug阻塞</el-button>
-            <el-button type="primary" size="small">导出用例统计</el-button>
-            <el-button type="primary" size="small">导出用例执行明细</el-button>
+            <el-button
+              :loading="butLoading"
+              type="primary"
+              size="small"
+              @click="handleExportCaseStaClick"
+            >导出用例统计</el-button>
+            <el-button
+              :loading="butLoading"
+              type="primary"
+              size="small"
+              @click="handleExportCaseInfoClick"
+            >导出用例执行明细</el-button>
           </template>
 
           <!-- 用例卡片 -->
@@ -59,6 +69,7 @@
               <card class="case-first card">
                 <template #buttons>
                   <el-button
+                    :loading="butLoading"
                     type="primary"
                     size="small"
                     @click="handleAddCaseImplementClick"
@@ -123,6 +134,7 @@
               <card class="case-second card">
                 <template #buttons>
                   <el-button
+                    :loading="butLoading"
                     type="primary"
                     size="small"
                     @click="handleAddCaseImplementClick"
@@ -180,7 +192,7 @@
     </card>
 
     <!-- BUG阻塞 -->
-    <evolve-bug-choke ref="bugChoke" :list="bugChoke" />
+    <evolve-bug-choke ref="bugChoke" :list="bugChoke" :project="project" />
 
     <!-- 添加用例分析 -->
     <evolve-add-case-implement ref="addCaseImplement" :list="implementNumProductList" />
@@ -192,8 +204,8 @@ import Card from '@/components/Card/index'
 import Chart from '@/components/MyChart/Chart'
 import EvolveBugChoke from './EvolveBugChoke'
 import EvolveAddCaseImplement from './EvolveAddCaseImplement'
-
 import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: {
@@ -271,73 +283,16 @@ export default {
         '今日执行总数',
         '今日PASS总数'
       ],
-      implementNumProductList: [
-        {
-          name: '合计',
-          case_total: 323
-        },
-        {
-          name: '通用',
-          case_total: 323
-        },
-        {
-          name: 'N18K-X-CB',
-          case_total: 323
-        },
-        {
-          name: 's57h',
-          case_total: 323
-        },
-        {
-          name: 'S57X',
-          case_total: 323
-        },
-        {
-          name: 'S6120',
-          case_total: 323
-        },
-        {
-          name: 'S6910-3C',
-          case_total: 323
-        },
-        {
-          name: 'S7810C',
-          case_total: 323
-        },
-        {
-          name: 'S7810C',
-          case_total: 323
-        }
-      ], // 产品统计
+      implementNumProductList: [], // 产品统计
       productTableLoading: false, // 控制产品表格的加载
-      implementNumTypeList: [
-        {
-          name: '合计',
-          case_total: 323
-        },
-        {
-          name: '新增手工',
-          case_total: 323
-        },
-        {
-          name: '新增自动化',
-          case_total: 323
-        },
-        {
-          name: '存量手工',
-          case_total: 323
-        },
-        {
-          name: '存量自动化',
-          case_total: 323
-        }
-      ], // 类型统计
+      implementNumTypeList: [], // 类型统计
       typeTableLoading: false, // 控制类型表格的加载
       bugChoke: [], // BUG阻塞的数据
       caseImplementChartLoading: false,
       caseImplementChartOptions: undefined, // 用例执行图标配置项
       chipPlatFormChartLoading: false,
-      chipPlatFormChartOptions: undefined // 芯片平台图表配置项
+      chipPlatFormChartOptions: undefined, // 芯片平台图表配置项
+      butLoading: false
     }
   },
   computed: {
@@ -427,7 +382,9 @@ export default {
       return this.productTableOptions.filter((item) => this.FirstSelectVal.indexOf(item.label) >= 0)
     },
     secondTableOptions() {
-      return this.productTableOptions.filter((item) => this.secondSelectVal.indexOf(item.label) >= 0)
+      return this.productTableOptions.filter(
+        (item) => this.secondSelectVal.indexOf(item.label) >= 0
+      )
     }
   },
   watch: {
@@ -459,10 +416,40 @@ export default {
       this.$refs.bugChoke.dialogVisible = true
       this.$refs.bugChoke.tableLoading = true
       this.queryByBugChoke(this.project)
-
-      this.$nextTick(() => {
-        this.$refs.bugChoke.tableLoading = false
-      })
+    },
+    // 点击导出用例统计
+    handleExportCaseStaClick() {
+      const url = '/api/export/implementCaseNumSta'
+      const fileName = this.project + this.cStage + this.iStage + '阶段用例执行统计.xls'
+      DownFiles(
+        url,
+        {
+          conditions: {
+            project: this.project,
+            stage: this.iStage,
+            isSpec: 0
+          }
+        },
+        fileName,
+        this
+      )
+    },
+    // 点击导出用例明细
+    async handleExportCaseInfoClick() {
+      const url = '/api/export/projectTaskCaseInfo'
+      const fileName = this.project + this.cStage + this.iStage + '阶段用例执行明细列表.xls'
+      DownFiles(
+        url,
+        {
+          conditions: {
+            project: this.project,
+            stage: this.iStage,
+            isSpec: 0
+          }
+        },
+        fileName,
+        this
+      )
     },
     // 点击 添加用例执行分析 按钮
     handleAddCaseImplementClick() {
@@ -699,6 +686,10 @@ export default {
         }
       })
       this.bugChoke = res
+
+      this.$nextTick(() => {
+        this.$refs.bugChoke.tableLoading = false
+      })
     }
   }
 }
