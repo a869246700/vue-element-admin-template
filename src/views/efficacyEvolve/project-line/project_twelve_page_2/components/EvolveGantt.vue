@@ -1,5 +1,14 @@
 <template>
-  <div class="gantt">
+  <div class="evolve-gantt">
+    <div class="brief">
+      <div class="tag">
+        <el-tag>项目计划：当前项目阶段 XXX</el-tag>
+      </div>
+      <div class="tag">
+        <el-tag type="success">全部计划与工作：共X条，已完成X条</el-tag>
+      </div>
+    </div>
+
     <!-- 甘特图 -->
     <gantt ref="gantt" :tasks="tasks" @edit="handleRowClick" />
 
@@ -320,6 +329,11 @@ export default {
       return { data: this.datas, links: this.links } || {}
     }
   },
+  mounted() {
+    this.$nextTick(() => {
+      this.$refs.gantt.init()
+    })
+  },
   methods: {
     // 点击任务
     handleRowClick(id) {
@@ -364,6 +378,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.evolve-gantt {
+  margin-bottom: 20px;
+
+  .brief {
+    margin-bottom: 10px;
+
+    .el-tag {
+      margin-bottom: 5px;
+      font-size: 16px;
+    }
+  }
+}
+
 .wrapper {
   width: 100%;
 

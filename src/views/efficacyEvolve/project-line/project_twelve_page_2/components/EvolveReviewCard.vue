@@ -34,7 +34,7 @@
             :xl="{span: 12}"
             style="padding-right:8px;margin-bottom:30px;"
           >
-            <chart v-loading="reviewTotalChartLoading" :option-rate="reviewTotalChartOptions" />
+            <chart ref="totalChartRef" v-loading="reviewTotalChartLoading" :option-rate="reviewTotalChartOptions" />
           </el-col>
           <el-col
             :xs="{span: 24}"
@@ -45,6 +45,7 @@
             style="padding-right:8px;margin-bottom:30px;"
           >
             <chart
+              ref="documentChartRef"
               v-loading="reviewDocumentChartLoading"
               :option-rate="reviewDocumentChartOptions"
             />
@@ -189,7 +190,6 @@ export default {
       reviewDocumentChartOptions: undefined, // 评审文档统计图表配置
       currentPage: 1,
       limit: 10,
-      total: 0,
       butLoading: false
     }
   },
@@ -294,6 +294,11 @@ export default {
         ? this.evolveReviewWorkPackageData.slice((currentPage - 1) * limit, currentPage * limit)
         : this.evolveReviewPersonData.slice((currentPage - 1) * limit, currentPage * limit)
     },
+    total() {
+      return !this.reviewTableStage
+        ? this.evolveReviewWorkPackageData.length
+        : this.evolveReviewPersonData.length
+    },
     loading() {
       return !this.reviewTableStage
         ? this.evolveReviewWorkPackageLoading
@@ -313,6 +318,13 @@ export default {
       this.evolveReviewPerson(this.project, this.reviewStage)
       this.reviewStaEcharts(this.project, this.reviewStage)
       this.reviewFileStaEcharts(this.project, this.reviewStage)
+    },
+    // chart resize()
+    chartResize() {
+      this.$nextTick(() => {
+        this.$refs.totalChartRef.resize()
+        this.$refs.documentChartRef.resize()
+      })
     },
     // 导出 execl 文件
     handleExportExcelClick() {
@@ -341,7 +353,6 @@ export default {
         params: { project, type }
       })
       this.evolveReviewWorkPackageData = res
-      this.total = res.length
 
       this.$nextTick(() => {
         this.evolveReviewWorkPackageLoading = false
@@ -350,7 +361,7 @@ export default {
     // 进展-评审-PTGTTM维度统计
     async evolveReviewPerson(project, type) {
       this.evolveReviewPersonLoading = true
-      const { data: res } = await request('/api/projectEvolveSta/queryByProjectReviewWorkPackage', {
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectReviewPerson', {
         method: 'GET',
         params: { project, type }
       })

@@ -41,12 +41,11 @@ export default {
       isFullScreen: false // 是否全屏
     }
   },
-  mounted() {
-    this.init()
-
-    // 未完成 ---- 自动移到中心点
-    // const todayMarker = gantt.getMarker(this.todayMarkerId)
-  },
+  // mounted() {
+  // this.init()
+  // 未完成 ---- 自动移到中心点
+  // const todayMarker = gantt.getMarker(this.todayMarkerId)
+  // },
   methods: {
     // 初始化
     init() {

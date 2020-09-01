@@ -2,19 +2,12 @@
   <div class="evolve">
     <el-tabs v-model="active" type="card" lazy>
       <el-tab-pane v-if="evolveGanttVisible" key="1" label="甘特图">
-        <div class="brief">
-          <div class="tag">
-            <el-tag>项目计划：当前项目阶段 XXX</el-tag>
-          </div>
-          <div class="tag">
-            <el-tag type="success">全部计划与工作：共X条，已完成X条</el-tag>
-          </div>
-        </div>
-        <evolve-gantt class="gantt" />
+        <evolve-gantt ref="ganttRef" class="gantt" />
       </el-tab-pane>
 
       <el-tab-pane v-if="evolveImplementCardVisible" key="2" label="用例">
         <evolve-implement-card
+          ref="implementRef"
           :project="project"
           :current-stage.sync="currentStage"
           :implement-stage.sync="implementStage"
@@ -26,6 +19,7 @@
 
       <el-tab-pane v-if="evolveSepcCardVisible" key="3" label="SPEC">
         <evolve-spec-card
+          ref="specRef"
           :project="project"
           :current-stage.sync="specCurrentStage"
           :implement-stage.sync="implementSpecStage"
@@ -36,10 +30,10 @@
       </el-tab-pane>
 
       <el-tab-pane v-if="evolveDesginCardVisible" key="4" label="设计">
-        <evolve-desgin-card :project="project" />
+        <evolve-desgin-card ref="desginRef" :project="project" />
       </el-tab-pane>
       <el-tab-pane v-if="evolveReviewCardVisible" key="5" label="评审">
-        <evolve-review-card :project="project" />
+        <evolve-review-card ref="reviewRef" :project="project" />
       </el-tab-pane>
     </el-tabs>
 
@@ -78,7 +72,7 @@ export default {
   },
   data() {
     return {
-      active: '3',
+      active: '0',
       evolveGanttVisible: true, // 控制甘特图的显示与隐藏
       evolveImplementCardVisible: true, // 控制执行卡片的显示与隐藏
       evolveSepcCardVisible: true, // 控制 SPEC 卡片的显示与隐藏
@@ -98,6 +92,23 @@ export default {
   computed: {
     project() {
       return this.$t(this.$route.matched[2].meta.title)
+    }
+  },
+  watch: {
+    active(newV, oldV) {
+      switch (newV) {
+        case '0':
+          break
+        case '1':
+          this.$refs.implementRef.chartResize()
+          break
+        case '2':
+          this.$refs.specRef.chartResize()
+          break
+        case '4':
+          this.$refs.reviewRef.chartResize()
+          break
+      }
     }
   },
   created() {
@@ -188,18 +199,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.evolve-gantt {
-  margin-bottom: 20px;
-
-  .brief {
-    margin-bottom: 10px;
-
-    .el-tag {
-      margin-bottom: 5px;
-      font-size: 16px;
-    }
-  }
-}
-</style>

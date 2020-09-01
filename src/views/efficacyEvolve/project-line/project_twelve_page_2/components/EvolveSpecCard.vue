@@ -29,6 +29,7 @@
                 style="padding-right:8px;margin-bottom:30px;"
               >
                 <chart
+                  ref="caseChartRef"
                   v-loading="caseImplementChartLoading"
                   :option-rate="caseImplementChartOptions"
                 />
@@ -42,6 +43,7 @@
                 style="padding-right:8px;margin-bottom:30px;"
               >
                 <chart
+                  ref="chipChartRef"
                   v-loading="chipPlatFormChartLoading"
                   :option-rate="chipPlatFormChartOptions"
                 />
@@ -407,6 +409,12 @@ export default {
     this.getDataList()
   },
   methods: {
+    chartResize() {
+      this.$nextTick(() => {
+        this.$refs.caseChartRef.resize()
+        this.$refs.chipChartRef.resize()
+      })
+    },
     // 获取数据列表
     getDataList() {
       this.caseStaEcharts(this.project, this.iStage, this.cStage)
