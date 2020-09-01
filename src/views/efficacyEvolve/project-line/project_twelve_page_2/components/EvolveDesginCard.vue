@@ -1,5 +1,5 @@
 <template>
-  <card title="设计" class="desgin card">
+  <card title="用例&脚本" class="desgin card">
     <template #buttons>
       <el-button
         :loading="butLoading"

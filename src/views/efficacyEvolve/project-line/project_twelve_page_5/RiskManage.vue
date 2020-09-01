@@ -14,16 +14,6 @@
       </div>
     </div>
 
-    <!-- WBS区域 -->
-    <div class="wbs">
-      <risk-wbs />
-    </div>
-
-    <div class="task-chart">
-      <h3>任务统计</h3>
-      <task-chart height="500px" width="100%" class="gantt" />
-    </div>
-
     <!-- 表格-阶段值切换栏 -->
     <div class="stage-change">
       <el-radio-group v-model="currentStage" @change="handleStageChange">
@@ -44,8 +34,6 @@
 </template>
 
 <script>
-import TaskChart from './components/TaskChart'
-import RiskWbs from './components/RiskWbs'
 import RiskTable from './components/RiskTable'
 import RiskChart from './components/RiskChart'
 
@@ -53,8 +41,6 @@ import request from '@/services/request'
 
 export default {
   components: {
-    TaskChart,
-    RiskWbs,
     RiskChart,
     RiskTable
   },

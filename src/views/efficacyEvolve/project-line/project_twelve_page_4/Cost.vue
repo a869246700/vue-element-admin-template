@@ -3,7 +3,7 @@
     <!-- 项目成本卡片 -->
     <card title="项目成本" style="margin-bottom: 10px">
       <template #buttons>
-        <el-button type="primary">导出资源投入明细</el-button>
+        <el-button :loading="butLoading" type="primary" @click="handleResourceInvClick">导出资源投入明细</el-button>
         <el-button type="primary" @click="handleStageAdjustClick">阶段调偏</el-button>
       </template>
 
@@ -19,8 +19,8 @@
           border
         >
           <el-table-column
-            v-for="(item, index) in firstTableOptions"
-            :key="index"
+            v-for="item in firstTableOptions"
+            :key="item.prop"
             :label="item.label"
             :prop="item.prop"
             :min-width="item.minWidth"
@@ -30,8 +30,8 @@
           >
             <div v-if="item.children">
               <el-table-column
-                v-for="(childItem, childIndex) in item.children"
-                :key="childIndex"
+                v-for="childItem in item.children"
+                :key="childItem.prop"
                 :prop="childItem.prop"
                 :min-width="childItem.minWidth"
               >
@@ -82,8 +82,8 @@
           border
         >
           <el-table-column
-            v-for="(item, index) in secondTableOptions"
-            :key="index"
+            v-for="item in secondTableOptions"
+            :key="item.prop"
             :label="item.label"
             :prop="item.prop"
             :min-width="item.minWidth"
@@ -92,8 +92,8 @@
             :align="item.children ? 'center' : ''"
           >
             <el-table-column
-              v-for="(childItem, childIndex) in item.children"
-              :key="childIndex"
+              v-for="childItem in item.children"
+              :key="childItem.prop"
               :prop="childItem.prop"
               :min-width="childItem.minWidth"
             >
@@ -155,7 +155,7 @@
     <!-- 工序成本卡片 -->
     <card title="工序成本" class="card">
       <template #buttons>
-        <el-button type="primary">导出工序成本统计</el-button>
+        <el-button :loading="butLoading" type="primary" @click="handleProcessCostClick">导出工序成本统计</el-button>
       </template>
       <template #content>
         <div class="select-bar">
@@ -237,11 +237,12 @@
 
 <script>
 import Card from '@/components/Card/index'
-import request from '@/services/request'
 import CostDialog from './components/CostDialog'
 import CostSourceAdjust from './components/CostSourceAdjust'
 
 import { deepClone } from '@/utils'
+import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   filters: {
@@ -407,7 +408,8 @@ export default {
       // 表格四
       fourTableData: [],
       selectOptions: ['工序', '12.5PL1', '12.X基线'],
-      selectVal: ['工序', '12.5PL1', '12.X基线']
+      selectVal: ['工序', '12.5PL1', '12.X基线'],
+      butLoading: false
     }
   },
   computed: {
@@ -883,6 +885,28 @@ export default {
       this.getProjectRealmCost(this.project)
       this.getProjectProcessEfficiency(this.project)
       this.getRealmAdjustList(this.project)
+    },
+    // 导出资源投入明细
+    handleResourceInvClick() {
+      const url = '/api/export/projectCostPerson'
+      const obj = {
+        conditions: {
+          project: this.project
+        }
+      }
+      const fileName = '资源投入明细.xls'
+      DownFiles(url, obj, fileName, this)
+    },
+    // 导出工序成本明细
+    handleProcessCostClick() {
+      const url = '/api/export/stageProcessCost'
+      const obj = {
+        conditions: {
+          project: this.project
+        }
+      }
+      const fileName = '资源投入工序明细.xls'
+      DownFiles(url, obj, fileName, this)
     },
     calcRenderColor(text, record, flag) {
       const totalTarget = Math.round(record.total_target * 10) / 10

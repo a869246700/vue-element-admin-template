@@ -1,198 +1,187 @@
 <template>
   <div class="implement-card">
-    <card title="执行" class="implement card">
-      <!-- 卡片主体 -->
+    <!-- 用例卡片 -->
+    <card title="用例执行" class="case card">
+      <template #buttons>
+        <el-button type="primary" size="small" @click="handleBugChokeClick">Bug阻塞</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          @click="handleExportCaseStaClick"
+        >导出用例统计</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          @click="handleExportCaseInfoClick"
+        >导出用例执行明细</el-button>
+      </template>
+
+      <!-- 用例卡片 -->
       <template #content>
-        <!-- 用例卡片 -->
-        <card title="用例" class="case card">
-          <template #buttons>
-            <el-button type="primary" size="small" @click="handleBugChokeClick">Bug阻塞</el-button>
-            <el-button
-              :loading="butLoading"
-              type="primary"
-              size="small"
-              @click="handleExportCaseStaClick"
-            >导出用例统计</el-button>
-            <el-button
-              :loading="butLoading"
-              type="primary"
-              size="small"
-              @click="handleExportCaseInfoClick"
-            >导出用例执行明细</el-button>
-          </template>
+        <div class="content">
+          <el-radio-group v-model="iStage" size="small" @change="handleImplementStageChange">
+            <el-radio-button key="9" label="汇总" />
+            <el-radio-button
+              v-for="(item, index) in implementStageTypeList"
+              :key="index"
+              :label="item.stage"
+            />
+          </el-radio-group>
 
-          <!-- 用例卡片 -->
-          <template #content>
-            <div class="content">
-              <el-radio-group v-model="iStage" size="small" @change="handleImplementStageChange">
-                <el-radio-button key="9" label="汇总" />
-                <el-radio-button
-                  v-for="(item, index) in implementStageTypeList"
-                  :key="index"
-                  :label="item.stage"
+          <!-- 图标展示区域 -->
+          <div class="charts">
+            <el-row :gutter="32">
+              <el-col
+                :xs="{span: 24}"
+                :sm="{span: 24}"
+                :md="{span: 12}"
+                :lg="{span: 12}"
+                :xl="{span: 12}"
+                style="padding-right:8px;margin-bottom:30px;"
+              >
+                <chart
+                  ref="caseChartRef"
+                  v-loading="caseImplementChartLoading"
+                  :option-rate="caseImplementChartOptions"
                 />
-              </el-radio-group>
+              </el-col>
+              <el-col
+                :xs="{span: 24}"
+                :sm="{span: 24}"
+                :md="{span: 12}"
+                :lg="{span: 12}"
+                :xl="{span: 12}"
+                style="padding-right:8px;margin-bottom:30px;"
+              >
+                <chart
+                  ref="chipChartRef"
+                  v-loading="chipPlatFormChartLoading"
+                  :option-rate="chipPlatFormChartOptions"
+                />
+              </el-col>
+            </el-row>
+          </div>
 
-              <!-- 图标展示区域 -->
-              <div class="charts">
-                <el-row :gutter="32">
-                  <el-col
-                    :xs="{span: 24}"
-                    :sm="{span: 24}"
-                    :md="{span: 12}"
-                    :lg="{span: 12}"
-                    :xl="{span: 12}"
-                    style="padding-right:8px;margin-bottom:30px;"
-                  >
-                    <chart
-                      ref="caseChartRef"
-                      v-loading="caseImplementChartLoading"
-                      :option-rate="caseImplementChartOptions"
-                    />
-                  </el-col>
-                  <el-col
-                    :xs="{span: 24}"
-                    :sm="{span: 24}"
-                    :md="{span: 12}"
-                    :lg="{span: 12}"
-                    :xl="{span: 12}"
-                    style="padding-right:8px;margin-bottom:30px;"
-                  >
-                    <chart
-                      ref="chipChartRef"
-                      v-loading="chipPlatFormChartLoading"
-                      :option-rate="chipPlatFormChartOptions"
-                    />
-                  </el-col>
-                </el-row>
+          <!-- 表格一区域 -->
+          <card class="case-first card">
+            <template #buttons>
+              <el-button
+                :loading="butLoading"
+                type="primary"
+                size="small"
+                @click="handleAddCaseImplementClick"
+              >添加用例执行分析</el-button>
+            </template>
+
+            <template #content>
+              <!-- select -->
+              <div class="filter-container">
+                <el-select v-model="FirstSelectVal" multiple collapse-tags placeholder="请选择">
+                  <el-option
+                    v-for="(item, index) in caseSelectOptions"
+                    :key="index"
+                    :label="item"
+                    :value="item"
+                  />
+                </el-select>
               </div>
 
-              <!-- 表格一区域 -->
-              <card class="case-first card">
-                <template #buttons>
-                  <el-button
-                    :loading="butLoading"
-                    type="primary"
-                    size="small"
-                    @click="handleAddCaseImplementClick"
-                  >添加用例执行分析</el-button>
-                </template>
+              <!-- 产品表格 -->
+              <div class="table">
+                <el-table
+                  v-loading="productTableLoading"
+                  :data="implementNumProductList"
+                  border
+                  style="width: 100%"
+                  :header-cell-style="{'background-color': '#FAFAFA' }"
+                  fit
+                  highlight-current-row
+                >
+                  <el-table-column
+                    prop="product_name"
+                    label="芯片平台 "
+                    width="115px"
+                    show-overflow-tooltip
+                  >
+                    <template slot-scope="{ row }">
+                      <span class="title" @click="handleSystemClick(row)">{{ row.product_name }}</span>
+                    </template>
+                  </el-table-column>
+                  <el-table-column
+                    v-for="item in firstTableOptions"
+                    :key="item.prop"
+                    :label="item.label"
+                    :prop="item.prop"
+                    :min-width="item.minWidth ? item.minWidth : 100"
+                    show-overflow-tooltip
+                  >
+                    <template slot-scope="{ row }">
+                      <span
+                        v-if="row.product_name === '合计' && item.prop === 'exe_day_num'"
+                      >{{ Math.ceil(row.tomorrow_num === 0 ? 0 : (row.no_num / row.tomorrow_num)) }}</span>
+                      <span v-else>{{ row[item.prop] }}</span>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </template>
+          </card>
 
-                <template #content>
-                  <!-- select -->
-                  <div class="filter-container">
-                    <el-select v-model="FirstSelectVal" multiple collapse-tags placeholder="请选择">
-                      <el-option
-                        v-for="(item, index) in caseSelectOptions"
-                        :key="index"
-                        :label="item"
-                        :value="item"
-                      />
-                    </el-select>
-                  </div>
+          <!-- 表格二区域 -->
+          <card class="case-second card">
+            <template #buttons>
+              <el-button
+                :loading="butLoading"
+                type="primary"
+                size="small"
+                @click="handleAddCaseImplementClick"
+              >添加用例执行分析</el-button>
+            </template>
 
-                  <!-- 产品表格 -->
-                  <div class="table">
-                    <el-table
-                      v-loading="productTableLoading"
-                      :data="implementNumProductList"
-                      border
-                      style="width: 100%"
-                      :header-cell-style="{'background-color': '#FAFAFA' }"
-                      fit
-                      highlight-current-row
-                    >
-                      <el-table-column
-                        prop="product_name"
-                        label="芯片平台 "
-                        width="115px"
-                        show-overflow-tooltip
-                      >
-                        <template slot-scope="{ row }">
-                          <span class="title" @click="handleSystemClick(row)">{{ row.product_name }}</span>
-                        </template>
-                      </el-table-column>
-                      <el-table-column
-                        v-for="item in firstTableOptions"
-                        :key="item.prop"
-                        :label="item.label"
-                        :prop="item.prop"
-                        :min-width="item.minWidth ? item.minWidth : 100"
-                        show-overflow-tooltip
-                      >
-                        <template slot-scope="{ row }">
-                          <span
-                            v-if="row.product_name === '合计' && item.prop === 'exe_day_num'"
-                          >{{ Math.ceil(row.tomorrow_num === 0 ? 0 : (row.no_num / row.tomorrow_num)) }}</span>
-                          <span v-else>{{ row[item.prop] }}</span>
-                        </template>
-                      </el-table-column>
-                    </el-table>
-                  </div>
-                </template>
-              </card>
+            <template #content>
+              <div class="filter-container">
+                <el-select v-model="secondSelectVal" multiple collapse-tags placeholder="请选择">
+                  <el-option
+                    v-for="(item, index) in caseSelectOptions"
+                    :key="index"
+                    :label="item"
+                    :value="item"
+                  />
+                </el-select>
+              </div>
 
-              <!-- 表格二区域 -->
-              <card class="case-second card">
-                <template #buttons>
-                  <el-button
-                    :loading="butLoading"
-                    type="primary"
-                    size="small"
-                    @click="handleAddCaseImplementClick"
-                  >添加用例执行分析</el-button>
-                </template>
-
-                <template #content>
-                  <div class="filter-container">
-                    <el-select v-model="secondSelectVal" multiple collapse-tags placeholder="请选择">
-                      <el-option
-                        v-for="(item, index) in caseSelectOptions"
-                        :key="index"
-                        :label="item"
-                        :value="item"
-                      />
-                    </el-select>
-                  </div>
-
-                  <!-- 表格 -->
-                  <div class="table">
-                    <el-table
-                      :data="implementNumTypeList"
-                      border
-                      style="width: 100%"
-                      :header-cell-style="{'background-color': '#FAFAFA' }"
-                      highlight-current-row
-                    >
-                      <el-table-column
-                        prop="type"
-                        label="类型 "
-                        min-width="120px"
-                        show-overflow-tooltip
-                      />
-                      <el-table-column
-                        v-for="item in secondTableOptions"
-                        :key="item.prop"
-                        :label="item.label"
-                        :prop="item.prop"
-                        align="center"
-                        :min-width="item.minWidth ? item.minWidth + 'px' : '100px'"
-                        show-overflow-tooltip
-                      >
-                        <template slot-scope="{row}">
-                          <span>{{ row[item.prop] }}</span>
-                        </template>
-                      </el-table-column>
-                    </el-table>
-                  </div>
-                </template>
-              </card>
-            </div>
-          </template>
-        </card>
+              <!-- 表格 -->
+              <div class="table">
+                <el-table
+                  :data="implementNumTypeList"
+                  border
+                  style="width: 100%"
+                  :header-cell-style="{'background-color': '#FAFAFA' }"
+                  highlight-current-row
+                >
+                  <el-table-column prop="type" label="类型 " min-width="120px" show-overflow-tooltip />
+                  <el-table-column
+                    v-for="item in secondTableOptions"
+                    :key="item.prop"
+                    :label="item.label"
+                    :prop="item.prop"
+                    align="center"
+                    :min-width="item.minWidth ? item.minWidth + 'px' : '100px'"
+                    show-overflow-tooltip
+                  >
+                    <template slot-scope="{row}">
+                      <span>{{ row[item.prop] }}</span>
+                    </template>
+                  </el-table-column>
+                </el-table>
+              </div>
+            </template>
+          </card>
+        </div>
       </template>
     </card>
-
     <!-- BUG阻塞 -->
     <evolve-bug-choke ref="bugChoke" :list="bugChoke" :project="project" />
 

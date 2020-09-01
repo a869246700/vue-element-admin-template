@@ -2,10 +2,10 @@
   <div class="evolve">
     <el-tabs v-model="active" type="card" lazy>
       <el-tab-pane v-if="evolveGanttVisible" key="1" label="甘特图">
-        <evolve-gantt ref="ganttRef" class="gantt" />
+        <evolve-gantt ref="ganttRef" />
       </el-tab-pane>
 
-      <el-tab-pane v-if="evolveImplementCardVisible" key="2" label="用例">
+      <el-tab-pane v-if="evolveImplementCardVisible" key="2" label="用例执行">
         <evolve-implement-card
           ref="implementRef"
           :project="project"
@@ -17,7 +17,7 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane v-if="evolveSepcCardVisible" key="3" label="SPEC">
+      <el-tab-pane v-if="evolveSepcCardVisible" key="3" label="SPEC核验">
         <evolve-spec-card
           ref="specRef"
           :project="project"
@@ -29,25 +29,26 @@
         />
       </el-tab-pane>
 
-      <el-tab-pane v-if="evolveDesginCardVisible" key="4" label="设计">
+      <el-tab-pane v-if="evolveDesginCardVisible" key="4" label="用例&脚本">
         <evolve-desgin-card ref="desginRef" :project="project" />
       </el-tab-pane>
-      <el-tab-pane v-if="evolveReviewCardVisible" key="5" label="评审">
+
+      <el-tab-pane v-if="evolveReviewCardVisible" key="5" label="文档评审">
         <evolve-review-card ref="reviewRef" :project="project" />
       </el-tab-pane>
     </el-tabs>
 
     <!-- system dialog -->
-    <el-dialog title="合计芯片用例执行统计" :visible.sync="isSystemDialogVisible" width="70%" lock-scroll>
-      <evolve-case-implement
-        ref="systemDialogRef"
-        :project="project"
-        :implement-stage="implementStage"
-        :implement-stage-type-list="implementStageTypeList"
-        :implement-num-system-list="implementNumSystemList"
-        @change="handleSystemTypeChange"
-      />
-    </el-dialog>
+    <!-- <el-dialog title="合计芯片用例执行统计" :visible.sync="isSystemDialogVisible" width="70%" lock-scroll> -->
+    <evolve-case-implement
+      ref="systemDialogRef"
+      :project="project"
+      :implement-stage="implementStage"
+      :implement-stage-type-list="implementStageTypeList"
+      :implement-num-system-list="implementNumSystemList"
+      @change="handleSystemTypeChange"
+    />
+    <!-- </el-dialog> -->
   </div>
 </template>
 
@@ -117,28 +118,21 @@ export default {
   },
   methods: {
     handleSystemTypeChange(product_name, stage, type, isSpec) {
-      this.isSystemDialogVisible = true
-
-      this.$nextTick(() => {
-        this.$refs.systemDialogRef.tableLoading = true
-        this.$refs.systemDialogRef.product_name = product_name
-        this.$refs.systemDialogRef.isSpec = isSpec
-      })
+      this.$refs.systemDialogRef.outerDialogVisible = true
+      this.$refs.systemDialogRef.tableLoading = true
+      this.$refs.systemDialogRef.product_name = product_name
+      this.$refs.systemDialogRef.isSpec = isSpec
 
       this.queryImplementNumSystem(this.project, stage, product_name, type, 0)
-
-      this.$nextTick(() => {
-        this.$refs.systemDialogRef.tableLoading = false
-      })
+      this.$refs.systemDialogRef.tableLoading = false
     },
     // 用例产品点击
     handleCaseSystemClick(product_name) {
-      this.isSystemDialogVisible = true
-      this.$nextTick(() => {
-        this.$refs.systemDialogRef.tableLoading = true
-        this.$refs.systemDialogRef.product_name = product_name
-        this.$refs.systemDialogRef.isSpec = 0
-      })
+      this.$refs.systemDialogRef.outerDialogVisible = true
+      this.$refs.systemDialogRef.tableLoading = true
+      this.$refs.systemDialogRef.product_name = product_name
+      this.$refs.systemDialogRef.isSpec = 0
+
       // 查询域信息
       this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工', 0)
       this.$nextTick(() => {
@@ -147,12 +141,11 @@ export default {
     },
     // Spec产品点击
     handleSpecSystemClick(product_name) {
-      this.isSystemDialogVisible = true
-      this.$nextTick(() => {
-        this.$refs.systemDialogRef.tableLoading = true
-        this.$refs.systemDialogRef.product_name = product_name
-        this.$refs.systemDialogRef.isSpec = 1
-      })
+      this.$refs.systemDialogRef.outerDialogVisible = true
+      this.$refs.systemDialogRef.tableLoading = true
+      this.$refs.systemDialogRef.product_name = product_name
+      this.$refs.systemDialogRef.isSpec = 1
+
       // 查询域信息
       this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工', 1)
       this.$nextTick(() => {

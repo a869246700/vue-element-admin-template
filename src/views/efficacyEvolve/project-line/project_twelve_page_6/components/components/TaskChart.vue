@@ -24,14 +24,6 @@ export default {
     height: {
       type: String,
       default: '200px'
-    },
-    autoResize: {
-      type: Boolean,
-      default: true
-    },
-    optionRate: {
-      type: Object,
-      default: () => {}
     }
   },
   data() {

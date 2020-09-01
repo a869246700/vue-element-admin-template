@@ -21,8 +21,8 @@ import Evolve from './project_twelve_page_2/Evolve'
 import Quality from './project_twelve_page_3/Quality'
 import Cost from './project_twelve_page_4/Cost'
 import RiskManage from './project_twelve_page_5/RiskManage'
-import SpecialTask from './project_twelve_page_6/SpecialTask'
-import ProjectLongestPath from './project_twelve_page_7/ProjectLongestPath'
+// import SpecialTask from './project_twelve_page_6/SpecialTask'
+import TestTask from './project_twelve_page_6/TestTask'
 import TechnologyProject from './project_twelve_page_8/TechnologyProject'
 
 export default {
@@ -32,25 +32,24 @@ export default {
     Quality,
     Cost,
     RiskManage,
-    SpecialTask,
-    TechnologyProject,
-    ProjectLongestPath
+    TestTask,
+    TechnologyProject
   },
   data() {
     return {
       name: '12.5PL1',
-      activeName: '3',
+      activeName: '6',
       tabMapOptions: [
         { label: '总述', key: '1', name: 'Dashboard', disabled: false },
         { label: '进展管理', key: '2', name: 'Evolve', disabled: false },
         { label: '质量管理', key: '3', name: 'Quality', disabled: false },
         { label: '成本管理', key: '4', name: 'Cost', disabled: false },
         { label: '风险管理', key: '5', name: 'RiskManage', disabled: false },
-        { label: '测试任务', key: '6', name: 'SpecialTask', disabled: false },
+        { label: '测试任务', key: '6', name: 'TestTask', disabled: false },
         { label: '技术项目', key: '7', name: 'TechnologyProject', disabled: false },
         { label: '积分考核', key: '8', disabled: true },
         { label: '项目报告推送', key: '9', disabled: true },
-        { label: '项目要素设计管理', key: '10', disabled: false }
+        { label: '项目要素设计管理', key: '10', disabled: true }
       ]
     }
   }

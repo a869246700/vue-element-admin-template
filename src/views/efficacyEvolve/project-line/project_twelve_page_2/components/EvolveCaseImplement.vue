@@ -1,6 +1,6 @@
 <template>
   <!-- 用例执行统计卡片 -->
-  <div>
+  <el-dialog title="合计芯片用例执行统计" :visible.sync="outerDialogVisible" width="70%" lock-scroll>
     <el-card>
       <el-row :gutter="20" style="margin-bottom: 20px;">
         <!--  -->
@@ -49,7 +49,7 @@
         >
           <template slot-scope="{row}">
             <span
-              v-if="item.prop === 'product_name'"
+              v-if="item.prop === 'system'"
               class="title"
               @click="handleItemClick(row)"
             >{{ row.product_name }}</span>
@@ -60,7 +60,7 @@
     </el-card>
 
     <el-dialog
-      :title="`${temp.product_name}芯片${temp.system}用例执行统计`"
+      :title="`${innerProductName}芯片${innerCurrentSystem}用例执行统计`"
       :visible.sync="innerDialogVisible"
       append-to-body
       lock-scroll
@@ -93,7 +93,7 @@
         />
       </el-table>
     </el-dialog>
-  </div>
+  </el-dialog>
 </template>
 
 <script>
@@ -125,10 +125,10 @@ export default {
       iStage: this.implementStage, // 阶段类型
       tableData: this.implementNumSystemList, // 外部表格数据
       tableLoading: false, // 外部表格加载状态
-      innerDialogVisible: false, // 控制内部对话框的显示与隐藏
-      temp: {},
       isSpec: 0, // 是否是 spec 的点击事件
+      outerDialogVisible: false, // 控制外部对话框的显示与隐藏
       // ----------内部----------
+      innerDialogVisible: false, // 控制内部对话框的显示与隐藏
       innerTableLoading: false,
       innerImplementStage: undefined, // 内部表格当前 stage
       innerTableData: [], // 内部表格数据
@@ -323,19 +323,12 @@ export default {
     },
     // -----------内部---------
     handleInnerTypeChange() {
-      console.log(
-        this.project,
-        this.innerImplementStage,
-        this.innerProductName,
-        this.innerCurrentSystem
-      )
       this.queryImplementNumType(
         this.project,
         this.innerImplementStage,
         this.innerProductName,
         this.innerCurrentSystem
       )
-      console.log(this.innerTableData)
     },
     // 用例执行-类型统计
     async queryImplementNumType(project, stage, product, system) {
@@ -350,8 +343,8 @@ export default {
           isSpec: 0
         }
       })
-
       this.innerTableData = res
+
       this.$nextTick(() => {
         this.innerTableLoading = false
       })

@@ -1,9 +1,19 @@
 <template>
   <div class="implement-card">
-    <card title="SPEC" class="case card">
+    <card title="SPEC核验" class="case card">
       <template #buttons>
-        <el-button type="primary" size="small">导出SPEC统计</el-button>
-        <el-button type="primary" size="small">导出SPEC明细</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          @click="handleSpecStaClick"
+        >导出SPEC统计</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          @click="handleSpecDetClick"
+        >导出SPEC明细</el-button>
       </template>
       <!-- 用例卡片 -->
       <template #content>
@@ -164,6 +174,7 @@ import Card from '@/components/Card/index'
 import Chart from '@/components/MyChart/Chart'
 
 import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: {
@@ -305,7 +316,8 @@ export default {
       caseImplementChartLoading: false,
       caseImplementChartOptions: undefined, // 用例执行图标配置项
       chipPlatFormChartLoading: false,
-      chipPlatFormChartOptions: undefined // 芯片平台图表配置项
+      chipPlatFormChartOptions: undefined, // 芯片平台图表配置项
+      butLoading: false
     }
   },
   computed: {
@@ -406,17 +418,44 @@ export default {
     }
   },
   mounted() {
-    this.getDataList()
+    this.init()
   },
   methods: {
+    // 图表的 resize
     chartResize() {
       this.$nextTick(() => {
         this.$refs.caseChartRef.resize()
         this.$refs.chipChartRef.resize()
       })
     },
+    // 点击导出SPEC统计
+    handleSpecStaClick() {
+      const url = '/api/export/implementCaseNumSta'
+      const obj = {
+        conditions: {
+          project: this.project,
+          stage: this.iStage,
+          isSpec: 1
+        }
+      }
+      const fileName = this.project + this.cStage + this.iStage + '阶段SPEC核验统计.xls'
+      DownFiles(url, obj, fileName, this)
+    },
+    // 点击导出SPEC明细
+    handleSpecDetClick() {
+      const url = '/api/export/projectTaskCaseInfo'
+      const obj = {
+        conditions: {
+          project: this.project,
+          stage: this.iStage,
+          isSpec: 1
+        }
+      }
+      const fileName = this.project + this.cStage + this.iStage + '阶段SPEC核验明细列表.xls'
+      DownFiles(url, obj, fileName, this)
+    },
     // 获取数据列表
-    getDataList() {
+    init() {
       this.caseStaEcharts(this.project, this.iStage, this.cStage)
       // 获取类型数据统计
       this.queryImplementNumType(this.project, this.iStage, this.cStage)
@@ -425,7 +464,7 @@ export default {
     },
     // radio 切换
     handleImplementStageChange() {
-      this.getDataList()
+      this.init()
     },
     // 点击产品
     handleSystemClick(row) {

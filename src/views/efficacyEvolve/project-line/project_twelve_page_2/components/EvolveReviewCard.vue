@@ -1,5 +1,5 @@
 <template>
-  <card title="评审" class="review card">
+  <card title="文档评审" class="review card">
     <template #buttons>
       <el-button
         :loading="butLoading"
