@@ -5,12 +5,14 @@
         <el-button
           :loading="butLoading"
           type="primary"
+          icon="el-icon-download"
           size="small"
           @click="handleSpecStaClick"
         >导出SPEC统计</el-button>
         <el-button
           :loading="butLoading"
           type="primary"
+          icon="el-icon-download"
           size="small"
           @click="handleSpecDetClick"
         >导出SPEC明细</el-button>

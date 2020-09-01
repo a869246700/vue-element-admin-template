@@ -4,6 +4,7 @@
       <el-button
         :loading="butLoading"
         type="primary"
+        icon="el-icon-download"
         size="small"
         @click="handleExportExcelClick"
       >导出评审明细</el-button>

@@ -7,10 +7,8 @@
         <el-tag type="info">技术课题共计 X 项，代码量共 X kloc，其中测试验证结项 X 项，评审结项 X 项</el-tag>
       </div>
       <div>
-        <el-tag type="danger" class="high">其中有 X 项课题，遗漏率 > 0.5个/K，遗漏TOP有：课题1，课题2，课题3</el-tag>
-      </div>
-      <div>
-        <el-tag type="success" class="medium">有 X 项课题发现有非未知缺陷，其中TOP有：课题1，课题2，课题3</el-tag>
+        <el-tag type="danger" style="margin-right: 20px">其中有 X 项课题，遗漏率 > 0.5个/K，遗漏TOP有：课题1，课题2，课题3</el-tag>
+        <el-tag type="success">有 X 项课题发现有非未知缺陷，其中TOP有：课题1，课题2，课题3</el-tag>
       </div>
     </div>
 

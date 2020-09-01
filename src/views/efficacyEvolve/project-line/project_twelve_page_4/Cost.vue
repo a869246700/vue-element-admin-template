@@ -3,8 +3,8 @@
     <!-- 项目成本卡片 -->
     <card title="项目成本" style="margin-bottom: 10px">
       <template #buttons>
-        <el-button :loading="butLoading" type="primary" @click="handleResourceInvClick">导出资源投入明细</el-button>
-        <el-button type="primary" @click="handleStageAdjustClick">阶段调偏</el-button>
+        <el-button :loading="butLoading" type="primary" icon="el-icon-download" size="small" @click="handleResourceInvClick">导出资源投入明细</el-button>
+        <el-button type="primary" size="small" @click="handleStageAdjustClick">阶段调偏</el-button>
       </template>
 
       <template #content>

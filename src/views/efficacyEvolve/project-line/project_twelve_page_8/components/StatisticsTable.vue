@@ -52,11 +52,11 @@
 
           <el-button
             v-waves
-            :loading="downloadLoading"
+            :loading="butLoading"
             type="primary"
             size="small"
             icon="el-icon-download"
-            @click="handleDownloadClick"
+            @click="handleExportClick"
           >导出课题分析统计</el-button>
         </div>
 
@@ -179,6 +179,7 @@ import { statisticsTableList } from './options'
 import { parseTime } from '@/utils'
 
 import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   directives: { waves },
@@ -217,7 +218,7 @@ export default {
         { label: '验证结项', id: 1 },
         { label: '评审结项', id: 2 }
       ],
-      downloadLoading: false, // 下载按钮加载
+      butLoading: false, // 下载按钮加载
       tableLoading: false, // 表单加载动画
 
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
@@ -337,17 +338,17 @@ export default {
       }
       this.tableShowData = list
     },
-    // 点击下载
-    handleDownloadClick() {
-      this.downloadLoading = true
-
-      setTimeout(() => {
-        this.$message({
-          message: '下载成功',
-          type: 'success'
-        })
-        this.downloadLoading = false
-      }, 2000)
+    // 点击导出课题分析
+    handleExportClick() {
+      this.butLoading = true
+      const url = '/api/export/projectTechnologyTopicInfo'
+      const obj = {
+        conditions: {
+          project: this.project
+        }
+      }
+      const fileName = this.project + '技术项目课题分析统计.xls'
+      DownFiles(url, obj, fileName, this)
     },
     // 修改优先级
     handlePriorityChange(row) {

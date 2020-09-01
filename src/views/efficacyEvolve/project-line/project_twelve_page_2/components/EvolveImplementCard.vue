@@ -7,12 +7,14 @@
         <el-button
           :loading="butLoading"
           type="primary"
+          icon="el-icon-download"
           size="small"
           @click="handleExportCaseStaClick"
         >导出用例统计</el-button>
         <el-button
           :loading="butLoading"
           type="primary"
+          icon="el-icon-download"
           size="small"
           @click="handleExportCaseInfoClick"
         >导出用例执行明细</el-button>

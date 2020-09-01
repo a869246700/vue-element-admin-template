@@ -6,12 +6,14 @@
         <el-button
           :loading="butLoading"
           type="primary"
+          icon="el-icon-download"
           size="small"
           @click="handleExportPackageDetClick"
         >导出工作包明细</el-button>
         <el-button
           :loading="butLoading"
           type="primary"
+          icon="el-icon-download"
           size="small"
           @click="handleExportPackStaClick"
         >工作包达标统计</el-button>

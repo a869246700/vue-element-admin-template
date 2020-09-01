@@ -4,6 +4,7 @@
       <el-button
         :loading="butLoading"
         type="primary"
+        icon="el-icon-download"
         size="small"
         @click="handleResourceDetClick"
       >导出资源明细数据</el-button>
