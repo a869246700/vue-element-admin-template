@@ -10,7 +10,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="专项任务" name="3">
-        <el-card>专项任务</el-card>
+        <special-task :project="project" />
       </el-tab-pane>
 
       <el-tab-pane label="STP" name="4">
@@ -23,15 +23,22 @@
 <script>
 import TestTaskChart from './components/TestTaskChart'
 import TestTaskWbs from './components/TestTaskWbs'
+import SpecialTask from './components/SpecialTask'
+
 export default {
   components: {
     TestTaskChart,
-    TestTaskWbs
+    TestTaskWbs,
+    SpecialTask
   },
   data() {
     return {
-      active: '2'
+      active: '3',
+      project: undefined
     }
+  },
+  created() {
+    this.project = this.$t(this.$route.matched[2].meta.title)
   },
   methods: {
     // 处理 tab 切换

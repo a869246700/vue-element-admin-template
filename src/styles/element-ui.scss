@@ -106,17 +106,18 @@
   line-height: $sideBarHeight;
 }
 
-// .el-table .cell {
-//   padding    : 0px 10px;
-//   white-space: nowrap;
-// }
-
-.el-table .cell,
-.el-table th>.cell {
+.el-table .cell {
   padding    : 0px 10px;
   white-space: nowrap;
   width      : fit-content;
 }
+
+// .el-table .cell,
+// .el-table th>.cell {
+//   padding    : 0px 10px;
+//   white-space: nowrap;
+//   width      : fit-content;
+// }
 
 .evolve .el-select,
 .quality .el-select,

@@ -228,7 +228,7 @@
     </card>
 
     <!-- 对话框 -->
-    <cost-dialog ref="dialogRef" :table-data="dialogTableData" />
+    <cost-dialog ref="dialogRef" :project="project" :table-data="dialogTableData" />
 
     <!-- 资源调偏 -->
     <cost-source-adjust ref="costSourceAdjustRef" :list="fourTableData" />
@@ -984,6 +984,7 @@ export default {
         stage = ''
       }
       this.$refs.dialogRef.isDialogVisible = true // 显示对话框
+      this.$refs.dialogRef.temp = row
       this.getProjectDetailSummary(
         this.project,
         !row.type ? '' : row.type,
@@ -1087,16 +1088,17 @@ export default {
 }
 
 .warning {
-  color: #ff8000;
+  color: #ff8000!important;
   font-weight: bold;
 }
 
 .error {
-  color: #ff0000;
+  color: #ff0000!important;
   font-weight: bold;
 }
 
 .normal {
+  color: #000;
   text-decoration: underline;
   cursor: pointer;
 }

@@ -2,7 +2,7 @@
   <!-- 专项任务 -->
   <div class="special-task">
     <!-- 通知栏 -->
-    <div class="notify-bar">
+    <div v-if="false" class="notify-bar">
       <div>
         <el-tag type="info">项目风险项共计 10项, 其中HIGH 6项, MIDDLE 3项, LOW 1项</el-tag>
       </div>
@@ -14,25 +14,24 @@
       </div>
     </div>
 
-    <!-- 表格-阶段值切换栏 -->
-    <div class="stage-change">
-      <el-radio-group v-model="currentStage" @change="handleStageChange">
-        <el-radio-button v-for="(item, index) in stageList" :key="index" :label="item.stage" />
-      </el-radio-group>
-    </div>
-
     <!-- 表格区域 -->
     <div class="table">
-      <task-table />
+      <task-table :project="project" />
     </div>
   </div>
 </template>
 
 <script>
-import TaskTable from './components/TaskTable'
+import TaskTable from './TaskTable'
 
 export default {
   components: { TaskTable },
+  props: {
+    project: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       currentStage: '阶段一', // 当前选中阶段值

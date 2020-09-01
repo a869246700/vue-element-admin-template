@@ -2,44 +2,34 @@
   <div class="table-container">
     <!-- 表格顶部控制栏 -->
     <div class="operation-bar">
-      <el-input
-        v-model="listQuery.risk_item"
-        placeholder="风险项"
-        style="width: 150px;"
-        @keyup.enter.native="handleSearchClick"
-      />
+      <div class="left">
+        <el-radio-group v-model="currentStage" size="small" @change="handleStageChange">
+          <el-radio-button
+            v-for="item in projectStageList"
+            :key="item.index_num"
+            :label="item.stage_name"
+          />
+        </el-radio-group>
+      </div>
 
-      <el-button
-        v-waves
-        type="primary"
-        size="small"
-        icon="el-icon-search"
-        @click="handleSearchClick"
-      >搜索</el-button>
+      <div class="right" style="margin-right: 30px">
+        <el-button type="primary" size="small" icon="el-icon-edit" @click="handleCreateClcik">添加数据</el-button>
 
-      <el-button type="primary" size="small" icon="el-icon-edit" @click="handleCreateClcik">添加</el-button>
-
-      <el-button
-        v-waves
-        :loading="downloadLoading"
-        type="primary"
-        size="small"
-        icon="el-icon-download"
-        @click="handleDownloadClick"
-      >导出数据</el-button>
-
-      <el-button
-        type="primary"
-        size="small"
-        icon="el-icon-document"
-        @click="hanleShowDataViewClick"
-      >数据视图</el-button>
+        <el-button
+          v-waves
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          icon="el-icon-download"
+          @click="handleExportClick"
+        >导出数据</el-button>
+      </div>
     </div>
 
     <!-- 表格 -->
     <div class="table-content">
       <el-table
-        v-loading="listLoading"
+        v-loading="tableLoading"
         :data="list"
         style="width: 100%"
         border
@@ -48,7 +38,7 @@
         highlight-current-row
       >
         <el-table-column
-          v-for="item in tableTitleList"
+          v-for="item in tableOptions"
           :key="item.prop"
           :prop="item.prop"
           :label="item.label"
@@ -59,7 +49,7 @@
           <template slot-scope="{row}">
             <!-- 如果是创建时间 | 希望解决时间 | 最后更新时间 则进行时间格式过滤 -->
             <span
-              v-if="item.prop === 'forecast_completion_time'"
+              v-if="item.prop === 'planFinishDate'"
             >{{ row[item.prop] | parseTime('{y}-{m}-{d} {h}:{i}') }}</span>
             <!-- 正常输出 -->
             <span v-else>{{ row[item.prop] }}</span>
@@ -96,12 +86,12 @@
     <!-- 分段器 -->
     <div class="pagination">
       <pagination
-        v-show="total > 0"
+        v-show="total > limit"
         :total="total"
-        :page.sync="listQuery.page"
-        :limit.sync="listQuery.limit"
+        :page.sync="currentPage"
+        :limit.sync="limit"
         :auto-scroll="false"
-        @pagination="getList"
+        @pagination="handlePaginationChange"
       />
     </div>
 
@@ -115,8 +105,8 @@
         label-width="110px"
         style="width: 60%; margin: 0 auto;"
       >
-        <el-form-item label="项目" prop="project_name">
-          <el-select v-model="temp.project_name" placeholder="请选择项目" style="width: 100%">
+        <el-form-item label="项目" prop="project">
+          <el-select v-model="temp.project" placeholder="请选择项目" style="width: 100%">
             <el-option
               v-for="item in projectOptions"
               :key="item.key"
@@ -126,12 +116,12 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="任务名称" prop="task_name">
-          <el-input v-model.trim="temp.task_name" style="width: 100%" clearable />
+        <el-form-item label="任务名称" prop="taskName">
+          <el-input v-model.trim="temp.taskName" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="负责人" prop="principal">
-          <el-input v-model.trim="temp.principal" style="width: 100%" clearable />
+        <el-form-item label="负责人" prop="dutyName">
+          <el-input v-model.trim="temp.dutyName" style="width: 100%" clearable />
         </el-form-item>
 
         <el-form-item label="目标" prop="target">
@@ -144,33 +134,29 @@
           />
         </el-form-item>
 
-        <el-form-item label="当前进展" prop="current_procress">
+        <el-form-item label="当前进展" prop="newestProgress">
           <el-input
-            v-model.trim="temp.current_procress"
+            v-model.trim="temp.newestProgress"
             type="textarea"
             :row="2"
             style="width: 100%"
           />
         </el-form-item>
 
-        <el-form-item label="风险&问题" prop="risk_issue">
-          <el-input v-model.trim="temp.risk_issue" type="textarea" :row="2" style="width: 100%" />
+        <el-form-item label="风险&问题" prop="risk">
+          <el-input v-model.trim="temp.risk" type="textarea" :row="2" style="width: 100%" />
         </el-form-item>
 
-        <el-form-item label="对策" prop="solution">
-          <el-input v-model.trim="temp.solution" style="width: 100%" clearable />
+        <el-form-item label="对策" prop="countermeasure">
+          <el-input v-model.trim="temp.countermeasure" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="预计达成时间" prop="forecast_completion_time">
-          <el-date-picker
-            v-model="temp.forecast_completion_time"
-            type="datetime"
-            style="width: 100%"
-          />
+        <el-form-item label="预计达成时间" prop="planFinishDate">
+          <el-date-picker v-model="temp.planFinishDate" type="datetime" style="width: 100%" />
         </el-form-item>
 
-        <el-form-item label="偏差原因" prop="deviation_reason">
-          <el-input v-model.trim="temp.deviation_reason" type="textarea" :row="2" style="width: 100%" />
+        <el-form-item label="偏差原因" prop="cause">
+          <el-input v-model.trim="temp.cause" type="textarea" :row="2" style="width: 100%" />
         </el-form-item>
       </el-form>
 
@@ -179,19 +165,16 @@
         <el-button type="primary" @click="dialogStatus==='create' ? createData() : updateData()">确定</el-button>
       </div>
     </el-dialog>
-
-    <!-- 数据视图 -->
-    <el-dialog :visible.sync="dataViewVisible">
-      <div class="content">123</div>
-    </el-dialog>
   </div>
 </template>
 
 <script>
 import waves from '@/directive/waves'
-import { tableTitleList, rules } from './options'
 import Pagination from '@/components/Pagination'
+
 import { parseTime } from '@/utils'
+import request from '@/services/post'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: { Pagination },
@@ -207,28 +190,27 @@ export default {
     },
     parseTime
   },
+  props: {
+    project: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       tableKey: 0, // 用来强制视图的刷新
-      total: 0, // 搜索到的数据条数
-      tableTitleList, // 表格头列表配置
-      // 筛选的条件
-      listQuery: {
-        page: 1, // 第几页
-        limit: 20, // 每页多少个
-        risk_status: undefined, // 风险状态
-        risk_item: undefined, // 风险项
-        risk_level: undefined, // 影响
-        type: undefined // 类型
-      },
+      currentStage: '阶段一', // 当前阶段
+      projectStageList: [], // 项目阶段列表
+      currentPage: 1,
+      limit: 10,
       // 项目 select 配置项
       projectOptions: [
         { label: '12.5PL1', id: 1 },
         { label: '12.5PL1_S2', id: 2 }
       ],
-      downloadLoading: false, // 下载按钮加载
-      listLoading: true, // 表单加载动画
-      list: [],
+      butLoading: false, // 下载按钮加载
+      tableLoading: false, // 表单加载动画
+      tableData: [],
       textMap: {
         update: '编辑',
         create: '添加'
@@ -236,51 +218,127 @@ export default {
       dialogStatus: '', // 当前 添加和修改对话框 的类型
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
       temp: {
-        id: undefined,
-        project_name: undefined,
-        task_name: undefined,
-        forecast_completion_time: new Date(),
-        principal: undefined,
+        project: undefined,
+        taskName: undefined,
+        planFinishDate: new Date(),
+        dutyName: undefined,
         target: undefined,
-        current_procress: undefined,
-        risk_issue: undefined,
-        solution: undefined,
-        deviation_reason: undefined
+        newestProgress: undefined,
+        risk: undefined,
+        countermeasure: undefined,
+        cause: undefined
       },
-      rules, // 表单规则
       dataViewVisible: false // 控制数据视图的显示与隐藏
     }
   },
-  mounted() {
-    setTimeout(() => {
-      this.listLoading = false
-    }, 2000)
+  computed: {
+    list() {
+      const page = this.currentStage
+      const limit = this.limit
+      return this.tableData.slice((page - 1) * limit, page * limit)
+    },
+    total() {
+      return this.tableData.length
+    },
+    // 表单配置对象
+    tableOptions() {
+      return [
+        {
+          prop: 'id',
+          label: 'ID',
+          minWidth: 60
+        },
+        {
+          prop: 'project',
+          label: '项目',
+          minWidth: 100
+        },
+        {
+          prop: 'task_name',
+          label: '任务名称',
+          minWidth: 120
+        },
+        {
+          prop: 'duty_name',
+          label: '负责人',
+          minWidth: 100
+        },
+        {
+          prop: 'target',
+          label: '目标',
+          minWidth: 140
+        },
+        {
+          prop: 'newest_progress',
+          label: '当前进展',
+          minWidth: 140
+        },
+        {
+          prop: 'risk',
+          label: '风险&问题',
+          minWidth: 140
+        },
+        {
+          prop: 'countermeasure',
+          label: '对策',
+          minWidth: 100
+        },
+        {
+          prop: 'plan_finish_date',
+          label: '预计达成时间',
+          minWidth: 160
+        },
+        {
+          prop: 'cause',
+          label: '偏差原因',
+          minWidth: 140
+        }
+      ]
+    },
+    // form 规则
+    rules() {
+      return {
+        project: [{ required: true, message: '请选择项目', trigger: 'change' }],
+        taskName: [{ required: true, message: '请填写任务名称', trigger: 'blur' }],
+        planFinishDate: [{ required: true, message: '请选择预计达成时间', trigger: 'change' }],
+        cause: [{ required: true, message: '请填写偏差原因', trigger: 'blur' }],
+        dutyName: [{ required: true, message: '请填写负责人', trigger: 'blur' }],
+        target: [{ required: true, message: '请填写目标', trigger: 'blur' }],
+        risk: [{ required: true, message: '请填写风险&问题', trigger: 'blur' }],
+        countermeasure: [{ required: true, message: '请填写对策', trigger: 'blur' }],
+        newestProgress: [{ required: true, message: '请填写对当前进展', trigger: 'blur' }]
+      }
+    }
+  },
+  created() {
+    this.init()
   },
   methods: {
-    // 点击搜索
-    handleSearchClick() {
-      this.listLoading = true
-
-      // 重置页面为第一页
-      this.listQuery.page = 1
-      setTimeout(() => {
-        this.listLoading = false
-      }, 2000)
+    // 初始化
+    init() {
+      this.getProjectStage(this.project)
+      this.getprojectSpecialList(this.project, this.currentStage)
+    },
+    // 处理阶段改变
+    handleStageChange() {
+      this.getprojectSpecialList(this.project, this.currentStage)
     },
     // 点击下载
-    handleDownloadClick() {
-      this.downloadLoading = true
-
-      setTimeout(() => {
-        this.$message({
-          message: '下载成功',
-          type: 'success'
-        })
-        this.downloadLoading = false
-      }, 2000)
+    handleExportClick() {
+      this.butLoading = true
+      const url = '/api/export/projectSpecialExport'
+      const obj = {
+        conditions: {
+          project: this.project
+        }
+      }
+      const fileName = this.project + '专项任务列表.xls'
+      DownFiles(url, obj, fileName, this)
     },
-    getList(e) {
-      console.log(this.listQuery)
+    // 分页器改变
+    handlePaginationChange(e) {
+      this.currentStage = e.page
+      this.limit = e.limit
     },
     // 修改优先级
     handlePriorityChange(row) {
@@ -298,16 +356,15 @@ export default {
     // 重置 temp
     resetTemp() {
       this.temp = {
-        id: undefined,
-        project_name: undefined,
-        task_name: undefined,
-        forecast_completion_time: new Date(),
-        principal: undefined,
+        project: undefined,
+        taskName: undefined,
+        planFinishDate: new Date(),
+        dutyName: undefined,
         target: undefined,
-        current_procress: undefined,
-        risk_issue: undefined,
-        solution: undefined,
-        deviation_reason: undefined
+        newestProgress: undefined,
+        risk: undefined,
+        countermeasure: undefined,
+        cause: undefined
       }
     },
     // 点击添加按钮, 显示添加表单
@@ -323,13 +380,21 @@ export default {
     // 真正的添加数据
     createData() {
       // 1. 表单校验
-      this.$refs.dataFormRef.validate((valid) => {
-        if (valid) {
-          // 模拟 id
-          this.temp.id = this.list.length === 0 ? 1 : this.list[this.list.length - 1].id + 1
-          console.log(this.temp)
-          // 添加数据
-          this.list.push(this.temp)
+      this.$refs.dataFormRef.validate(async(valid) => {
+        if (valid && this.temp !== undefined) {
+          const { data: res } = await request('/api/projectEvolveSta/projectSpecial/add', {
+            method: 'POST',
+            data: {
+              projectSource: this.project,
+              ...this.temp
+            }
+          })
+
+          this.$notify({
+            title: res ? '添加成功' : '添加失败',
+            type: res ? 'success' : 'error',
+            duration: 1500
+          })
           // 隐藏添加窗口
           this.dialogFormVisible = false
         }
@@ -352,45 +417,45 @@ export default {
     // 真正的修改数据
     updateData() {
       // 1. 表单校验
-      this.$refs.dataFormRef.validate((valid) => {
+      this.$refs.dataFormRef.validate(async(valid) => {
         if (valid) {
-          console.log('进行修改')
-          // 1. 对象深拷贝
-          const tempData = Object.assign({}, this.temp)
-          // 2. 将 date 修改为 时间戳
-          tempData.creation_time = +new Date(tempData.creation_time)
-          // 3. 根据 id 找到下标值
-          const index = this.list.findIndex((v) => v.id === this.temp.id)
-          // 4. 进行数据修改
-          this.list.splice(index, 1, this.temp)
-
-          // 5. 提示修改成功
-          this.$notify({
-            title: '成功',
-            message: '修改数据成功',
-            type: 'success',
-            duration: 2000
+          const { data: res } = await request('/api/projectEvolveSta/projectSpecial/update', {
+            method: 'POST',
+            data: this.temp
           })
 
-          // 6. 隐藏添加窗口
+          this.$notify({
+            title: res ? '修改成功' : '修改失败',
+            type: res ? 'success' : 'error',
+            duration: 1500
+          })
+          // 隐藏添加窗口
           this.dialogFormVisible = false
         }
       })
     },
     // 点击询问是否删除
-    handleDeleteClick(row) {
+    async handleDeleteClick(row) {
       this.$confirm('此操作将删除该记录, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
+        .then(async() => {
+          const id = row.id
+          const { data: res } = await request('/api/projectEvolveSta/projectSpecial/delete', {
+            method: 'DELETE',
+            params: {
+              id
+            }
+          })
           this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
+            title: res ? '删除成功' : '删除失败',
+            type: res ? 'success' : 'error',
             duration: 1500
           })
+          // 重新获取数据
+          this.getprojectSpecialList(this.project, this.currentStage)
         })
         .catch(() => {
           this.$message({
@@ -400,9 +465,31 @@ export default {
           })
         })
     },
-    // 点击显示数据视图
-    hanleShowDataViewClick() {
-      this.dataViewVisible = true
+    // 查询项目阶段
+    async getProjectStage(project) {
+      const { data: res } = await request('/api/projectEvolveSta/queryByProjectStage', {
+        method: 'GET',
+        params: {
+          project
+        }
+      })
+      this.projectStageList = res
+    },
+    // 专项任务-专项列表
+    async getprojectSpecialList(project, projectStage) {
+      this.tableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryBySpecialList', {
+        method: 'GET',
+        params: {
+          project,
+          projectStage
+        }
+      })
+      this.tableData = res
+
+      this.$nextTick(() => {
+        this.tableLoading = false
+      })
     }
   }
 }
@@ -412,14 +499,8 @@ export default {
 // 表单操作栏
 .operation-bar {
   display: flex;
-
-  .el-input {
-    margin-right: 10px;
-  }
-
-  .el-select {
-    margin-right: 10px;
-  }
+  justify-content: space-between;
+  align-items: center;
 }
 
 .table-content {

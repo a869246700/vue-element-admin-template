@@ -3,6 +3,12 @@ import Layout from '@/layout'
 // 具体项目线下的子路由
 const projectLineChildrenRouter = [
   {
+    path: 'total',
+    name: 'total',
+    meta: { title: '总述' },
+    component: () => import('@/views/dashboard/index')
+  },
+  {
     path: 'progress',
     name: 'progress',
     meta: { title: '进展管理' },
@@ -42,7 +48,7 @@ const projectLineChildrenRouter = [
     path: 'design',
     name: 'design',
     meta: { title: '积分考核' },
-    component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_7/ProjectLongestPath')
+    component: () => import('@/views/mygoo/demo2')
   },
   {
     path: 'wbs',

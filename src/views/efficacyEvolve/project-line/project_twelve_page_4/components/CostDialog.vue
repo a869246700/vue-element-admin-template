@@ -1,7 +1,12 @@
 <template>
   <el-dialog title="资源明细" :visible.sync="isDialogVisible" width="70%" class="cost-dialog">
     <div class="tool-bar">
-      <el-button type="primary" size="small">导出资源明细数据</el-button>
+      <el-button
+        :loading="butLoading"
+        type="primary"
+        size="small"
+        @click="handleResourceDetClick"
+      >导出资源明细数据</el-button>
     </div>
     <!-- 表格 -->
     <el-table v-loading="isLoading" :data="list" highlight-current-row border style="width: 100%">
@@ -65,6 +70,9 @@
 
 <script>
 import Pagination from '@/components/Pagination/index'
+
+import DownFiles from '@/vendor/ExportExcel'
+
 export default {
   name: 'CostDialog',
   components: { Pagination },
@@ -72,6 +80,10 @@ export default {
     tableData: {
       type: Array,
       default: () => []
+    },
+    project: {
+      type: String,
+      default: ''
     }
   },
   data() {
@@ -93,11 +105,12 @@ export default {
         stage: undefined,
         project_process: undefined
       },
-      temp: [],
       tableShowData: [],
       currentPage: 1, // 当前页码
       pageSize: 10, // 每页大小
-      key: 1
+      key: 1,
+      butLoading: false, // 导出加载中
+      temp: undefined // 暂时存储点击对象
     }
   },
   computed: {
@@ -185,6 +198,23 @@ export default {
     }
   },
   methods: {
+    // 点击导出资源明细资源
+    handleResourceDetClick() {
+      const objectRecord = this.temp
+      const url = '/api/export/projectDetailSummaryInfo'
+      const obj = {
+        conditions: {
+          project: this.project,
+          type: objectRecord.type === undefined ? '' : objectRecord.type,
+          area: objectRecord.area === undefined ? '' : objectRecord.area,
+          realm: objectRecord.realm === undefined ? '' : objectRecord.realm,
+          stage: objectRecord.stage === undefined ? '' : objectRecord.stage,
+          process: objectRecord.process_name === undefined ? '' : objectRecord.process_name
+        }
+      }
+      const fileName = this.project + '资源明细列表.xls'
+      DownFiles(url, obj, fileName, this)
+    },
     handleSearchClcik(key) {
       this.$nextTick(() => {
         this.closePopover(key)

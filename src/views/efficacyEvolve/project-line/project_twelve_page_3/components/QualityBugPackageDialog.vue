@@ -2,7 +2,7 @@
   <el-dialog
     width="70%"
     top="5vh"
-    title="控制面bug明细列表"
+    title="工作包bug统计"
     :visible.sync="dialogVisible"
     append-to-body
     class="quality-innerdialog"

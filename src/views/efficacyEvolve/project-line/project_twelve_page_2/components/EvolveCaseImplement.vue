@@ -52,7 +52,7 @@
               v-if="item.prop === 'system'"
               class="title"
               @click="handleItemClick(row)"
-            >{{ row.product_name }}</span>
+            >{{ row.system }}</span>
             <span v-else>{{ row[item.prop] }}</span>
           </template>
         </el-table-column>
@@ -64,6 +64,7 @@
       :visible.sync="innerDialogVisible"
       append-to-body
       lock-scroll
+      width="70%"
     >
       <el-radio-group v-model="innerImplementStage" size="small" @change="handleInnerTypeChange">
         <el-radio-button key="9" label="汇总" />
@@ -240,7 +241,7 @@ export default {
         {
           prop: 'type',
           label: '用例属性',
-          minWidth: 78
+          minWidth: 120
         },
         {
           prop: 'all_num',

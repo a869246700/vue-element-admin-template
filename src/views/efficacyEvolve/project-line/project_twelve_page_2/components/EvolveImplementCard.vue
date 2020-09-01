@@ -572,12 +572,13 @@ export default {
 
       this.$nextTick(() => {
         this.productTableLoading = false
-        this.chipPlatFormChartLoading = true
+        this.chipPlatFormChartLoading = false
       })
     },
     // 获取用例执行情况图标配置项
     async caseStaEcharts(project, stage, projectStage) {
       this.caseImplementChartLoading = true
+      this.chipPlatFormChartLoading = true
 
       const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumTotal', {
         method: 'GET',
@@ -673,6 +674,7 @@ export default {
 
       this.$nextTick(() => {
         this.caseImplementChartLoading = false
+        this.chipPlatFormChartLoading = false
       })
     },
     // 进展-执行-用例-BUG阻塞
