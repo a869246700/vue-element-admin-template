@@ -3,6 +3,18 @@
     <card title="执行">
       <!-- BUG解决按钮 -->
       <template #buttons>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          @click="handleExportPackageDetClick"
+        >导出工作包明细</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          size="small"
+          @click="handleExportPackStaClick"
+        >工作包达标统计</el-button>
         <el-popover placement="bottom-end" :width="(146 * 7)" trigger="click">
           <el-table
             :data="bugSolve"
@@ -27,7 +39,7 @@
               </template>
             </el-table-column>
           </el-table>
-          <el-button slot="reference" type="primary" size="small">BUG解决</el-button>
+          <el-button slot="reference" type="primary" size="small" style="margin-left: 10px;">BUG解决</el-button>
         </el-popover>
       </template>
 
@@ -35,7 +47,7 @@
       <template #content>
         <!-- 第一个表格区域 -->
         <div class="first-table">
-          <div class="container">
+          <div class="header">
             <!-- radio切换 -->
             <el-radio-group v-model="totalStageName" size="small" @change="handleTotalRadioChange">
               <el-radio-button
@@ -88,13 +100,13 @@
 
         <!-- 第二个表格区域 -->
         <div class="second-table">
-          <div class="container">
+          <div class="header">
             <!-- radio切换 -->
-            <el-radio-group v-model="zrStageName" size="small" @change="handleTotalRadioChange">
+            <el-radio-group v-model="zrStageName" size="small" @change="handleRadioChange">
               <el-radio-button
                 v-for="(item, index) in zrStageNameList"
                 :key="index"
-                :label="item.stage"
+                :label="item.stage_name"
               />
             </el-radio-group>
 
@@ -167,6 +179,7 @@ import QualityBugDetailDialog from './components/QualityBugDetailDialog'
 import QualityBugPackageDialog from './components/QualityBugPackageDialog'
 
 import request from '@/services/request'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   filters: {
@@ -270,7 +283,8 @@ export default {
       workPackageBugTableData: [],
       qualityDefectInfoList: [],
       qualityDefectWorkList: [], // bug 明细数据
-      dialogControl: false
+      dialogControl: false,
+      butLoading: false
     }
   },
   computed: {
@@ -523,8 +537,6 @@ export default {
   },
   created() {
     this.project = this.$t(this.$route.matched[2].meta.title) // 获取项目名称
-  },
-  beforeMount() {
     this.init()
   },
   methods: {
@@ -534,6 +546,30 @@ export default {
       this.queryByQualityZrDefectList(this.project, 'sta', 'type', this.zrStageName)
       this.queryByBugSolve(this.project)
       this.queryByProjectStage(this.project)
+    },
+    // 导出工作包明细
+    handleExportPackageDetClick() {
+      console.log('导出工作包明细')
+      const index = this.totalStageNameList.findIndex((e) => e.stage === this.totalStageName)
+      const url = '/api/export/exeQualityWorkPackage'
+      const obj = {
+        conditions: {
+          project: this.project,
+          type: this.tableType[index]
+        }
+      }
+      const fileName = this.project + '工作包bug产出统计.xls'
+      DownFiles(url, obj, fileName, this)
+    },
+    // 导出工作包达标统计
+    handleExportPackStaClick() {
+      // console.log('导出工作包达标统计')
+      this.$notify({
+        title: '导出失败，功能未填写',
+        message: 'Quality => handleExportPackStaClick()',
+        type: 'error',
+        duration: 3000
+      })
     },
     // 对话框中工作包点击事件
     handleWorkPackageClick(row) {
@@ -568,9 +604,8 @@ export default {
       this.queryByQualityZrDefectList(this.project, this.tableType[index], 'type', this.zrStageName)
     },
     // 阶段的切换
-    handleRadioChange(name) {
+    handleRadioChange() {
       const index = this.totalStageNameList.findIndex((e) => e.stage === this.totalStageName)
-      this.queryByQualityDefectList(this.project, this.tableType[index], 'realm', '')
       this.queryByQualityZrDefectList(this.project, this.tableType[index], 'type', this.zrStageName)
     },
     // 点击类型显示 dialog
@@ -679,7 +714,6 @@ export default {
         this.$refs.packageDialogRef.isLoading = false
       })
     },
-
     // 质量-执行bug明细
     async queryByQualityDefectInfoList(project, tableType, type, userType, workPackage, stageName) {
       this.$refs.detailDialogRef.dialogVisible = true
@@ -707,7 +741,6 @@ export default {
         this.$refs.detailDialogRef.isLoading = false
       })
     },
-
     // 质量-执行-BUG解决
     async queryByBugSolve(project) {
       const { data: res } = await request('/api/projectEvolveSta/listProjectBugSolveProcessSta', {
@@ -728,15 +761,14 @@ export default {
           project
         }
       })
-
-      console.log(res)
+      this.zrStageNameList = res
     }
   }
 }
 </script>
 
 <style lang="scss" scoped>
-.container {
+.header {
   display: flex;
   justify-content: space-between;
   margin-bottom: 10px;

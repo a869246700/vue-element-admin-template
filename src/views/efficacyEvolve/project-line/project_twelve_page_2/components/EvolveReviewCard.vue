@@ -306,10 +306,7 @@ export default {
     }
   },
   created() {
-    const timer = setTimeout(() => {
-      this.init()
-      clearTimeout(timer)
-    }, 200)
+    this.init()
   },
   methods: {
     // 初始化组件
