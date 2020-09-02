@@ -28,7 +28,6 @@
               :key="item.prop"
               :prop="item.prop"
               :min-width="item.minWidth"
-              align="center"
               show-overflow-tooltip
             >
               <template #header>
@@ -67,7 +66,7 @@
                   <el-select
                     v-model="row[item.prop]"
                     :placeholder="row[item.prop] || '请选择'"
-                    style="width: 110px"
+                    style="width: 100%"
                   >
                     <el-option
                       v-for="method in acceptanceMethodOptions"
@@ -82,7 +81,7 @@
               </template>
             </el-table-column>
 
-            <el-table-column min-width="120" fixed="right" align="center">
+            <el-table-column min-width="100" fixed="right" align="center">
               <template #header>
                 <span style="margin-right: 5px">操作</span>
                 <el-popover placement="top-start" :width="170" trigger="hover" content="预留操作">
@@ -119,8 +118,13 @@
             label-width="110px"
             style="width: 60%; margin: 0 auto;"
           >
-            <el-form-item label="技术项目" prop="project_name">
-              <el-select v-model="temp.project_name" placeholder="请选择" style="width: 100%">
+            <el-form-item label="技术项目" prop="project">
+              <el-select
+                v-if="dialogStatus === 'create'"
+                v-model="temp.project"
+                placeholder="请选择"
+                style="width: 100%"
+              >
                 <el-option
                   v-for="(item, index) in projectNameOptions"
                   :key="index"
@@ -128,78 +132,83 @@
                   :value="item"
                 />
               </el-select>
+
+              <span v-else>{{ temp.project }}</span>
             </el-form-item>
 
             <el-form-item label="bugid" prop="bugid">
               <el-input
+                v-if="dialogStatus === 'create'"
                 v-model.trim="temp.bugid"
                 placeholder="请输入bugid"
                 style="width: 100%"
                 @blur="handleBugIdValid(temp.bugid)"
               >
-                <span v-if="bugIdIcon === 'el-icon-warning'" slot="suffix">
-                  <el-popover
-                    placement="bottom-end"
-                    :width="bugIdMessageWidth"
-                    trigger="hover"
-                    :content="bugIdMessage"
-                  >
+                <span slot="suffix">
+                  <el-popover v-if="bugIdMessage" placement="bottom-end" trigger="hover">
+                    <span>{{ bugIdMessage }}</span>
                     <i
                       slot="reference"
                       :class="bugIdIcon"
-                      style="margin-right: 5px; font-size: 18px; color: #faad14;"
+                      style="margin-right: 5px; font-size: 18px;"
                     />
                   </el-popover>
                 </span>
-
-                <span v-else slot="suffix">
-                  <i
-                    :class="bugIdIcon"
-                    :style="bugIdIcon === 'el-icon-success' ? ' color: #67C23A' : ' color: #409EFF;'"
-                    style="margin-right: 5px; font-size: 18px;"
-                  />
-                </span>
               </el-input>
+
+              <span v-else>{{ temp.bugid }}</span>
             </el-form-item>
 
-            <el-form-item label="技术课题" prop="technical_issues">
+            <el-form-item label="技术课题" prop="topic">
               <el-input
-                v-model.trim="temp.technical_issues"
+                v-if="dialogStatus === 'create'"
+                v-model.trim="temp.topic"
                 placeholder="根据bugid关联"
                 readonly
                 style="width: 100%"
               />
+
+              <span v-else>{{ temp.topic }}</span>
             </el-form-item>
 
-            <el-form-item label="工作包" prop="work_package">
+            <el-form-item label="工作包" prop="workPackage">
               <el-input
-                v-model.trim="temp.work_package"
+                v-if="dialogStatus === 'create'"
+                v-model.trim="temp.workPackage"
                 placeholder="根据bugid关联"
                 readonly
                 style="width: 100%"
               />
+
+              <span v-else>{{ temp.workPackage }}</span>
             </el-form-item>
 
-            <el-form-item label="代码量" prop="code_count">
+            <el-form-item label="代码量" prop="code">
               <el-input
-                v-model.trim="temp.code_count"
+                v-if="dialogStatus === 'create'"
+                v-model.trim="temp.code"
                 placeholder="根据bugid关联"
                 readonly
                 style="width: 100%"
               />
+
+              <span v-else>{{ temp.code }}</span>
             </el-form-item>
 
-            <el-form-item label="验收方式" prop="acceptance_method">
+            <el-form-item label="验收方式" prop="checkMode">
               <el-input
-                v-model.trim="temp.acceptance_method"
+                v-if="dialogStatus === 'create'"
+                v-model.trim="temp.checkMode"
                 placeholder="根据bugid关联"
                 readonly
                 style="width: 100%"
               />
+
+              <span v-else>{{ temp.checkMode }}</span>
             </el-form-item>
 
-            <el-form-item label="遗漏类型归属" prop="omission_type">
-              <el-select v-model="temp.omission_type" placeholder="请选择遗漏类型归属" style="width: 100%">
+            <el-form-item label="遗漏类型归属" prop="omitType">
+              <el-select v-model="temp.omitType" placeholder="请选择遗漏类型归属" style="width: 100%">
                 <el-option
                   v-for="method in omissionTypeOptions"
                   :key="method.key"
@@ -209,18 +218,18 @@
               </el-select>
             </el-form-item>
 
-            <el-form-item label="遗漏原因" prop="omission_reason">
+            <el-form-item label="遗漏原因" prop="omitCause">
               <el-input
-                v-model.trim="temp.omission_reason"
+                v-model.trim="temp.omitCause"
                 type="textarea"
                 placeholder="请输入遗漏原因"
                 style="width: 100%"
               />
             </el-form-item>
 
-            <el-form-item label="改进对策" prop="improve_solution">
+            <el-form-item label="改进对策" prop="improve">
               <el-input
-                v-model.trim="temp.improve_solution"
+                v-model.trim="temp.improve"
                 type="textarea"
                 placeholder="请输入改进对策"
                 style="width: 100%"
@@ -231,6 +240,7 @@
           <div slot="footer" class="dialog-footer">
             <el-button @click="dialogFormVisible = false">取消</el-button>
             <el-button
+              :loading="formLoading"
               type="primary"
               @click="dialogStatus==='create' ? createData() : updateData()"
             >确定</el-button>
@@ -246,7 +256,7 @@ import waves from '@/directive/waves'
 import Card from '@/components/Card/index'
 import { detailTableList, rules } from './options'
 import { parseTime } from '@/utils'
-import request from '@/services/request'
+import request from '@/services/post'
 
 export default {
   directives: { waves },
@@ -274,12 +284,9 @@ export default {
     return {
       technologyProject: undefined,
       tableShowData: undefined, // 表格显示的数据
-      list: [
-        { project: '项目1', topic: '课题1', check_mode: '验证结项' },
-        { project: '项目1', topic: '课题2', check_mode: '评审结项' },
-        { project: '项目2', topic: '课题3' }
-      ], // 存储表格数据
+      list: undefined, // 存储表格数据
       detailTableList, // 表格头列表配置
+      formLoading: false,
       // 筛选的条件
       listQuery: {
         project: undefined,
@@ -316,36 +323,127 @@ export default {
       dialogStatus: '', // 当前 添加和修改对话框 的类型
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
       temp: {
-        id: undefined,
-        project_name: undefined,
-        technical_issues: undefined,
-        acceptance_method: undefined,
-        work_package: undefined,
-        code_count: undefined,
-        dev_principal: undefined,
-        test_principal: undefined,
+        project: undefined,
         bugid: undefined,
-        bug_desc: undefined,
-        omission_type: undefined,
-        omission_reason: undefined,
-        improve_solution: undefined
+        topic: undefined,
+        workPackage: undefined,
+        code: undefined,
+        checkMode: undefined,
+        omitType: undefined,
+        omitCause: undefined,
+        improve: undefined
       },
       rules, // 表单校验规则
       bugIdIcon: '', // bugID校验图标
-      bugIdMessage: '', // bugid 显示的文本
-      bugIdMessageWidth: ''
+      bugIdMessage: '' // bugid 显示的文本
     }
   },
-  mounted() {
-    this.tableShowData = this.list
-    this.getTechnologyBugInfoList(this.project)
-    this.queryByTechnologyProject(this.project)
+  computed: {
+    updateRules() {
+      return {
+        omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
+        omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
+        improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+      }
+    },
+    createRules() {
+      return {
+        project: [{ required: true, message: '请填写项目名称', trigger: 'blur' }],
+        bugid: [{ required: true, message: '请填写bugid', trigger: 'blur' }],
+        omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
+        omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
+        improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+      }
+    },
+    tableOptions() {
+      return [
+        {
+          prop: 'project',
+          label: '项目名称',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'topic',
+          label: '技术课题',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'check_mode',
+          label: '验收方式',
+          minWidth: 140,
+          search: true
+        },
+        {
+          prop: 'work_package',
+          label: '工作包',
+          minWidth: 100,
+          search: true
+        },
+        {
+          prop: 'code',
+          label: '代码量',
+          minWidth: 100
+        },
+        {
+          prop: 'deve_name',
+          label: '开发负责人',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'test_name',
+          label: '测试负责人',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'bugid',
+          label: 'bugid',
+          minWidth: 100,
+          search: true
+        },
+        {
+          prop: 'summary',
+          label: 'bug描述',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'omit_type',
+          label: '遗漏类型归属',
+          minWidth: 140,
+          search: true
+        },
+        {
+          prop: 'omit_cause',
+          label: '遗漏原因',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'improve',
+          label: '改进对策',
+          minWidth: 120,
+          search: true
+        }
+      ]
+    }
+  },
+  created() {
+    this.init()
   },
   methods: {
+    init() {
+      this.getTechnologyBugInfoList(this.project)
+      this.queryByTechnologyProject(this.project)
+    },
     // 点击新增课题分析
     handleCreateClick() {
       this.resetTemp()
-      this.temp.project_name = this.projectNameOptions[0]
+      this.resetBugIcon()
+      this.temp.project = this.projectNameOptions[0]
       this.dialogStatus = 'create'
       this.dialogFormVisible = true
       // 清除原有的校验内容
@@ -355,33 +453,121 @@ export default {
     },
     // 真正的添加数据
     createData() {
+      this.formLoading = true
       // 1. 表单校验
-      this.$refs.dataFormRef.validate((valid) => {
+      this.$refs.dataFormRef.validate(async(valid) => {
         if (valid) {
-          // 模拟 id
-          this.temp.id = this.list[this.list.length - 1].id + 1
-          // 添加数据
-          this.list.push(this.temp)
+          const values = {
+            projectSource: this.project,
+            ...this.temp
+          }
+          const { data: res } = await request('/api/projectEvolveSta/technologyBugInfo/add', {
+            method: 'POST',
+            data: values
+          })
+
+          if (res) {
+            // 页面更新
+            this.$emit('update-view')
+            this.$notify.success('添加成功')
+          } else {
+            this.$notify.error('添加失败')
+          }
+          this.formLoading = false
           // 隐藏添加窗口
           this.dialogFormVisible = false
         }
       })
     },
+    // 点击删除
+    async handleDeleteClick(row) {
+      try {
+        await this.$confirm('您确定要删除该数据?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
+        })
+
+        this.deleteData(row)
+      } catch (e) {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      }
+    },
+    // 确认删除
+    async deleteData(row) {
+      const { data: res } = await request('/api/projectEvolveSta/technologyBugInfo/delete', {
+        method: 'DELETE',
+        params: {
+          id: row.id
+        }
+      })
+      if (res) {
+        this.$emit('update-view')
+        this.$notify.success('删除成功')
+      } else {
+        this.$notify.error('删除失败')
+      }
+    },
+    // 点击编辑按钮，显示编辑表单
+    handleUpdateClcik(row) {
+      this.resetBugIcon()
+      this.temp = Object.assign({}, row)
+      this.dialogStatus = 'update'
+      this.dialogFormVisible = true
+      // 清除原有的校验内容
+      this.$nextTick(() => {
+        this.$refs.dataFormRef.clearValidate()
+      })
+    },
+    // 真正的修改数据
+    updateData() {
+      this.formLoading = true
+      console.log(this.temp)
+      this.formLoading = false
+    },
+    // 当 bugid 输入框失去焦点时
+    handleBugIdValid(bugid) {
+      // 非空判断
+      if (bugid && bugid !== '') {
+        this.queryByTechnologyProjectById(bugid)
+      }
+    },
+    // 重置 BUG ID 的图标和内容
+    resetBugIcon() {
+      this.bugIdMessage = undefined
+      this.bugIdIcon = undefined
+    },
     // 重置temp
     resetTemp() {
       this.temp = {
-        id: undefined,
-        project_name: undefined,
-        technical_issues: undefined,
-        acceptance_method: undefined,
-        work_package: undefined,
-        dev_principal: undefined,
-        test_principal: undefined,
+        project: undefined,
         bugid: undefined,
-        bug_desc: undefined,
-        omission_type: undefined,
-        omission_reason: undefined,
-        improve_solution: undefined
+        topic: undefined,
+        workPackage: undefined,
+        code: undefined,
+        checkMode: undefined,
+        omitType: undefined,
+        omitCause: undefined,
+        improve: undefined
+      }
+    },
+    // 重置 listRequery
+    resetListQuery() {
+      this.listQuery = {
+        project: undefined,
+        topic: undefined,
+        check_mode: undefined,
+        work_package: undefined,
+        deve_name: undefined,
+        test_name: undefined,
+        bugid: undefined,
+        summary: undefined,
+        omit_type: undefined,
+        omit_cause: undefined,
+        improve: undefined
       }
     },
     // 点击 popover 搜索
@@ -424,28 +610,6 @@ export default {
       }
       this.tableShowData = list
     },
-    // 点击删除
-    handleDeleteClick(row) {
-      console.log(row)
-    },
-    // 点击编辑按钮，显示编辑表单
-    handleUpdateClcik(row) {
-      this.temp = Object.assign({}, row)
-      // 将 时间戳 修改为 date
-      this.temp.creation_time = this.temp.creation_time
-        ? new Date(this.temp.creation_time)
-        : new Date()
-      this.dialogStatus = 'update'
-      this.dialogFormVisible = true
-      // 清除原有的校验内容
-      this.$nextTick(() => {
-        this.$refs.dataFormRef.clearValidate()
-      })
-    },
-    // 当 bugid 输入框失去焦点时
-    handleBugIdValid(bugid) {
-      this.queryByTechnologyProjectById(bugid)
-    },
     // 判断 bugId 是否存在，符合要求
     async queryByTechnologyProjectById(bugid) {
       this.bugIdIcon = 'el-icon-loading'
@@ -455,24 +619,21 @@ export default {
           bugid
         }
       })
-      console.log(res.result === undefined)
 
       if (res === undefined || !res) {
-        this.bugIdMessageWidth = 645
         this.bugIdMessage =
           '未匹配到bugid，请检查是否正确或为今天新增bug，新增bug暂未同步，后续同步后会自动匹配！'
-        this.bugIdIcon = 'el-icon-warning'
+        this.bugIdIcon = 'el-icon-warning warning'
         const topicObject = {}
         console.log(topicObject)
       } else if (res.result === undefined) {
         this.bugIdMessage = ''
-        this.bugIdIcon = 'el-icon-success'
+        this.bugIdIcon = 'el-icon-success success'
         const topicObject = res
         console.log(topicObject)
       } else {
-        this.bugIdMessageWidth = 450
         this.bugIdMessage = 'bugid已经录入，请勿重复添加！'
-        this.bugIdIcon = 'el-icon-error'
+        this.bugIdIcon = 'el-icon-error error'
         const topicObject = {}
         console.log(topicObject)
       }
@@ -480,14 +641,17 @@ export default {
     // 技术项目-课题bug分析明细列表
     async getTechnologyBugInfoList(project) {
       this.listLoading = true
+      // 重置 listQuery
+      this.resetListQuery()
       const { data: res } = await request('/api/projectEvolveSta/queryByTechnologyBugInfo', {
         method: 'GET',
         params: {
           project
         }
       })
-      console.log(res)
 
+      this.list = res
+      this.tableShowData = res
       this.$nextTick(() => {
         this.listLoading = false
       })
@@ -562,5 +726,17 @@ export default {
 
 .active {
   color: #00f;
+}
+
+.success {
+  color: #1f3;
+}
+
+.warning {
+  color: #faad14;
+}
+
+.error {
+  color: #f00;
 }
 </style>

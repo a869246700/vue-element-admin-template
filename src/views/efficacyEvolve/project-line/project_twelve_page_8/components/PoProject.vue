@@ -13,10 +13,10 @@
     </div>
 
     <!-- 课题分析统计 -->
-    <statistics-table :project="project" @topic-click="handleTopicClick" />
+    <statistics-table ref="staRef" :project="project" @topic-click="handleTopicClick" @update-view="handleUpdateView" />
 
     <!-- 课题分析明细 -->
-    <detail-table ref="detailRef" :project="project" />
+    <detail-table ref="detailRef" :project="project" @update-view="handleUpdateView" />
 
     <topic-work-package-dialog
       ref="topWorkPackageRef"
@@ -47,12 +47,16 @@ export default {
   },
   data() {
     return {
-      // project: undefined, // 项目线名称
       topicWorkPackageData: undefined, // 课题工作包统计
       objectProject: undefined // 点击的对象
     }
   },
   methods: {
+    handleUpdateView() {
+      this.$refs.staRef.getTechnologyTopicStaList(this.project)
+      this.$refs.detailRef.getTechnologyBugInfoList(this.project)
+    },
+    // 点击话题
     handleTopicClick(row) {
       this.objectProject = row
       this.getTechnologyTopicWorkPackageStaList(this.project, row.topic_name)

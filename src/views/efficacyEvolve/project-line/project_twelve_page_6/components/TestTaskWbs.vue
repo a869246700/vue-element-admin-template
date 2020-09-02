@@ -12,6 +12,18 @@
       border
     >
       <el-table-column prop="name" label="任务名" min-width="220" show-overflow-tooltip>
+        <template #header>
+          <div class="task-name">
+            <span>任务名</span>
+            <el-popover placement="bottom" width="50" trigger="click">
+              <div class="operation">
+                <div @click="handleCreateClick()">新增</div>
+              </div>
+              <i slot="reference" class="el-icon-more" />
+            </el-popover>
+          </div>
+        </template>
+
         <template slot-scope="{row}">
           <span>{{ row.name }}</span>
           <el-popover placement="bottom" width="50" trigger="click">
@@ -373,6 +385,11 @@ export default {
   padding: 0px !important;
 }
 
+.task-name {
+  display: flex;
+  justify-content: space-between;
+}
+
 .operation {
   > div {
     height: 30px;
@@ -389,7 +406,7 @@ export default {
 
 .operation-icon {
   position: absolute;
-  right: 8px;
+  right: 10px;
   top: 15px;
   cursor: pointer;
 }

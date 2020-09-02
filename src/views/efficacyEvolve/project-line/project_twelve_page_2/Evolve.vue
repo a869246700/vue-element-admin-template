@@ -39,7 +39,6 @@
     </el-tabs>
 
     <!-- system dialog -->
-    <!-- <el-dialog title="合计芯片用例执行统计" :visible.sync="isSystemDialogVisible" width="70%" lock-scroll> -->
     <evolve-case-implement
       ref="systemDialogRef"
       :project="project"
@@ -48,7 +47,6 @@
       :implement-num-system-list="implementNumSystemList"
       @change="handleSystemTypeChange"
     />
-    <!-- </el-dialog> -->
   </div>
 </template>
 
@@ -118,7 +116,7 @@ export default {
   },
   methods: {
     handleSystemTypeChange(product_name, stage, type, isSpec) {
-      this.$refs.systemDialogRef.outerDialogVisible = true
+      // this.$refs.systemDialogRef.outerDialogVisible = true
       this.$refs.systemDialogRef.tableLoading = true
       this.$refs.systemDialogRef.product_name = product_name
       this.$refs.systemDialogRef.isSpec = isSpec

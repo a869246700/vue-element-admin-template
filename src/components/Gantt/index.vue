@@ -31,43 +31,40 @@ export default {
   },
   data() {
     return {
+      gantt: undefined,
       currentDateType: '周', // 当前选中的日期类型
-      startMarkerId: null, // 开始标记的 id
-      endMarkerId: null, // 结束标记的 id
-      todayMarkerId: null,
-      start_date: null, // 项目开始的标记
-      end_date: null, // 项目结束的标记
-      currentId: null, // 当前行的 id
+      startMarkerId: undefined, // 开始标记的 id
+      endMarkerId: undefined, // 结束标记的 id
+      todayMarkerId: undefined,
+      start_date: undefined, // 项目开始的标记
+      end_date: undefined, // 项目结束的标记
+      currentId: undefined, // 当前行的 id
       isFullScreen: false // 是否全屏
     }
   },
-  // mounted() {
-  // this.init()
-  // 未完成 ---- 自动移到中心点
-  // const todayMarker = gantt.getMarker(this.todayMarkerId)
-  // },
   methods: {
     // 初始化
     init() {
+      this.gantt = gantt
       /* -------------------启动插件-------------- */
-      gantt.plugins({
+      this.gantt.plugins({
         marker: true,
         fullscreen: true
       })
 
       /* --------------------配置项--------------------- */
-      gantt.locale = locale
+      this.gantt.locale = locale
       this.handleDateTypeChange(this.currentDateType)
       // 配置显示列   // name:绑定数据的名称  align：对其方式  label显示在表头的名称
-      gantt.config.columns = [
+      this.gantt.config.columns = [
         {
-          name: 'text',
+          name: 'task_name',
           tree: true,
           width: '*',
           label: '任务名'
         },
         {
-          name: 'personName',
+          name: 'duty_name',
           label: '负责人',
           width: '*',
           align: 'center'
@@ -81,12 +78,12 @@ export default {
         }
       ]
 
-      gantt.config.row_height = 40 // 甘特图的行高
-      gantt.config.scale_height = 40 // 甘特图的表头高度
-      gantt.config.min_column_width = 60
-      gantt.config.scale_height = 40 * 2
-      gantt.config.drag_resize = true // 两边不可拖动
-      gantt.config.readonly = true // 只读模式
+      this.gantt.config.row_height = 40 // 甘特图的行高
+      this.gantt.config.scale_height = 40 // 甘特图的表头高度
+      this.gantt.config.min_column_width = 60
+      this.gantt.config.scale_height = 40 * 2
+      this.gantt.config.drag_resize = true // 两边不可拖动
+      this.gantt.config.readonly = true // 只读模式
 
       /* ---------------- 标记 -------------------- */
       // Today 标记
@@ -98,24 +95,24 @@ export default {
 
       /* ------------------ 模板 ---------------------------------- */
       // 显示到进度条上的文本   计划名称和任务进度百分比
-      gantt.templates.task_text = (start, end, task) => {
-        return `<span style='text-align:left;'> ${task.text} </span>`
+      this.gantt.templates.task_text = (start, end, task) => {
+        return `<span style='text-align:left;'> ${task.task_name} </span>`
       }
 
       /* ------------------ 事件 ---------------------------------- */
       // 当行点击事件，修改 market 的位置
-      gantt.attachEvent('onTaskRowClick', (id, row) => {
+      this.gantt.attachEvent('onTaskRowClick', (id, row) => {
         if (this.currentId === id) {
           return
         }
         this.currentId = id
-
+        // console.log(this.$props.tasks.data)
         const target = this.$props.tasks.data.find((e) => e.id === parseInt(id))
-
         // 如果存在主任务 parent，则添加和修改标记
-        if (target.parent) {
+        if (target.parent !== undefined) {
           return
         }
+
         // 如果没有标记过，则进行创建 marker，否则就进行修改 marker
         if (this.start_date && this.end_date) {
           this.setStartOrEndDate(target.start_date, target.plan_end_date)
@@ -126,16 +123,32 @@ export default {
         }
       })
 
-      gantt.attachEvent('onTaskDblClick', (id) => {
-        this.$emit('edit', id)
-      })
+      this.gantt.attachEvent(
+        'onTaskDblClick',
+        this.debounce(
+          () => {
+            this.$emit('edit', this.currentId)
+          },
+          100
+        )
+      )
 
-      gantt.attachEvent('onCollapse', () => {
+      this.gantt.attachEvent('onCollapse', () => {
         this.isFullScreen = false
       })
 
-      gantt.init(this.$refs.gantt)
-      gantt.parse(this.$props.tasks)
+      this.gantt.init(this.$refs.gantt)
+      this.gantt.parse(this.$props.tasks)
+    },
+    debounce(fn, wait) {
+      let timer = null
+      return args => {
+        if (timer) {
+          clearTimeout(timer)
+        } else {
+          timer = setTimeout(fn, wait)
+        }
+      }
     },
     // 获取今日结束时间
     getEndOfDate() {
@@ -158,9 +171,9 @@ export default {
     },
     // 修改 marker 的位置
     updateMarker() {
-      gantt.getMarker(this.startMarkerId).start_date = this.start_date
-      gantt.getMarker(this.endMarkerId).start_date = this.end_date
-      gantt.renderMarkers()
+      this.gantt.getMarker(this.startMarkerId).start_date = this.start_date
+      this.gantt.getMarker(this.endMarkerId).start_date = this.end_date
+      this.gantt.renderMarkers()
     },
     // 设置 start end
     setStartOrEndDate(start, end) {
@@ -217,14 +230,22 @@ export default {
     handleDateTypeChange(key) {
       const res = this.getGanttConfigByZoomValue(key)
       for (const key in res) {
-        gantt.config[key] = res[key]
+        this.gantt.config[key] = res[key]
       }
-      gantt.render()
+      this.gantt.render()
     },
     // 点击全屏按钮
     handleExpandClick() {
       this.isFullScreen = true
-      gantt.expand()
+      this.gantt.expand()
+    },
+    resetData() {
+      this.startMarkerId = undefined
+      this.endMarkerId = undefined
+      this.todayMarkerId = undefined
+      this.start_date = undefined
+      this.end_date = undefined
+      this.currentId = undefined
     }
   }
 }

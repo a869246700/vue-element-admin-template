@@ -10,7 +10,7 @@
     </div>
 
     <!-- 甘特图 -->
-    <gantt ref="gantt" :tasks="tasks" @edit="handleRowClick" />
+    <gantt ref="ganttRef" :tasks="tasks" @edit="handleRowClick" />
 
     <!-- 添加对话框 -->
     <el-dialog
@@ -25,12 +25,25 @@
         <!-- 顶部 -->
         <div class="header">
           <!-- 标题 -->
-          <div class="title">{{ temp.text }}</div>
+          <div class="title">
+            <span v-show="!editMap.task_name">{{ temp.task_name }}</span>
+            <el-input
+              v-show="editMap.task_name"
+              v-model.trim=" temp.task_name"
+              placeholder="请输入任务类型"
+              style="width: 150px;"
+            />
+            <i
+              :class="!editMap.task_name ? 'el-icon-edit' : 'el-icon-circle-check'"
+              class="checked"
+              @click="!editMap.task_name ? editClick('task_name') : updateClick('task_name')"
+            />
+          </div>
           <!-- 信息栏 -->
           <div class="infos-bar">
             <!-- 任务状态 -->
             <div class="task-status">
-              <i class="iconfont icon-clock" />
+              <i :class="temp.progress === 1 ? 'el-icon-circle-check ed' : 'el-icon-loading ing'" />
               <div class="brief">
                 <span v-if="temp.progress !== 1" class="status" style="color: orange">进行中</span>
                 <span v-else class="status" style="color: yellowgreen">已完成</span>
@@ -40,27 +53,66 @@
             <!-- 负责人 -->
             <div class="person-name">
               <div class="brief">
-                <span class="person">{{ temp.personName }}</span>
-                <span class="tips">负责人</span>
+                <div v-show="!editMap.duty_name" @dblclick="editClick('duty_name')">
+                  <span class="person">{{ temp.duty_name }}</span>
+                  <span class="tips">负责人</span>
+                </div>
+
+                <el-input
+                  v-show="editMap.duty_name"
+                  v-model.trim="temp.duty_name"
+                  placeholder="请输入负责人"
+                  style="width: 100px"
+                  @blur="updateClick('duty_name')"
+                />
               </div>
             </div>
             <!-- 开始时间 -->
             <div class="start-date">
-              <i class="iconfont icon-riqi" />
-              <div class="brief">
-                <span class="start">{{ temp.start_date | parseTime('{y}-{m}-{d}') }}</span>
-                <span class="tips">开始时间</span>
+              <i v-show="!editMap.start_date" class="el-icon-time" />
+              <div v-show="!editMap.start_date" class="brief">
+                <div @dblclick="editClick('start_date')">
+                  <span class="start">{{ temp.start_date | parseTime('{y}-{m}-{d}') }}</span>
+                  <span class="tips">开始时间</span>
+                </div>
+              </div>
+
+              <div v-show="editMap.start_date">
+                <div style="margin-bottom: 5px;">选择开始时间</div>
+                <el-date-picker
+                  v-model="temp.start_date"
+                  type="datetime"
+                  size="mini"
+                  placeholder="选择开始时间"
+                  style="width: 150px; margin-bottom: 10px;"
+                  @blur="updateClick('start_date')"
+                />
               </div>
             </div>
             <!-- 结束时间 -->
             <div class="end-date">
-              <i class="iconfont icon-riqi1" />
-              <div class="brief">
-                <!-- 根据是否超时，渲染颜色 -->
-                <span
-                  :class="handleEndTimeOver() ? '' : 'over'"
-                >{{ temp.plan_end_date | parseTime('{y}-{m}-{d}') }}</span>
-                <span class="tips">截止时间</span>
+              <i v-show="!editMap.end_date" class="el-icon-date" />
+              <div v-show="!editMap.end_date" class="brief">
+                <div @dblclick="editClick('end_date')">
+                  <!-- 根据是否超时，渲染颜色 -->
+                  <span
+                    :class="handleEndTimeOver() ? '' : 'over'"
+                  >{{ temp.end_date | parseTime('{y}-{m}-{d}') }}</span>
+                  <span class="tips">截止时间</span>
+                </div>
+              </div>
+
+              <div v-show="editMap.end_date">
+                <div style="margin-bottom: 5px;">选择截止时间</div>
+                <el-date-picker
+                  ref="end_dateRef"
+                  v-model="temp.end_date"
+                  type="datetime"
+                  size="mini"
+                  placeholder="选择开始时间"
+                  style="width: 150px; margin-bottom: 10px;"
+                  @blur="updateClick('end_date')"
+                />
               </div>
             </div>
           </div>
@@ -78,21 +130,32 @@
               <div class="task-info">
                 <div class="task-type">
                   <span>任务类型</span>
-                  <div class="field-item">
-                    <i class="el-icon-success icon" />
-                    <span>示例项目</span>
+                  <div style="margin-top: 10px;">
+                    <span v-show="!editMap.task_type">{{ temp.task_type || '暂无信息' }}</span>
+                    <el-input
+                      v-show="editMap.task_type"
+                      v-model.trim=" temp.task_type"
+                      placeholder="请输入任务类型"
+                      style="width: 150px;"
+                    />
+                    <i
+                      :class="!editMap.task_type ? 'el-icon-edit' : 'el-icon-circle-check'"
+                      class="checked"
+                      @click="!editMap.task_type ? editClick('task_type') : updateClick('task_type')"
+                    />
                   </div>
                 </div>
 
                 <div class="priority">
                   <span>优先级</span>
-                  <div style="margin-top: 6px;">
+                  <div style="margin-top: 10px;">
+                    <span v-show="!editMap.priority">{{ temp.priority || '暂无信息' }}</span>
                     <el-select
+                      v-show="editMap.priority"
                       ref="priorityRef"
-                      v-model="priorityValue"
+                      v-model="temp.priority"
                       placeholder="请选择优先级"
-                      clearable
-                      @change="handleChange"
+                      style="width: 150px"
                     >
                       <el-option
                         v-for="item in prioritySelectOptions"
@@ -109,12 +172,48 @@
                         <span style="float: left; margin-left:4px;">{{ item.label }}</span>
                       </el-option>
                     </el-select>
+                    <i
+                      :class="!editMap.priority ? 'el-icon-edit' : 'el-icon-circle-check'"
+                      class="checked"
+                      @click="!editMap.priority ? editClick('priority') : updateClick('priority')"
+                    />
+                  </div>
+                </div>
+
+                <div class="second-duty">
+                  <span>次要负责人</span>
+                  <div style="margin-top: 10px;">
+                    <span v-show="!editMap.second_duty_name">{{ temp.second_duty_name || '暂无信息' }}</span>
+                    <el-input
+                      v-show="editMap.second_duty_name"
+                      v-model.trim=" temp.second_duty_name"
+                      placeholder="请输入次要负责人"
+                      style="width: 150px;"
+                    />
+                    <i
+                      :class="!editMap.second_duty_name ? 'el-icon-edit' : 'el-icon-circle-check'"
+                      class="checked"
+                      @click="!editMap.second_duty_name ? editClick('second_duty_name') : updateClick('second_duty_name')"
+                    />
                   </div>
                 </div>
 
                 <div class="deviation-rate">
                   <span>偏差率</span>
-                  <div style="margin-top: 10px; height: 100px;">偏差率表示区域</div>
+                  <div style="margin-top: 10px;">
+                    <span v-show="!editMap.deviation">{{ temp.deviation || '暂无信息' }}</span>
+                    <el-input
+                      v-show="editMap.deviation"
+                      v-model.trim=" temp.deviation"
+                      placeholder="请输入偏差率"
+                      style="width: 150px;"
+                    />
+                    <i
+                      :class="!editMap.deviation ? 'el-icon-edit' : 'el-icon-circle-check'"
+                      class="checked"
+                      @click="!editMap.deviation ? editClick('deviation') : updateClick('deviation')"
+                    />
+                  </div>
                 </div>
               </div>
             </el-tab-pane>
@@ -137,8 +236,8 @@
 
                 <div v-else class="child-task-list">
                   <el-table :data="childTaskList" border style="width: 100%">
-                    <el-table-column prop="text" label="任务名" />
-                    <el-table-column prop="personName" label="负责人" width="100" align="center" />
+                    <el-table-column prop="task_name" label="任务名" />
+                    <el-table-column prop="duty_name" label="负责人" width="100" align="center" />
                     <el-table-column prop="deviation" label="偏差率" width="80" align="center">
                       <template slot-scope="{row}">
                         <span>{{ row.deviation * 100 + '%' }}</span>
@@ -207,54 +306,54 @@ export default {
         data: [
           {
             id: 1,
-            text: '测试1',
+            task_name: '测试1',
             start_date: new Date(2020, 6, 25), // 实际开始
             end_date: new Date(2020, 6, 30), // 实际结束
             plan_end_date: new Date(2020, 6, 30), // 计划结束
             deviation: 0.8,
             progress: 1,
-            personName: '张总'
+            duty_name: '张总'
           },
           {
             id: 2,
-            text: '测试2',
+            task_name: '测试2',
             start_date: new Date(2020, 7, 1),
             end_date: new Date(2020, 7, 15),
             plan_end_date: new Date(2020, 7, 15),
             deviation: 0.8,
             progress: 0.5,
-            personName: '李总'
+            duty_name: '李总'
           },
           {
             id: 3,
-            text: '测试2-1',
+            task_name: '测试2-1',
             start_date: new Date(2020, 7, 1),
             end_date: new Date(2020, 7, 8),
             plan_end_date: new Date(2020, 7, 8),
             deviation: 0.8,
             progress: 0.8,
-            personName: '赵总',
+            duty_name: '赵总',
             parent: 2
           },
           {
             id: 4,
-            text: '测试2-2',
+            task_name: '测试2-2',
             start_date: new Date(2020, 7, 9),
             end_date: new Date(2020, 7, 20),
             plan_end_date: new Date(2020, 7, 20),
             deviation: 0.8,
-            personName: '王总',
+            duty_name: '王总',
             progress: 0.7,
             parent: 2
           },
           {
             id: 5,
-            text: '测试2-1-1',
+            task_name: '测试2-1-1',
             start_date: new Date(2020, 7, 9),
             end_date: new Date(2020, 7, 15),
             plan_end_date: new Date(2020, 7, 15),
             deviation: 0.8,
-            personName: '王总',
+            duty_name: '王总',
             parent: 4
           }
         ],
@@ -268,12 +367,27 @@ export default {
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
       temp: {
         id: undefined,
-        text: undefined,
+        task_name: undefined,
         start_date: undefined,
-        personName: undefined,
+        plan_end_date: undefined,
+        duty_name: undefined,
         duration: undefined,
         progress: undefined,
-        status: ''
+        status: '',
+        task_type: undefined,
+        priority: undefined,
+        second_duty_name: undefined
+      },
+      editMap: {
+        task_name: false,
+        duty_name: false,
+        start_date: false,
+        end_date: false,
+        plan_end_date: false,
+        task_type: false,
+        priority: false,
+        second_duty_name: false,
+        deviation: false
       },
       activeName: 'first', // 当前 tabs 的 active
       prioritySelectOptions: [
@@ -331,21 +445,25 @@ export default {
   },
   mounted() {
     this.$nextTick(() => {
-      this.$refs.gantt.init()
+      this.$refs.ganttRef.init()
     })
   },
   methods: {
+    // 点击编辑按钮
+    editClick(key) {
+      this.editMap[key] = true
+    },
+    // 点击完成编辑按钮
+    updateClick(key) {
+      this.editMap[key] = false
+    },
     // 点击任务
     handleRowClick(id) {
       const row = this.dataSource.data.find((e) => e.id === parseInt(id))
-      this.temp = Object.assign({}, row)
+      this.temp = row
 
       this.dialogFormVisible = true
-      this.handleChildTaskLoad() // 加载子任务
-    },
-    // 修改优先级
-    handleChange(v) {
-      console.log(v)
+      // this.handleChildTaskLoad() // 加载子任务
     },
     // 点击添加联系人
     handleAddPersonClick() {
@@ -363,8 +481,14 @@ export default {
     },
     // 监听对话框的关闭事件
     handleDialogCloseClick() {
-      // console.log('对话框关闭')
       this.activeName = 'first'
+      this.$nextTick(() => {
+        // 重置 editMap
+        this.resetEditMap()
+        // 重新加载gantt
+        this.$refs.ganttRef.init()
+        console.log('刷新视图')
+      })
     },
     // 判断完成时间是否超时
     handleEndTimeOver() {
@@ -372,6 +496,19 @@ export default {
       const planEndDate = +new Date(this.temp.plan_end_date)
       // 实际时间是否小于等于计划时间
       return endEndDate <= planEndDate
+    },
+    resetEditMap() {
+      this.editMap = {
+        task_name: false,
+        duty_name: false,
+        start_date: false,
+        end_date: false,
+        plan_end_date: false,
+        task_type: false,
+        priority: false,
+        second_duty_name: false,
+        deviation: false
+      }
     }
   }
 }
@@ -391,6 +528,11 @@ export default {
   }
 }
 
+.checked {
+  margin-left: 10px;
+  font-size: 18px;
+}
+
 .wrapper {
   width: 100%;
 
@@ -400,9 +542,11 @@ export default {
     .title {
       font-size: 24px;
       margin-bottom: 40px;
+      height: 30px;
     }
 
     .infos-bar {
+      height: 60px;
       display: flex;
       margin-top: 20px;
 
@@ -419,8 +563,12 @@ export default {
           margin-right: 8px;
         }
 
-        &:nth-child(1) i {
+        .ing {
           color: rgb(255, 164, 21);
+        }
+
+        .ed {
+          color: #a9cd32;
         }
 
         span {
@@ -453,50 +601,25 @@ export default {
         padding: 0 10px 15px;
       }
 
-      .field-item {
-        margin: 16px 0 0;
-
-        .icon {
-          margin-right: 4px;
-        }
-      }
-
       .task-type {
         flex: 50%;
+        height: 60px;
       }
 
       .priority {
         flex: 50%;
+        height: 60px;
       }
 
-      .person {
+      .second-duty {
         flex: 100%;
         margin-top: 20px;
-
-        .person-list {
-          display: flex;
-
-          span {
-            display: inline-block;
-            width: 30px;
-            height: 30px;
-            line-height: 30px;
-            margin-right: 8px;
-            color: #fff;
-            font-size: 12px;
-            text-align: center;
-            border-radius: 50%;
-            background-color: rgb(255, 159, 115);
-          }
-
-          .add-person {
-            font-size: 32px;
-          }
-        }
+        height: 60px;
       }
 
       .deviation-rate {
         margin-top: 20px;
+        height: 70px;
       }
     }
 

@@ -151,6 +151,7 @@
       <el-form
         ref="dataFormRef"
         :model="temp"
+        :rules="rules"
         label-position="right"
         label-width="110px"
         style="width: 60%; margin: 0 auto;"
@@ -178,7 +179,7 @@ import waves from '@/directive/waves'
 import { statisticsTableList } from './options'
 import { parseTime } from '@/utils'
 
-import request from '@/services/request'
+import request from '@/services/post'
 import DownFiles from '@/vendor/ExportExcel'
 
 export default {
@@ -238,6 +239,20 @@ export default {
     }
   },
   computed: {
+    rules() {
+      return {
+        topic_name: [{ required: true, message: '请输入技术课题', trigger: 'blur' }],
+        code: [{ required: true, message: '请输入代码量', trigger: 'blur' }],
+        // check_mode: [{ required: true, message: '请输入验收方式', trigger: 'change' }],
+        all_num: [{ required: true, message: '请输入工作包缺陷数', trigger: 'blur' }],
+        type_all_num: [{ required: true, message: '请输入课题遗漏数', trigger: 'blur' }],
+        type_all_rate: [{ required: true, message: '请输入缺陷率', trigger: 'blur' }],
+        unknown_defect: [{ required: true, message: '请输入未知缺陷数', trigger: 'blur' }],
+        function_type: [{ required: true, message: '请输入功能类数', trigger: 'blur' }],
+        performance_type: [{ required: true, message: '请输入性能类数', trigger: 'blur' }],
+        no_function_type: [{ required: true, message: '请输入非功能类数', trigger: 'blur' }]
+      }
+    },
     // 课题分析统计 popover 显示
     topicPopoverContent() {
       const technologyTopicTotalSta = this.technologyTopicTotalSta
@@ -295,9 +310,6 @@ export default {
         }
       }
       return list
-    },
-    FormOptions() {
-      return [{}]
     }
   },
   created() {
@@ -312,10 +324,25 @@ export default {
       this.$emit('topic-click', row)
     },
     // 验收方式改变事件
-    handleSelectChange(row) {
-      console.log(row)
-    },
+    async handleSelectChange(row) {
+      const values = {
+        topic_name: row.topic_name,
+        check_mode: row.check_mode,
+        project: this.project
+      }
 
+      const { data: res } = await request('/api/projectEvolveSta/technologyTopicInfo/updateCheckMode', {
+        method: 'POST',
+        data: values
+      })
+
+      if (res) {
+        this.$notify.success({ title: '修改成功' })
+        this.$emit('check_mode-change')
+      } else {
+        this.$notify.error({ title: '修改失败' })
+      }
+    },
     // 点击搜索重置
     handleSearchResetClick() {
       this.listQuery.topic_name = undefined
@@ -350,19 +377,6 @@ export default {
       const fileName = this.project + '技术项目课题分析统计.xls'
       DownFiles(url, obj, fileName, this)
     },
-    // 修改优先级
-    handlePriorityChange(row) {
-      console.log(row)
-    },
-    // 修改是否闭环
-    handleCloseLoopChange(row) {
-      this.$notify({
-        title: '修改',
-        message: '成功修改闭环状态',
-        type: 'success',
-        duration: 2000
-      })
-    },
     // 重置 temp
     resetTemp() {
       this.temp = {
@@ -381,12 +395,18 @@ export default {
     },
     // 点击编辑按钮，显示编辑表单
     handleUpdateClcik(row) {
-      this.dialogFormVisible = true
       this.temp = Object.assign({}, row) // 复制对象
-      // 将 时间戳 修改为 date
+      this.dialogFormVisible = true // 显示编辑对话框
     },
     // 真正的修改数据
-    updateData() {},
+    updateData() {
+      this.$refs.dataFormRef.validate((valid) => {
+        if (valid) {
+          this.$notify.error('功能尚未开发')
+          this.$emit('update-view')
+        }
+      })
+    },
     // 点击询问是否删除
     handleDeleteClick(row) {
       this.$confirm('此操作将删除该记录, 是否继续?', '提示', {
@@ -395,6 +415,7 @@ export default {
         type: 'warning'
       })
         .then(() => {
+          this.$emit('update-view')
           this.$notify({
             title: '成功',
             message: '删除成功',
@@ -413,6 +434,10 @@ export default {
     // 技术项目-课题统计
     async getTechnologyTopicStaList(project) {
       this.tableLoading = true
+      this.listQuery = {
+        topic_name: undefined, // 技术课题
+        check_mode: undefined // 验收方式
+      }
       const { data: res } = await request('/api/projectEvolveSta/queryByTechnologyTopicSta', {
         method: 'GET',
         params: {

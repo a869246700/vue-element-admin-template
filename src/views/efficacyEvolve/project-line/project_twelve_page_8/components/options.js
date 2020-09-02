@@ -198,9 +198,9 @@ export const tableOptions = [
 ]
 
 export const rules = {
-  project_name: [{ required: true, message: '请填写项目名称', trigger: 'blur' }],
+  project: [{ required: true, message: '请填写项目名称', trigger: 'blur' }],
   bugid: [{ required: true, message: '请填写bugid', trigger: 'blur' }],
-  omission_type: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
-  omission_reason: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
-  improve_solution: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+  omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
+  omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
+  improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
 }
