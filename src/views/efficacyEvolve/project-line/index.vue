@@ -21,7 +21,6 @@ import Evolve from './project_twelve_page_2/Evolve'
 import Quality from './project_twelve_page_3/Quality'
 import Cost from './project_twelve_page_4/Cost'
 import RiskManage from './project_twelve_page_5/RiskManage'
-// import SpecialTask from './project_twelve_page_6/SpecialTask'
 import TestTask from './project_twelve_page_6/TestTask'
 import TechnologyProject from './project_twelve_page_8/TechnologyProject'
 
@@ -38,7 +37,7 @@ export default {
   data() {
     return {
       name: '12.5PL1',
-      activeName: '2',
+      activeName: '6',
       tabMapOptions: [
         { label: '总述', key: '1', name: 'Dashboard', disabled: false },
         { label: '进展管理', key: '2', name: 'Evolve', disabled: false },

@@ -11,7 +11,7 @@
       fit
       border
     >
-      <el-table-column prop="name" label="任务名" min-width="220" show-overflow-tooltip>
+      <el-table-column :key="key" prop="name" label="任务名" min-width="220" show-overflow-tooltip>
         <template #header>
           <div class="task-name">
             <span>任务名</span>
@@ -30,6 +30,7 @@
             <div class="operation">
               <div @click="handleEditClick(row)">编辑</div>
               <div @click="handleCreateClick(row.id)">新增</div>
+              <div @click="handleDeleteClick(row)">删除</div>
             </div>
             <i slot="reference" class="el-icon-more operation-icon" />
           </el-popover>
@@ -63,7 +64,7 @@
     </el-table>
 
     <!-- 对话框 -->
-    <el-dialog title="收货地址" :visible.sync="dialogVisible">
+    <el-dialog :title="textMap[dialogStatus]" :visible.sync="dialogVisible">
       <el-form
         ref="dataFormRef"
         :rules="rules"
@@ -182,7 +183,8 @@ export default {
               priority: undefined, // 优先级
               progress: undefined, // 进度
               deviation: undefined, // 偏差
-              remark: undefined // 备注
+              remark: undefined, // 备注
+              parent_id: 1
               // children: []
             }
           ]
@@ -213,6 +215,7 @@ export default {
         { label: 'Low', value: 3, bg: 'green' }
       ],
       progressSelectOptions: [
+        { label: '0%', value: 0 },
         { label: '10%', value: 1 },
         { label: '20%', value: 2 },
         { label: '30%', value: 3 },
@@ -223,7 +226,8 @@ export default {
         { label: '80%', value: 8 },
         { label: '90%', value: 9 },
         { label: '100%', value: 10 }
-      ]
+      ],
+      pNode: undefined
     }
   },
   computed: {
@@ -268,12 +272,6 @@ export default {
       }
     }
   },
-  mounted() {
-    // this.listLoading = true
-    // setTimeout(() => {
-    //   this.listLoading = false
-    // }, 1500)
-  },
   methods: {
     // 点击编辑按钮
     handleEditClick(row) {
@@ -291,10 +289,11 @@ export default {
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
           // 1. 根据 id 找到下标值
-          const index = this.list.findIndex((v) => v.id === this.temp.id)
+          this.findParentNode(this.list, this.temp.id)
+          const parentNode = this.pNode
+          const index = parentNode.findIndex((e) => e.id === this.temp.id)
           // 2. 进行数据修改
-          this.list.splice(index, 1, this.temp)
-
+          parentNode.splice(index, 1, this.temp)
           // 3. 提示修改成功
           this.$notify({
             title: '成功',
@@ -302,7 +301,6 @@ export default {
             type: 'success',
             duration: 2000
           })
-
           // 4. 隐藏添加窗口
           this.dialogVisible = false
         }
@@ -325,7 +323,7 @@ export default {
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
           // 模拟 id
-          this.temp.id = parseInt(Math.random() * 10000)
+          this.temp.id = parseInt(Math.random() * 10000000)
           // 如果没有 parent
           if (!this.temp.parent_id) {
             // 添加数据
@@ -334,17 +332,38 @@ export default {
             this.dialogVisible = false
           } else {
             // 如果有 parent
-            const parent = this.findParent(this.list, this.temp.parent_id)
-            // 如果是第一个子元素，则初始化 children
-            !parent.children
-              ? this.$set(parent, 'children', [this.temp])
-              : parent.children.push(this.temp)
-            this.key = this.key + 1
+            this.findNode(this.list, this.temp.parent_id)
+
+            const parentNode = this.pNode
+            // // 如果是第一个子元素，则初始化 children
+            if (parentNode.children === undefined || !parentNode.children) {
+              this.$set(parentNode, 'children', [this.temp])
+            } else {
+              parentNode.children.push(this.temp)
+            }
             // 隐藏添加窗口
             this.dialogVisible = false
           }
         }
       })
+    },
+    // 点击删除
+    async handleDeleteClick(row) {
+      this.$confirm('删除该任务, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      })
+        .then(() => {
+          this.findParentNode(this.list, row.id)
+          const parentNode = this.pNode
+          const index = parentNode.findIndex((e) => e.id === row.id)
+          parentNode.splice(index, 1)
+        })
+        .catch((err) => {
+          console.log(err)
+          this.$message.info('已取消')
+        })
     },
     // 重置 temp
     resetTemp() {
@@ -360,22 +379,37 @@ export default {
         remark: undefined
       }
     },
-    findParent(list, id) {
-      // 根据 id 先找一圈
+    findParentNode(list, id) {
       const index = list.findIndex((e) => e.id === id)
 
       if (index !== -1) {
-        return list[index]
-      }
-
-      // 如果第一圈没有找到，就找 children
-      for (const item of list) {
-        if (item.children.length !== 0) {
-          return this.findParent(item.children, id)
+        // 找到, 直接返回
+        this.pNode = list
+      } else {
+        // 没有找到, 判断是否有children,进行递归查找
+        for (const item of list) {
+          if (item.children && item.children.length !== 0) {
+            this.findParentNode(item.children, id)
+          }
         }
       }
     },
-    recursion(list, id) {}
+    findNode(list, id) {
+      // 1. 第一次先循环一次，判断第一阶是否就存在
+      const node = list.find((e) => e.id === id)
+
+      if (node) {
+        // 找到, 直接返回
+        this.pNode = node
+      } else {
+        // 如果长度不为0
+        for (const item of list) {
+          if (item.children) {
+            this.findNode(item.children, id)
+          }
+        }
+      }
+    }
   }
 }
 </script>

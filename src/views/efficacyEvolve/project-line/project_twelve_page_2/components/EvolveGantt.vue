@@ -463,7 +463,7 @@ export default {
       this.temp = row
 
       this.dialogFormVisible = true
-      // this.handleChildTaskLoad() // 加载子任务
+      this.handleChildTaskLoad() // 加载子任务
     },
     // 点击添加联系人
     handleAddPersonClick() {
@@ -485,6 +485,9 @@ export default {
       this.$nextTick(() => {
         // 重置 editMap
         this.resetEditMap()
+        // 修改标记
+        this.$refs.ganttRef.setStartOrEndDate(this.temp.start_date, this.temp.plan_end_date)
+        this.$refs.ganttRef.updateMarker()
         // 重新加载gantt
         this.$refs.ganttRef.init()
         console.log('刷新视图')

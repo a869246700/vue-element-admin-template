@@ -1,10 +1,11 @@
 <template>
   <el-card class="card">
     <template #header>
-      <el-popover placement="top-start" trigger="hover">
-        <div v-html="topicPopoverContent" />
+      <el-popover v-if="context" placement="top-start" trigger="hover">
+        <div v-html="context" />
         <span slot="reference">课题分析统计</span>
       </el-popover>
+      <span v-else>课题分析统计</span>
     </template>
 
     <div class="statistics-table">
@@ -221,7 +222,6 @@ export default {
       ],
       butLoading: false, // 下载按钮加载
       tableLoading: false, // 表单加载动画
-
       dialogFormVisible: false, // 控制添加和修改对话框的显示与隐藏
       temp: {
         id: undefined,
@@ -235,7 +235,8 @@ export default {
         function_type: undefined,
         performance_type: undefined,
         no_function_type: undefined
-      }
+      },
+      context: undefined
     }
   },
   computed: {
@@ -253,55 +254,6 @@ export default {
         no_function_type: [{ required: true, message: '请输入非功能类数', trigger: 'blur' }]
       }
     },
-    // 课题分析统计 popover 显示
-    topicPopoverContent() {
-      const technologyTopicTotalSta = this.technologyTopicTotalSta
-      const technologyTopicOmitTopList = this.technologyTopicOmitTopList
-      const technologyTopicNotTopList = this.technologyTopicNotTopList
-      if (
-        technologyTopicTotalSta !== undefined &&
-        technologyTopicOmitTopList !== undefined &&
-        technologyTopicNotTopList !== undefined
-      ) {
-        return `<ol type="1" start="1">
-          <li>
-            技术项目总述：技术课题
-            ${
-  technologyTopicTotalSta.verify_num +
-  technologyTopicTotalSta.review_num +
-  technologyTopicTotalSta.other_num
-}
-            个，${technologyTopicTotalSta.verify_num}个验证结项，${
-  technologyTopicTotalSta.review_num
-}
-            个评审结项，${technologyTopicTotalSta.other_num}个未归类；
-          </li>
-          <li>缺陷产出：总遗漏率${technologyTopicTotalSta.type_all_rate}个/k，遗漏率TOP3：</li>
-          
-          <ul type="circle">
-            ${technologyTopicOmitTopList.map(
-    (item) =>
-      `<li>
-                ${item.topic_name}(课题)：${item.type_all_rate}（${item.type_all_num}/${item.code}）
-              </li>`
-  )}
-          </ul>
-          <li>
-            非功能性占比${technologyTopicTotalSta.no_function_rate}
-            %(非功能性问题数量/遗漏缺陷总数)；非功能性占比TOP3：
-          </li>
-          <ul type="circle">
-            ${technologyTopicNotTopList.map(
-    (item) =>
-      `<li>
-                ${item.topic_name}(课题)：${item.no_function_type} 个
-              </li>`
-  )}
-          </ul>
-        </ol>`
-      }
-      return ''
-    },
     list() {
       let list = this.tableData
       for (const key in this.listQuery) {
@@ -313,12 +265,66 @@ export default {
     }
   },
   created() {
-    this.getTechnologyTopicStaList(this.project)
-    this.getTechnologyTopicTotalSta(this.project)
-    this.getTechnologyTopicOmitTopList(this.project)
-    this.getTechnologyTopicNotTopList(this.project)
+    this.init()
   },
   methods: {
+    init() {
+      this.getTechnologyTopicStaList(this.project)
+      this.getTopicAnalysisSta()
+    },
+    async getTopicAnalysisSta() {
+      const technologyTopicTotalSta = await this.getTechnologyTopicTotalSta(this.project)
+      const technologyTopicOmitTopList = await this.getTechnologyTopicOmitTopList(this.project)
+      const technologyTopicNotTopList = await this.getTechnologyTopicNotTopList(this.project)
+      if (
+        technologyTopicTotalSta &&
+        technologyTopicOmitTopList.length !== 0 &&
+        technologyTopicNotTopList.length !== 0
+      ) {
+        this.context = `<ol type="1" start="1">
+          <li>
+            技术项目总述：技术课题
+            ${
+  technologyTopicTotalSta.verify_num +
+              technologyTopicTotalSta.review_num +
+              technologyTopicTotalSta.other_num
+}
+            个，${technologyTopicTotalSta.verify_num}个验证结项，${
+  technologyTopicTotalSta.review_num
+}
+            个评审结项，${technologyTopicTotalSta.other_num}个未归类；
+          </li>
+          <li>缺陷产出：总遗漏率${technologyTopicTotalSta.type_all_rate}个/k，遗漏率TOP3：</li>
+          
+          <ul type="circle">
+            ${technologyTopicOmitTopList
+    .map(
+      (item) =>
+        `<li>
+                ${item.topic_name}(课题)：${item.type_all_rate}（${item.type_all_num}/${item.code}）
+              </li>`
+    )
+    .join('')}
+          </ul>
+          <li>
+            非功能性占比${technologyTopicTotalSta.no_function_rate}
+            %(非功能性问题数量/遗漏缺陷总数)；非功能性占比TOP3：
+          </li>
+          <ul type="circle">
+            ${technologyTopicNotTopList
+    .map(
+      (item) =>
+        `<li>
+                ${item.topic_name}(课题)：${item.no_function_type} 个
+              </li>`
+    )
+    .join('')}
+          </ul>
+        </ol>`
+      } else {
+        this.context = undefined
+      }
+    },
     // 课题点击事件
     handleTopicClick(row) {
       this.$emit('topic-click', row)
@@ -331,10 +337,13 @@ export default {
         project: this.project
       }
 
-      const { data: res } = await request('/api/projectEvolveSta/technologyTopicInfo/updateCheckMode', {
-        method: 'POST',
-        data: values
-      })
+      const { data: res } = await request(
+        '/api/projectEvolveSta/technologyTopicInfo/updateCheckMode',
+        {
+          method: 'POST',
+          data: values
+        }
+      )
 
       if (res) {
         this.$notify.success({ title: '修改成功' })
@@ -402,34 +411,24 @@ export default {
     updateData() {
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
-          this.$notify.error('功能尚未开发')
+          this.$notify.error('修改功能尚未开发')
           this.$emit('update-view')
         }
       })
     },
     // 点击询问是否删除
-    handleDeleteClick(row) {
-      this.$confirm('此操作将删除该记录, 是否继续?', '提示', {
-        confirmButtonText: '确定',
-        cancelButtonText: '取消',
-        type: 'warning'
-      })
-        .then(() => {
-          this.$emit('update-view')
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 1500
-          })
+    async handleDeleteClick(row) {
+      try {
+        await this.$confirm('此操作将删除该记录, 是否继续?', '提示', {
+          confirmButtonText: '确定',
+          cancelButtonText: '取消',
+          type: 'warning'
         })
-        .catch(() => {
-          this.$message({
-            message: '已取消删除',
-            type: 'info',
-            duration: 1500
-          })
-        })
+        this.$notify.warning('删除功能尚未开发')
+        this.$emit('update-view')
+      } catch (e) {
+        this.$message.info('已取消')
+      }
     },
     // 技术项目-课题统计
     async getTechnologyTopicStaList(project) {
@@ -459,7 +458,8 @@ export default {
           project
         }
       })
-      this.technologyTopicTotalSta = res
+      // this.technologyTopicTotalSta = res
+      return res
     },
     // 技术项目-遗漏率TOP3
     async getTechnologyTopicOmitTopList(project) {
@@ -469,7 +469,8 @@ export default {
           project
         }
       })
-      this.technologyTopicOmitTopList = res
+      // this.technologyTopicOmitTopList = res
+      return res
     },
     // 技术项目-非功能性占比TOP3
     async getTechnologyTopicNotTopList(project) {
@@ -479,7 +480,8 @@ export default {
           project
         }
       })
-      this.technologyTopicNotTopList = res
+      // this.technologyTopicNotTopList = res
+      return res
     }
   }
 }

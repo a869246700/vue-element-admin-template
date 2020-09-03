@@ -33,7 +33,7 @@ export default {
   },
   data() {
     return {
-      active: '3',
+      active: '1',
       project: undefined
     }
   },

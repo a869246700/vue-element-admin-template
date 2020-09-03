@@ -76,7 +76,7 @@
         type="primary"
         size="small"
         icon="el-icon-download"
-        @click="handleDownloadClick"
+        @click="handleExportClick"
       >导出数据</el-button>
 
       <el-button
@@ -541,7 +541,7 @@ export default {
       }, 1000)
     },
     // 点击下载
-    handleDownloadClick() {
+    handleExportClick() {
       this.downloadLoading = true
 
       setTimeout(() => {

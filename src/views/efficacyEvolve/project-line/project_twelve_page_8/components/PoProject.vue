@@ -13,7 +13,12 @@
     </div>
 
     <!-- 课题分析统计 -->
-    <statistics-table ref="staRef" :project="project" @topic-click="handleTopicClick" @update-view="handleUpdateView" />
+    <statistics-table
+      ref="staRef"
+      :project="project"
+      @topic-click="handleTopicClick"
+      @update-view="handleUpdateView"
+    />
 
     <!-- 课题分析明细 -->
     <detail-table ref="detailRef" :project="project" @update-view="handleUpdateView" />
@@ -53,8 +58,10 @@ export default {
   },
   methods: {
     handleUpdateView() {
-      this.$refs.staRef.getTechnologyTopicStaList(this.project)
-      this.$refs.detailRef.getTechnologyBugInfoList(this.project)
+      this.$nextTick(() => {
+        this.$refs.staRef.getTechnologyTopicStaList(this.project)
+        this.$refs.detailRef.getTechnologyBugInfoList(this.project)
+      })
     },
     // 点击话题
     handleTopicClick(row) {
