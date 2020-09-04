@@ -14,10 +14,14 @@ export function removeToken() {
   return Cookies.remove(TokenKey)
 }
 
-export function setUserInfo(key, value) {
+export function setValue(key, value) {
   return Cookies.set(key, value)
 }
 
-export function getUserInfo(key) {
+export function removeValue(key) {
+  return Cookies.remove(key)
+}
+
+export function getValue(key) {
   return Cookies.get(key)
 }

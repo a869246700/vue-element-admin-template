@@ -40,6 +40,7 @@ export const constantRoutes = [
   },
   {
     path: '/login',
+    meta: { title: 'app.login.login', noCache: true },
     component: () => import('@/views/login/index'),
     hidden: true
   },
@@ -50,11 +51,13 @@ export const constantRoutes = [
   },
   {
     path: '/404',
+    meta: { title: 'menu.exception.not-find' },
     component: () => import('@/views/error-page/404'),
     hidden: true
   },
   {
     path: '/401',
+    meta: { title: '401' },
     component: () => import('@/views/error-page/401'),
     hidden: true
   },
@@ -66,44 +69,32 @@ export const constantRoutes = [
     children: [
       {
         path: 'main',
-        name: 'main',
+        redirect: '/main/main',
         hidden: true,
         component: () => import('@/views/efficacyEvolve/index'),
         children: [
           {
             path: 'main',
             name: 'main',
-            meta: { title: '首页', icon: 'dashboard', affix: true },
+            meta: { title: 'menu.main.main', icon: 'dashboard', affix: true },
             component: () => import('@/views/dashboard/index')
           }
         ]
       }
     ]
-  },
-  {
-    path: '/profile',
-    component: Layout,
-    redirect: '/profile/index',
-    hidden: true,
-    children: [
-      {
-        path: 'index',
-        component: () => import('@/views/profile/index'),
-        name: 'Profile',
-        meta: { title: 'Profile', icon: 'user', noCache: true }
-      }
-    ]
-  },
+  }
+]
+
+export const asyncRoutes = [
   efficacyEvolveRouter,
   qualificationsRouter,
   rankingListRouter,
   beforeMenuRouter,
   manageRouter,
   authorityRouter,
-  execptionRouter
+  execptionRouter,
+  { path: '*', redirect: '/404', hidden: true }
 ]
-
-export const asyncRoutes = []
 
 // 初始化路由
 export async function initRouterList() {
@@ -115,8 +106,7 @@ export async function initRouterList() {
     return item
   })
 
-  formatter(asyncRoutes)
-  formatter(constantRoutes, null, res)
+  formatter(asyncRoutes, null, res)
   flag = true
 }
 
@@ -128,10 +118,12 @@ function formatter(data, parentName, validRouter) {
       return item
     }
 
-    const valid = validRouter.findIndex(ele => item.name === ele.path)
-    // 如果无法查询到
-    if (valid === -1) {
-      item.hidden = true
+    if (validRouter) {
+      const valid = validRouter.findIndex(ele => item.name === ele.path)
+      // 如果无法查询到
+      if (valid === -1) {
+        item.hidden = true
+      }
     }
 
     if (!item.name || !item.path) {

@@ -1,13 +1,13 @@
 import { logout } from '@/api/user'
-import { getToken, setToken, removeToken, setUserInfo, getUserInfo } from '@/utils/auth'
+import { getToken, setToken, removeToken, setValue, removeValue, getValue } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
 
 import { loginSystem } from '@/services/user'
 
 const state = {
   token: getToken(),
-  name: getUserInfo('name') || '',
-  avatar: getUserInfo('avatar') || '',
+  name: getValue('name') || '',
+  avatar: getValue('avatar') || '',
   introduction: '',
   authority: '',
   roles: []
@@ -22,11 +22,11 @@ const mutations = {
   },
   SET_NAME: (state, name) => {
     state.name = name
-    setUserInfo('name', name)
+    setValue('name', name)
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
-    setUserInfo('avatar', avatar)
+    setValue('avatar', avatar)
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
@@ -69,6 +69,9 @@ const actions = {
       logout(state.token).then(() => {
         commit('SET_TOKEN', '')
         commit('SET_ROLES', [])
+
+        removeValue('name')
+        removeValue('avatar')
         removeToken()
         resetRouter()
 
@@ -88,6 +91,9 @@ const actions = {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')
       commit('SET_ROLES', [])
+
+      removeValue('name')
+      removeValue('avatar')
       removeToken()
       resolve()
     })

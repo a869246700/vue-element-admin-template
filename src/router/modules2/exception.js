@@ -12,20 +12,20 @@ const execptionRouter = {
   children: [
     {
       path: '403',
-      name: '403',
-      meta: { title: '403', noCahe: true },
+      name: 'not-permission',
+      meta: { title: 'not-permission', noCahe: true },
       component: () => import('@/views/mygoo/demo2')
     },
     {
       path: '404',
-      name: '404',
-      meta: { title: '404', noCahe: true },
+      name: 'not-find',
+      meta: { title: 'not-find', noCahe: true },
       component: () => import('@/views/mygoo/demo2')
     },
     {
       path: '500',
-      name: '500',
-      meta: { title: '500', noCahe: true },
+      name: 'server-error',
+      meta: { title: 'server-error', noCahe: true },
       component: () => import('@/views/mygoo/demo2')
     },
     {

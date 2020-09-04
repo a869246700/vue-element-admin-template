@@ -64,6 +64,7 @@ export default {
     }
   },
   mounted() {
+    console.log(this.$route)
     this.initTags()
     this.addTags()
   },
