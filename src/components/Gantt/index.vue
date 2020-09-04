@@ -238,14 +238,6 @@ export default {
     handleExpandClick() {
       this.isFullScreen = true
       this.gantt.expand()
-    },
-    resetData() {
-      this.startMarkerId = undefined
-      this.endMarkerId = undefined
-      this.todayMarkerId = undefined
-      this.start_date = undefined
-      this.end_date = undefined
-      this.currentId = undefined
     }
   }
 }

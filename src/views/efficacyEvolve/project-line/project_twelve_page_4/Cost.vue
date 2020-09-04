@@ -3,7 +3,13 @@
     <!-- 项目成本卡片 -->
     <card title="项目成本" style="margin-bottom: 10px">
       <template #buttons>
-        <el-button :loading="butLoading" type="primary" icon="el-icon-download" size="small" @click="handleResourceInvClick">导出资源投入明细</el-button>
+        <el-button
+          :loading="butLoading"
+          type="primary"
+          icon="el-icon-download"
+          size="small"
+          @click="handleResourceInvClick"
+        >导出资源投入明细</el-button>
         <el-button type="primary" size="small" @click="handleStageAdjustClick">阶段调偏</el-button>
       </template>
 
@@ -158,15 +164,20 @@
         <el-button :loading="butLoading" type="primary" @click="handleProcessCostClick">导出工序成本统计</el-button>
       </template>
       <template #content>
-        <div class="select-bar">
-          <el-select v-model="selectVal" multiple collapse-tags placeholder="请选择">
-            <el-option
-              v-for="(item, index) in selectOptions"
-              :key="index"
-              :label="item"
-              :value="item"
+        <div class="tree-bar">
+          <el-popover placement="left" trigger="click">
+            <el-tree
+              ref="treeRef"
+              :data="treeData"
+              show-checkbox
+              node-key="id"
+              :default-checked-keys="treeDefaultCheckVal"
+              accordion
+              :props="treeProps"
+              @check="handleTreeChange"
             />
-          </el-select>
+            <el-button slot="reference" size="mini" style="font-size: 20px;" icon="el-icon-set-up" circle />
+          </el-popover>
         </div>
 
         <el-table
@@ -179,50 +190,52 @@
           fit
           border
         >
-          <el-table-column
-            v-for="item in thirdTableOptions"
-            :key="item.prop"
-            :label="item.label"
-            :prop="item.prop"
-            :min-width="item.minWidth"
-            :fixed="item.fixed"
-            :show-overflow-tooltip="item.sot"
-            :align="item.children ? 'center' : ''"
-          >
-            <div v-if="item.children">
-              <el-table-column
-                v-for="childItem in item.children"
-                :key="childItem.prop"
-                :prop="childItem.prop"
-                :min-width="childItem.minWidth"
-              >
-                <template #header>
-                  <span style="margin-right: 5px">{{ childItem.label }}</span>
-                  <el-popover
-                    v-if="childItem.content"
-                    placement="top-start"
-                    :width="childItem.contentWidth"
-                    trigger="hover"
-                  >
-                    <div v-html="childItem.content" />
-                    <i slot="reference" class="el-icon-question" />
-                  </el-popover>
-                </template>
+          <template v-for="item in thirdTableOptions">
+            <el-table-column
+              v-if="!item.hide"
+              :key="item.prop"
+              :label="item.label"
+              :prop="item.prop"
+              :min-width="item.minWidth"
+              :fixed="item.fixed"
+              :show-overflow-tooltip="item.sot"
+              :align="item.children ? 'center' : ''"
+            >
+              <template v-for="childItem in item.children">
+                <el-table-column
+                  v-if="!childItem.hide"
+                  :key="childItem.prop"
+                  :prop="childItem.prop"
+                  :min-width="childItem.minWidth"
+                >
+                  <template #header>
+                    <span style="margin-right: 5px">{{ childItem.label }}</span>
+                    <el-popover
+                      v-if="childItem.content"
+                      placement="top-start"
+                      :width="childItem.contentWidth"
+                      trigger="hover"
+                    >
+                      <div v-html="childItem.content" />
+                      <i slot="reference" class="el-icon-question" />
+                    </el-popover>
+                  </template>
 
-                <template slot-scope="{row}">
-                  <span
-                    v-if="childItem.prop === 'total_time'"
-                    :class="calcRenderColor2(row.total_time, row, 1)"
-                    @click="handleActualTotalClick(row, '')"
-                  >{{ row[childItem.prop] | roundFilter }}</span>
+                  <template slot-scope="{row}">
+                    <span
+                      v-if="childItem.prop === 'total_time'"
+                      :class="calcRenderColor2(row.total_time, row, 1)"
+                      @click="handleActualTotalClick(row, '')"
+                    >{{ row[childItem.prop] | roundFilter }}</span>
 
-                  <span
-                    v-else
-                  >{{ row[childItem.prop] === undefined ? 0 : Math.round(row[childItem.prop] * 10) / 10 }}</span>
-                </template>
-              </el-table-column>
-            </div>
-          </el-table-column>
+                    <span
+                      v-else
+                    >{{ row[childItem.prop] === undefined ? 0 : Math.round(row[childItem.prop] * 10) / 10 }}</span>
+                  </template>
+                </el-table-column>
+              </template>
+            </el-table-column>
+          </template>
         </el-table>
       </template>
     </card>
@@ -407,9 +420,99 @@ export default {
       dialogTableData: [], // 对话框表格数据
       // 表格四
       fourTableData: [],
-      selectOptions: ['工序', '12.5PL1', '12.X基线'],
-      selectVal: ['工序', '12.5PL1', '12.X基线'],
-      butLoading: false
+      butLoading: false,
+      treeCheckedVal: [1, 2, 3],
+      treeDefaultCheckVal: [1, 2, 3],
+      treeData: [
+        {
+          id: 1,
+          label: '工序'
+        },
+        {
+          id: 2,
+          label: '12.5PL1',
+          children: [
+            {
+              id: 21,
+              label: '代码量'
+            },
+            {
+              id: 22,
+              label: '目标系数'
+            },
+            {
+              id: 23,
+              label: '目标资源'
+            },
+            {
+              id: 24,
+              label: '代码效率'
+            },
+            {
+              id: 25,
+              label: '目标数量'
+            },
+            {
+              id: 26,
+              label: '工序效率'
+            },
+            {
+              id: 27,
+              label: '实际数量'
+            },
+            {
+              id: 28,
+              label: '实际工序效率'
+            },
+            {
+              id: 29,
+              label: '实际资源'
+            },
+            {
+              id: 210,
+              label: '实际代码效率'
+            },
+            {
+              id: 211,
+              label: '偏差资源'
+            },
+            {
+              id: 212,
+              label: '预期总资源'
+            }
+          ]
+        },
+        {
+          id: 3,
+          label: '12.X基线',
+          children: [
+            {
+              id: 31,
+              label: '代码量'
+            },
+            {
+              id: 32,
+              label: '资源投入'
+            },
+            {
+              id: 33,
+              label: '代码效率'
+            },
+            {
+              id: 34,
+              label: '产出个数'
+            },
+            {
+              id: 35,
+              label: '工序效率'
+            }
+          ]
+        }
+      ],
+      treeProps: {
+        label: 'label',
+        children: 'children'
+      }
     }
   },
   computed: {
@@ -742,31 +845,26 @@ export default {
     thirdTableOptions() {
       const options = [
         {
+          id: 1,
           prop: 'process_name',
           label: '工序',
           minWidth: '220',
           fixed: 'left',
-          sot: true,
-          hide: false
+          sot: true
         },
         {
+          id: 2,
           prop: 'project',
           label: '12.5PL1',
-          hide: false,
           children: [
             {
-              prop: 'expect_all_summary',
-              label: '预期总资源',
-              minWidth: '164',
-              content: '如果实际资源大于目标资源，则实际资源为预期总资源，反之为目标资源',
-              contentWidth: 480
-            },
-            {
+              id: 21,
               prop: 'code',
               label: '代码量',
               minWidth: '121'
             },
             {
+              id: 22,
               prop: 'target_coefficient',
               label: '目标系数',
               minWidth: '121',
@@ -774,6 +872,7 @@ export default {
               contentWidth: 185
             },
             {
+              id: 23,
               prop: 'target_summary',
               label: '目标资源',
               minWidth: '121',
@@ -781,6 +880,7 @@ export default {
               contentWidth: 210
             },
             {
+              id: 24,
               prop: 'code_rate',
               label: '代码效率',
               minWidth: '164',
@@ -788,6 +888,7 @@ export default {
               contentWidth: 210
             },
             {
+              id: 25,
               prop: 'target_num',
               label: '目标数量',
               minWidth: '164',
@@ -795,6 +896,7 @@ export default {
               contentWidth: 390
             },
             {
+              id: 26,
               prop: 'process_eff',
               label: '工序效率',
               minWidth: '164',
@@ -802,6 +904,7 @@ export default {
               contentWidth: 230
             },
             {
+              id: 27,
               prop: 'num',
               label: '实际数量',
               minWidth: '164',
@@ -810,6 +913,7 @@ export default {
               contentWidth: 655
             },
             {
+              id: 28,
               prop: 'actual_process_rate',
               label: '实际工序效率',
               minWidth: '164',
@@ -817,6 +921,7 @@ export default {
               contentWidth: 470
             },
             {
+              id: 29,
               prop: 'total_time',
               label: '实际资源',
               minWidth: '164',
@@ -824,6 +929,7 @@ export default {
               contentWidth: 470
             },
             {
+              id: 210,
               prop: 'actual_code_rate',
               label: '实际代码效率',
               minWidth: '164',
@@ -831,47 +937,87 @@ export default {
               contentWidth: 240
             },
             {
+              id: 211,
               prop: 'need_summary',
               label: '偏差资源',
               minWidth: '164',
               content: '偏差资源 = 实际资源 - 目标资源',
               contentWidth: 233
+            },
+            {
+              id: 212,
+              prop: 'expect_all_summary',
+              label: '预期总资源',
+              minWidth: '164',
+              content: '如果实际资源大于目标资源，则实际资源为预期总资源，反之为目标资源',
+              contentWidth: 480
             }
           ]
         },
         {
+          id: 3,
           prop: 'base',
           label: '12.X基线',
           children: [
             {
-              prop: 'process_rate',
-              label: '工序效率',
-              minWidth: '141'
-            },
-            {
+              id: 31,
               prop: 'four_pl1_code',
               label: '代码量',
               minWidth: '141'
             },
             {
+              id: 32,
               prop: 'four_pl1_summary',
               label: '资源投入',
               minWidth: '141'
             },
             {
+              id: 33,
               prop: 'code_eff',
               label: '代码效率',
               minWidth: '141'
             },
             {
+              id: 34,
               prop: 'four_pl1_num',
               label: '产出个数',
+              minWidth: '141'
+            },
+            {
+              id: 35,
+              prop: 'process_rate',
+              label: '工序效率',
               minWidth: '141'
             }
           ]
         }
       ]
-      return options.filter((item) => this.selectVal.indexOf(item.label) >= 0)
+      const checkedList = this.treeCheckedVal
+
+      const list = options.filter((ele) => {
+        ele.hide = true
+        if (checkedList.includes(ele.id)) {
+          ele.hide = false
+        } else {
+          // 如果有子孩子
+          if (ele.children) {
+            let hideFlag = true // 判断父节点是否被隐藏
+            ele.children.map((e) => {
+              e.hide = true
+              // 如果子节点存在 check 状态
+              if (checkedList.includes(e.id)) {
+                e.hide = false
+                hideFlag = false // 父节点则不被隐藏
+              }
+              ele.hide = hideFlag
+              return e
+            })
+          }
+        }
+        return ele
+      })
+
+      return list
     }
   },
   created() {
@@ -885,6 +1031,11 @@ export default {
       this.getProjectRealmCost(this.project)
       this.getProjectProcessEfficiency(this.project)
       this.getRealmAdjustList(this.project)
+    },
+    // tree 选择项修改
+    handleTreeChange(node, nodes) {
+      this.treeCheckedVal = nodes.checkedKeys
+      console.log(1)
     },
     // 导出资源投入明细
     handleResourceInvClick() {
@@ -1083,17 +1234,19 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-.select-bar {
+.tree-bar {
+  display: flex;
+  justify-content: flex-end;
   margin-bottom: 20px;
 }
 
 .warning {
-  color: #ff8000!important;
+  color: #ff8000 !important;
   font-weight: bold;
 }
 
 .error {
-  color: #ff0000!important;
+  color: #ff0000 !important;
   font-weight: bold;
 }
 

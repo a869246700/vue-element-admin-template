@@ -85,6 +85,7 @@
                   size="mini"
                   placeholder="选择开始时间"
                   style="width: 150px; margin-bottom: 10px;"
+                  @change="handleDateChange"
                   @blur="updateClick('start_date')"
                 />
               </div>
@@ -457,6 +458,11 @@ export default {
     updateClick(key) {
       this.editMap[key] = false
     },
+    // 修改日期
+    handleDateChange() {
+      console.log(this.temp.start_date, this.temp.end_date)
+      console.log(this.temp)
+    },
     // 点击任务
     handleRowClick(id) {
       const row = this.dataSource.data.find((e) => e.id === parseInt(id))
@@ -486,7 +492,9 @@ export default {
         // 重置 editMap
         this.resetEditMap()
         // 修改标记
-        this.$refs.ganttRef.setStartOrEndDate(this.temp.start_date, this.temp.plan_end_date)
+        if (!this.temp.parent) {
+          this.$refs.ganttRef.setStartOrEndDate(this.temp.start_date, this.temp.plan_end_date)
+        }
         this.$refs.ganttRef.updateMarker()
         // 重新加载gantt
         this.$refs.ganttRef.init()
