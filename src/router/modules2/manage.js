@@ -13,7 +13,7 @@ const manageRouter = {
       path: 'account_center',
       name: 'account_center',
       meta: { title: 'account_center', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/manage/account_center')
     },
     {
       path: 'authority_apply',

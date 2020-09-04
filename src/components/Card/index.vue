@@ -1,7 +1,7 @@
 <template>
   <el-card>
     <div slot="header" :class="title !== '' ? 'header' : 'header-no-title'">
-      <span>{{ title }}</span>
+      <span :style="{'font-size': titleSize + 'px'}">{{ title }}</span>
       <div class="buttons">
         <slot name="buttons" />
       </div>
@@ -9,6 +9,7 @@
     <div class="content">
       <div class="body">
         <slot name="content" />
+        <slot />
       </div>
     </div>
   </el-card>
@@ -20,6 +21,10 @@ export default {
     title: {
       type: String,
       default: ''
+    },
+    titleSize: {
+      type: Number,
+      default: 18
     }
   }
 }
