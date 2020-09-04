@@ -9,9 +9,9 @@ export async function queryCurrent() {
 }
 
 // 登录账号
-export async function loginSystem() {
+export async function loginSystem(username) {
   // 执行单点登录
-  return request()
+  return request('/api/user/login/en/' + username)
 }
 
 // 注销账号

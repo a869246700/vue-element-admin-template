@@ -1,12 +1,15 @@
-import { login, logout, getInfo } from '@/api/user'
-import { getToken, setToken, removeToken } from '@/utils/auth'
+import { logout } from '@/api/user'
+import { getToken, setToken, removeToken, setUserInfo, getUserInfo } from '@/utils/auth'
 import router, { resetRouter } from '@/router'
+
+import { loginSystem } from '@/services/user'
 
 const state = {
   token: getToken(),
-  name: '',
-  avatar: '',
+  name: getUserInfo('name') || '',
+  avatar: getUserInfo('avatar') || '',
   introduction: '',
+  authority: '',
   roles: []
 }
 
@@ -19,60 +22,48 @@ const mutations = {
   },
   SET_NAME: (state, name) => {
     state.name = name
+    setUserInfo('name', name)
   },
   SET_AVATAR: (state, avatar) => {
     state.avatar = avatar
+    setUserInfo('avatar', avatar)
   },
   SET_ROLES: (state, roles) => {
     state.roles = roles
+  },
+  SET_AUTHORITY: (state, authority) => {
+    state.authority = authority
   }
 }
 
 const actions = {
-  // user login
-  login({ commit }, userInfo) {
-    const { username, password } = userInfo
-    return new Promise((resolve, reject) => {
-      login({ username: username.trim(), password: password }).then(response => {
-        const { data } = response
-        commit('SET_TOKEN', data.token)
-        setToken(data.token)
-        resolve()
-      }).catch(error => {
-        reject(error)
-      })
-    })
+  // 用户登录
+  async login({ commit }, userInfo) {
+    const { username } = userInfo
+    // 获取用户信息
+    const { data: res } = await loginSystem(username)
+
+    setToken(res.userEn)
+    commit('SET_TOKEN', res.userEn)
+    commit('SET_NAME', res.userCn)
+    commit('SET_AUTHORITY', res.authority)
+    commit('SET_AVATAR', `http://oa.ruijie.com.cn/ImgUser/${res.userEn}.jpg`)
+    commit('SET_INTRODUCTION', `hello coderGoo`)
   },
 
-  // get user info
-  getInfo({ commit, state }) {
-    return new Promise((resolve, reject) => {
-      getInfo(state.token).then(response => {
-        const { data } = response
-
-        if (!data) {
-          reject('Verification failed, please Login again.')
-        }
-
-        const { roles, name, avatar, introduction } = data
-
-        // roles must be a non-empty array
-        if (!roles || roles.length <= 0) {
-          reject('getInfo: roles must be a non-null array!')
-        }
-
-        commit('SET_ROLES', roles)
-        commit('SET_NAME', name)
-        commit('SET_AVATAR', avatar)
-        commit('SET_INTRODUCTION', introduction)
-        resolve(data)
-      }).catch(error => {
-        reject(error)
-      })
-    })
+  // 设置角色 role
+  async setRoles({ commit }) {
+    const roles = ['admin']
+    if (!roles || roles.length <= 0) {
+      return new Error('getInfo: roles must be a non-null array!')
+    }
+    commit('SET_ROLES', roles)
+    return {
+      roles
+    }
   },
 
-  // user logout
+  // 用户注销
   logout({ commit, state, dispatch }) {
     return new Promise((resolve, reject) => {
       logout(state.token).then(() => {
@@ -92,7 +83,7 @@ const actions = {
     })
   },
 
-  // remove token
+  // 移除 token
   resetToken({ commit }) {
     return new Promise(resolve => {
       commit('SET_TOKEN', '')
@@ -102,7 +93,7 @@ const actions = {
     })
   },
 
-  // dynamically modify permissions
+  // 动态修改权限
   async changeRoles({ commit, dispatch }, role) {
     const token = role + '-token'
 

@@ -13,3 +13,11 @@ export function setToken(token) {
 export function removeToken() {
   return Cookies.remove(TokenKey)
 }
+
+export function setUserInfo(key, value) {
+  return Cookies.set(key, value)
+}
+
+export function getUserInfo(key) {
+  return Cookies.get(key)
+}

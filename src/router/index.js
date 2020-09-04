@@ -115,7 +115,6 @@ export async function initRouterList() {
     return item
   })
 
-  console.log('路由被初始化')
   formatter(asyncRoutes)
   formatter(constantRoutes, null, res)
   flag = true

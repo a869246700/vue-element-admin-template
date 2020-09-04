@@ -59,13 +59,13 @@
             @load="avatarLoad"
           >
           <img v-show="!isAvatarExist" src="http://172.30.61.89:882/assets/avatar/user.png" class="user-avatar">
-          <span class="user-name">{{ currentUser.userCn }}</span>
+          <span class="user-name">{{ name }}</span>
         </div>
         <el-dropdown-menu slot="dropdown">
-          <router-link to="/profile/index">
+          <router-link to="/manage/account_center">
             <el-dropdown-item>个人中心</el-dropdown-item>
           </router-link>
-          <router-link to="/">
+          <router-link to="/manage/system_help">
             <el-dropdown-item divided>系统帮助</el-dropdown-item>
           </router-link>
           <el-dropdown-item divided @click.native="logout">
@@ -82,8 +82,6 @@ import { mapGetters } from 'vuex'
 import Breadcrumb from '@/components/Breadcrumb'
 import Hamburger from '@/components/Hamburger'
 
-import { queryCurrent } from '@/services/user'
-
 export default {
   components: {
     Breadcrumb,
@@ -91,19 +89,11 @@ export default {
   },
   data() {
     return {
-      currentUser: {},
       isAvatarExist: false
     }
   },
   computed: {
-    ...mapGetters(['sidebar', 'device']),
-    avatar() {
-      const url = `http://oa.ruijie.com.cn/ImgUser/${this.currentUser.userEn}.jpg`
-      return this.currentUser.userEn ? url : ''
-    }
-  },
-  created() {
-    this.getUserInfo()
+    ...mapGetters(['sidebar', 'device', 'name', 'avatar'])
   },
   methods: {
     toggleSideBar() {
@@ -112,11 +102,6 @@ export default {
     async logout() {
       await this.$store.dispatch('user/logout')
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
-    },
-    async getUserInfo() {
-      const { data: res } = await queryCurrent()
-
-      this.currentUser = res
     },
     avatarLoad() {
       this.isAvatarExist = true
