@@ -19,7 +19,7 @@ const manageRouter = {
       path: 'authority_apply',
       name: 'authority_apply',
       meta: { title: 'authority_apply', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/manage/authority_apply')
     },
     {
       path: 'message_list',

@@ -99,7 +99,7 @@
 import Card from '@/components/Card'
 import Chart from '@/components/MyChart/Chart'
 import request from '@/services/post'
-import { queryCurrent } from '@/services/user'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'AccountCenter',
@@ -109,27 +109,26 @@ export default {
   },
   data() {
     return {
-      currentUser: {}, // 当前用户
+      // currentUser: {}, // 当前用户
       qualificationsInfo: {}, // 资质信息
       role: {}, // 用户角色
       messageNum: {}, // 消息数量统计
       chartOptions: undefined // chart图表配置项
     }
   },
+  computed: {
+    ...mapGetters(['currentUser'])
+  },
   created() {
     this.init()
   },
   methods: {
     init() {
-      this.getCurrentUser()
       this.qualificationsGatherInfo()
       this.rolePerson()
       this.unreadNum()
       this.dataStatistics()
-    },
-    async getCurrentUser() {
-      const { data: res } = await queryCurrent()
-      this.currentUser = res
+      console.log(this.currentR)
     },
     async qualificationsGatherInfo() {
       const { data: res } = await request('/api/userQualifications/userQualificationsGatherInfo', {
@@ -197,7 +196,7 @@ export default {
 #account-center {
   font-size: 14px;
   .el-card {
-    margin: 30px;
+    margin: 20px;
   }
 
   // 个人信息

@@ -5,6 +5,7 @@ import router, { resetRouter } from '@/router'
 import { loginSystem } from '@/services/user'
 
 const state = {
+  currentUser: JSON.parse(window.localStorage.getItem('currentUser')) || {},
   token: getToken(),
   name: getValue('name') || '',
   avatar: getValue('avatar') || '',
@@ -14,6 +15,10 @@ const state = {
 }
 
 const mutations = {
+  SET_CURRENTUSER: (state, currentUser) => {
+    state.currentUser = currentUser
+    window.localStorage.setItem('currentUser', JSON.stringify(currentUser))
+  },
   SET_TOKEN: (state, token) => {
     state.token = token
   },
@@ -44,6 +49,7 @@ const actions = {
     const { data: res } = await loginSystem(username)
 
     setToken(res.userEn)
+    commit('SET_CURRENTUSER', res)
     commit('SET_TOKEN', res.userEn)
     commit('SET_NAME', res.userCn)
     commit('SET_AUTHORITY', res.authority)
