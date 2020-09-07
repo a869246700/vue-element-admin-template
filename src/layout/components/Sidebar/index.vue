@@ -29,15 +29,8 @@ import Logo from './Logo'
 import SidebarItem from './SidebarItem'
 import variables from '@/styles/variables.scss'
 
-import { listRouter } from '@/services/user'
-
 export default {
   components: { SidebarItem, Logo },
-  data() {
-    return {
-      sidebarList: [] // 用户显示的 sidebar
-    }
-  },
   computed: {
     ...mapGetters(['permission_routes', 'sidebar']),
     activeMenu() {
@@ -57,23 +50,6 @@ export default {
     },
     isCollapse() {
       return !this.sidebar.opened
-    }
-  },
-  created() {
-    this.getSideBarList()
-  },
-  methods: {
-    // 获取角色的侧边栏列表
-    async getSideBarList() {
-      const { data: res } = await listRouter()
-      this.sidebarList = res
-      // this.setSideBarByAuthority()
-    },
-    // 根据获取的角色侧边栏列表，渲染应该显示的侧边栏
-    setSideBarByAuthority() {
-      this.sidebarList.forEach(element => {
-        console.log(element)
-      })
     }
   }
 }
