@@ -1,12 +1,12 @@
 <template>
-  <div id="authority-apply">
+  <div id="message-list">
     <el-card>
       <el-tabs v-model="active" type="border-card">
-        <el-tab-pane label="角色权限申请">
-          <role-apply ref="roleApplyRef" @update="handleApplyAuthoritySuccess" />
+        <el-tab-pane label="收件箱">
+          <inbox />
         </el-tab-pane>
-        <el-tab-pane label="申请列表">
-          <apply-list ref="applyListRef" @update="handleApplyAuthoritySuccess" />
+        <el-tab-pane label="发件箱">
+          <outbox />
         </el-tab-pane>
       </el-tabs>
     </el-card>
@@ -14,14 +14,14 @@
 </template>
 
 <script>
-import RoleApply from './components/RoleApply'
-import ApplyList from './components/ApplyList'
+import Outbox from './components/Outbox'
+import Inbox from './components/Inbox'
 
 export default {
-  name: 'AuthorityApply',
+  name: 'MessageList',
   components: {
-    RoleApply,
-    ApplyList
+    Outbox,
+    Inbox
   },
   data() {
     return {
@@ -39,7 +39,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#authority-apply {
+#message-list {
   font-size: 14px;
 
   .el-card {

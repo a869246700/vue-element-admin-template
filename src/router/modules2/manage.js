@@ -25,7 +25,7 @@ const manageRouter = {
       path: 'message_list',
       name: 'message_list',
       meta: { title: 'message_list', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/manage/message_list')
     },
     {
       path: 'system_feedback',

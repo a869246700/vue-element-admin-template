@@ -212,18 +212,10 @@ export default {
     // 点击重置
     handleResetClick() {
       // 重置roleName
-      this.roleName = ''
+      this.selectVal = '全部'
       // 设置页码为1
       this.pageInfo.pageNum = 1
-      const params = {
-        conditions: {
-          role: undefined,
-          status: '-1',
-          updatedAt: undefined
-        },
-        ...this.pageInfo
-      }
-      this.queryRoleApplyList(params)
+      this.loadRoleApplyList()
     },
     // 获取初始数据
     async loadRoleApplyList() {
