@@ -76,7 +76,7 @@ export default {
       pageInfo: {
         orderBy: null,
         pageNum: 1,
-        pageSize: 1000
+        pageSize: 10
       },
       tableLoading: false,
       total: 0
@@ -96,8 +96,16 @@ export default {
     handlePageUpdate(e) {
       this.pageInfo.pageNum = e.page
       this.pageInfo.pageSize = e.limit
+      const params = {
+        conditions: {
+          role: this.roleName,
+          status: '-1',
+          updatedAt: undefined
+        },
+        ...this.pageInfo
+      }
       // 查询
-      this.loadRoleAuthorityList()
+      this.queryRoleAuthorityList(params)
     },
     // 点击申请
     async handleApplyClick(row) {
@@ -135,6 +143,7 @@ export default {
     handleQueryClick() {
       // 设置页码为1
       this.pageInfo.pageNum = 1
+      this.pageInfo.pageSize = 20
       const params = {
         conditions: {
           role: this.roleName,
@@ -163,7 +172,10 @@ export default {
     },
     // 获取角色申请列表
     async loadRoleAuthorityList() {
+      this.pageInfo.pageNum = 1
+      this.pageInfo.pageSize = 10
       this.tableLoading = true
+
       const { data: res } = await doListRole(this.pageInfo)
       this.list = res.list
       this.total = res.total

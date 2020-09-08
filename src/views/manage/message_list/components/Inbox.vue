@@ -59,10 +59,21 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="pagination">
+      <pagination
+        :total="total"
+        :page="pageInfo.pageNum"
+        :limit="pageInfo.pageSize"
+        :auto-scroll="false"
+        @pagination="handlePageUpdate"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import Pagination from '@/components/Pagination/index'
 import request from '@/services/request'
 import { doListReceiverMessage } from '@/services/manage/manage'
 import { parseTime } from '@/utils'
@@ -71,6 +82,7 @@ export default {
   filters: {
     parseTime
   },
+  components: { Pagination },
   data() {
     return {
       selectVal: '',
@@ -122,7 +134,7 @@ export default {
       ],
       pageInfo: {
         pageNum: 1,
-        pageSize: 1000,
+        pageSize: 20,
         orderBy: null
       },
       tableLoading: false,
@@ -136,6 +148,19 @@ export default {
   methods: {
     init() {
       this.loadReceiverMessageList()
+    },
+    handlePageUpdate(e) {
+      this.pageInfo.pageSize = e.limit
+      this.pageInfo.pageNum = e.page
+
+      const params = {
+        conditions: {
+          read: this.selectVal,
+          updatedAt: undefined
+        },
+        ...this.pageInfo
+      }
+      this.queryReceiverMessageList(params)
     },
     async handleReadClick(row, flag) {
       const values = {
@@ -158,6 +183,9 @@ export default {
       }
     },
     handleQueryClick() {
+      this.pageInfo.pageNum = 1
+      this.pageInfo.pageSize = 20
+
       const params = {
         conditions: {
           read: this.selectVal,

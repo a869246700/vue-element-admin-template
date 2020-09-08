@@ -128,14 +128,12 @@ export default {
       this.rolePerson()
       this.unreadNum()
       this.dataStatistics()
-      console.log(this.currentR)
     },
     async qualificationsGatherInfo() {
       const { data: res } = await request('/api/userQualifications/userQualificationsGatherInfo', {
         method: 'GET'
       })
       this.qualificationsInfo = res
-      console.log(res)
     },
     async rolePerson() {
       const { data: res } = await request('/api/authority/role/person', {

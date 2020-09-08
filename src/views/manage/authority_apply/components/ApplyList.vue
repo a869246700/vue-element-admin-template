@@ -56,7 +56,11 @@
                 <el-button slot="reference" type="info" size="small" style="margin-right: 10px;">打回</el-button>
               </el-popconfirm>
 
-              <el-popconfirm placement="top" title="您确定已有该角色权限了?" @onConfirm="handleConfirmClick(row)">
+              <el-popconfirm
+                placement="top"
+                title="您确定已有该角色权限了?"
+                @onConfirm="handleConfirmClick(row)"
+              >
                 <el-button slot="reference" type="success" size="small">确认</el-button>
               </el-popconfirm>
             </div>
@@ -65,10 +69,21 @@
         </template>
       </el-table-column>
     </el-table>
+
+    <div class="pagination">
+      <pagination
+        :total="total"
+        :page="pageInfo.pageNum"
+        :limit="pageInfo.pageSize"
+        :auto-scroll="false"
+        @pagination="handlePageUpdate"
+      />
+    </div>
   </div>
 </template>
 
 <script>
+import Pagination from '@/components/Pagination/index'
 import request from '@/services/request'
 import { doListRoleApply } from '@/services/manage/manage'
 
@@ -86,6 +101,9 @@ export default {
           return '已确认'
       }
     }
+  },
+  components: {
+    Pagination
   },
   data() {
     return {
@@ -144,7 +162,7 @@ export default {
       pageInfo: {
         orderBy: null,
         pageNum: 1,
-        pageSize: 1000
+        pageSize: 20
       },
       total: 0
     }
@@ -155,6 +173,20 @@ export default {
   methods: {
     init() {
       this.loadRoleApplyList()
+    },
+    // 修改页码执行搜索
+    handlePageUpdate(e) {
+      this.pageInfo.pageSize = e.limit
+      this.pageInfo.pageNum = e.page
+      const params = {
+        conditions: {
+          role: undefined,
+          status: '' + this.selectVal,
+          updatedAt: undefined
+        },
+        ...this.pageInfo
+      }
+      this.queryRoleApplyList(params)
     },
     // 再次申请
     async handleAgainApplyClick(row) {
@@ -199,6 +231,7 @@ export default {
     // 点击查询
     handleQueryClick() {
       this.pageInfo.pageNum = 1
+      this.pageInfo.pageSize = 20
       const params = {
         conditions: {
           role: undefined,

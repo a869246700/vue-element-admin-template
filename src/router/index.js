@@ -117,6 +117,7 @@ function formatter(data, parentName, validRouter) {
     item.hidden = true
     // 如果父路由是工作线的话
     if (parentName === 'menu.efficacyEvolve.project_line.project_twelve_four' || parentName === 'project_twelve_five' || parentName === 'project_twelve_RPL1') {
+      item.hidden = false
       return item
     }
 

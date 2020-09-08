@@ -79,8 +79,9 @@ export default {
     handlePageUpdate(e) {
       this.pageInfo.pageNum = e.page
       this.pageInfo.pageSize = e.limit
+      this.querySendMessageList()
     },
-    async querySendMessageList(params) {
+    async querySendMessageList() {
       this.tableLoading = true
       const { data: res } = await doListSendMessage(this.pageInfo)
       this.list = res.list

@@ -31,7 +31,7 @@ const manageRouter = {
       path: 'system_feedback',
       name: 'system_feedback',
       meta: { title: 'system_feedback', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/manage/system_feedback')
     },
     {
       path: 'system_help',
