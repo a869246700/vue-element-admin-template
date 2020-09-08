@@ -34,6 +34,7 @@
 import request from '@/services/request'
 
 export default {
+  name: 'SystemHelp',
   filters: {
     wordFilter(content) {
       console.log(content)

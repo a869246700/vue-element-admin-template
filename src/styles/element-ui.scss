@@ -112,6 +112,10 @@
   width      : fit-content;
 }
 
+#system-notice .el-table .cell {
+  white-space: normal;
+}
+
 // .el-table .cell,
 // .el-table th>.cell {
 //   padding    : 0px 10px;

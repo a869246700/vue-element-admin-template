@@ -21,12 +21,14 @@
 
       <el-form-item label="关联菜单：" prop="routerId">
         <el-cascader
+          ref="cascaderRef"
           v-model="temp.routerId"
           :options="routerList"
           :props="{ checkStrictly: true, label: 'title' }"
           :show-all-levels="false"
           placeholder
           style="width: 100%;"
+          @change="handleRouterIdChange"
         />
       </el-form-item>
 
@@ -66,7 +68,12 @@ export default {
   data() {
     return {
       dialogVisible: false,
-      rules: {}, // 规则
+      rules: {
+        type: [{ required: true, message: '请选择意见类型', trigger: 'change' }],
+        title: [{ required: true, message: '请填写意见标题', trigger: 'blur' }],
+        content: [{ required: true, message: '请填写意见内容', trigger: 'blur' }],
+        isOpen: [{ required: true, message: '请选择是否公开', trigger: 'change' }]
+      }, // 规则
       routerList: undefined,
       temp: {
         type: undefined,
@@ -106,20 +113,27 @@ export default {
     init() {
       this.getRouterSelect()
     },
-    async handleComfirmClick() {
-      const length = this.temp.routerId.length
-      // 取倒一个
-      this.temp.routerId = this.temp.routerId[length - 1]
-      const { data: res } = await request('/api/systemFeedbackInfo/add', {
-        method: 'POST',
-        data: this.temp
-      })
+    handleRouterIdChange() {
+      console.log(this.$refs.cascaderRef.dropDownVisible = false)
+    },
+    handleComfirmClick() {
+      this.$refs.addFormRef.validate(async(valid) => {
+        if (valid) {
+          const length = this.temp.routerId.length
+          // 取倒一个
+          this.temp.routerId = this.temp.routerId[length - 1]
+          const res = await request('/api/systemFeedbackInfo/add', {
+            method: 'POST',
+            data: this.temp
+          })
 
-      if (res && res !== undefined) {
-        this.$message.success('添加成功')
-      }
-      this.$nextTick(() => {
-        this.dialogVisible = false
+          if (res && res !== undefined) {
+            this.$message.success('添加成功')
+          }
+          this.$nextTick(() => {
+            this.dialogVisible = false
+          })
+        }
       })
     },
     resetTemp() {

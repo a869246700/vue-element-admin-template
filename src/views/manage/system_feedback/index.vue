@@ -3,7 +3,7 @@
     <el-row :gutter="20">
       <el-col :span="6">
         <span>提交人：</span>
-        <el-input v-model="submitter" size="small" style="width: 110px;" placeholder="请输入提交人" />
+        <el-input v-model.trim="submitter" size="small" style="width: 110px;" placeholder="请输入提交人" />
       </el-col>
       <el-col :span="6">
         <span>意见类型：</span>
@@ -18,7 +18,7 @@
       </el-col>
       <el-col :span="6">
         <span>意见标题：</span>
-        <el-input v-model="title" size="small" style="width: 130px;" placeholder="请输入意见标题" />
+        <el-input v-model.trim="title" size="small" style="width: 130px;" placeholder="请输入意见标题" />
       </el-col>
       <el-col :span="6">
         <el-button type="primary" size="small" @click="handleQueryClick">查询</el-button>
@@ -58,6 +58,7 @@ import AddDialog from './components/AddDialog'
 import { doListSystemFeedback } from '@/services/manage/manage'
 
 export default {
+  name: 'SystemFeedback',
   components: { Pagination, AddDialog },
   data() {
     return {
