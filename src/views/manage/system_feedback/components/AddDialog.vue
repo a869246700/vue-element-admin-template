@@ -107,7 +107,9 @@ export default {
       this.getRouterSelect()
     },
     async handleComfirmClick() {
-      this.temp.routerId = this.temp.routerId[0]
+      const length = this.temp.routerId.length
+      // 取倒一个
+      this.temp.routerId = this.temp.routerId[length - 1]
       const { data: res } = await request('/api/systemFeedbackInfo/add', {
         method: 'POST',
         data: this.temp

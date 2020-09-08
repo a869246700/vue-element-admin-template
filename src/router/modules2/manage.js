@@ -37,7 +37,7 @@ const manageRouter = {
       path: 'system_help',
       name: 'system_help',
       meta: { title: 'system_help', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/manage/system_help')
     },
     {
       path: 'system_notice',
