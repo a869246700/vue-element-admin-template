@@ -49,7 +49,7 @@ const manageRouter = {
       path: 'system_question',
       name: 'system_question',
       meta: { title: 'system_question', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/manage/system_question')
     }
   ]
 }
