@@ -13,7 +13,7 @@ const qualificationsRouter = {
       path: 'qualifications_info',
       name: 'qualifications_info',
       meta: { title: 'qualifications_info' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_info')
     },
     {
       path: 'qualifications_list',

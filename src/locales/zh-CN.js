@@ -70,6 +70,7 @@ export default {
   'menu.efficacyEvolve': '项目运营',
   'menu.efficacyEvolve.summary_sta': '资源统计',
   'menu.efficacyEvolve.project_line': '项目线',
+  'menu.efficacyEvolve.project_line.add_project': '添加项目',
   'menu.efficacyEvolve.project_line.project_total': '汇总',
   'menu.efficacyEvolve.project_line.project_twelve_four': '12.4PL1',
   'menu.efficacyEvolve.project_line.project_twelve_four.total': '总述',

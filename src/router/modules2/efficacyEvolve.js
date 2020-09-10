@@ -93,9 +93,16 @@ const efficacyEvolveRouter = {
       children: [
         {
           path: 'project_total',
-          component: () => import('@/views/efficacyEvolve/index'),
           name: 'project_total',
-          meta: { title: 'project_total', noCahe: true }
+          meta: { title: 'project_total' },
+          component: () => import('@/views/efficacyEvolve/project_total')
+        },
+        {
+          path: 'add_project',
+          name: 'add_project',
+          hidden: true,
+          meta: { title: '添加项目', noCahe: true },
+          component: () => import('@/views/efficacyEvolve/project_total/components/AddProject')
         },
         {
           path: 'project_twelve_four',

@@ -1,5 +1,6 @@
-@font-face {font-family: "iconfont";
-  src: url('./iconfont.ttf') format('truetype'), /* chrome, firefox, opera, Safari, Android, iOS 4.2+ */
+@font-face {
+  font-family: "iconfont";
+  src: url('./iconfont.ttf') format('truetype')
 }
 
 .iconfont {
@@ -21,4 +22,3 @@
 .icon-riqi1:before {
   content: "\e613";
 }
-

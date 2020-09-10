@@ -78,6 +78,7 @@ const actions = {
 
         removeValue('name')
         removeValue('avatar')
+        removeValue('user')
         removeToken()
         resetRouter()
 
