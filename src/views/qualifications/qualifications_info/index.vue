@@ -63,20 +63,24 @@
         :min-width="item.minWidth"
         :prop="item.prop"
         :fixed="item.fixed"
+        show-overflow-tooltip
       >
         <template slot-scope="{row}">
           <span v-if="item.key !== 'action'">{{ row[item.prop] }}</span>
 
           <div v-else>
-            <el-popconfirm title="您确定要修改时间？该操作不会记录之前达成情况！请慎重修改！" @onConfirm="handleEditDateClick(row)">
-              <span slot="reference" class="action">修改时间</span>
+            <el-popconfirm
+              title="您确定要修改时间？该操作不会记录之前达成情况！请慎重修改！"
+              @onConfirm="handleEditDateClick(row)"
+            >
+              <span slot="reference" class="action" style="border-right: 1px solid #999;">修改时间</span>
             </el-popconfirm>
 
             <el-popconfirm
               title="您确定要修改资质？该操作不会记录之前达成情况！请慎重修改"
               @onConfirm="handleEditQualificationClick(row)"
             >
-              <span slot="reference" class="action">修改资质</span>
+              <span slot="reference" class="action" style="border-right: 1px solid #999;">修改资质</span>
             </el-popconfirm>
 
             <el-popconfirm
@@ -200,7 +204,7 @@ export default {
           label: '当前资质',
           prop: 'qualifications',
           key: 'qualifications',
-          minWidth: '100'
+          minWidth: '120'
         },
         {
           label: '资质计划',
@@ -218,13 +222,13 @@ export default {
           label: '开始时间',
           prop: 'relegation_start_date',
           key: 'relegation_start_date',
-          minWidth: '80'
+          minWidth: '100'
         },
         {
           label: '结束时间',
           prop: 'relegation_end_date',
           key: 'relegation_end_date',
-          minWidth: '80'
+          minWidth: '100'
         },
         {
           label: '操作',
@@ -254,7 +258,30 @@ export default {
       this.$refs.editQualificationRef.dialogVisible = true
     },
     // 默认达成
-    handleDefaultReachClick(row) {},
+    async handleDefaultReachClick(row) {
+      const values = {
+        qId: row.id,
+        userName: row.user_name,
+        qualifications: row.qualifications,
+        qualificationsPlan: row.qualifications_plan,
+        targetQualifications: row.target_qualifications,
+        relegationStartDate: row.relegation_start_date,
+        relegationEndDate: row.relegation_end_date
+      }
+
+      const { data: res } = await request(
+        '/api/userQualifications/insertQualificationsDefaultReach',
+        {
+          method: `POST`,
+          data: values
+        }
+      )
+      if (res === 1) {
+        this.$message.success(`添加成功`)
+      } else {
+        this.$message.error(`添加失败，请稍候再添加！`)
+      }
+    },
     handleQueryClick() {
       this.pageInfo.pageNum = 1
       this.queryList()
@@ -333,9 +360,5 @@ export default {
   color: #1895ff;
   padding: 0 8px;
   cursor: pointer;
-
-  &:nth-child(-n + 2) {
-    border-right: 1px solid #999;
-  }
 }
 </style>
