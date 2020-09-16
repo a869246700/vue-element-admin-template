@@ -2,7 +2,7 @@
   <el-card id="qualifications_plan">
     <el-row :gutter="20">
       <el-col :span="6">
-        <span style="word-space: nowrap;">事业部：</span>
+        <span>事业部：</span>
         <el-select
           v-model="listQuery.business"
           :disabled="businessDisabled"
@@ -57,6 +57,7 @@
       border
       highlight-current-row
       style="width: 100%; margin-top: 20px;"
+      :header-cell-style="{ background: '#f6f6f6'}"
     >
       <el-table-column
         v-for="item in tableOptions"
