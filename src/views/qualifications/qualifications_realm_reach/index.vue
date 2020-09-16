@@ -1,5 +1,5 @@
 <template>
-  <el-card id="qualifications_plan">
+  <el-card id="qualifications-realm-reach">
     <el-row :gutter="20">
       <el-col :span="6">
         <span style="word-space: nowrap;">事业部：</span>
@@ -45,11 +45,60 @@
         />
       </el-col>
       <el-col :span="6">
-        <el-button type="primary" size="small" @click="handleQueryClick">查询</el-button>
-        <el-button size="small" @click="handleResetClick">重置</el-button>
-        <el-button type="primary" icon="el-icon-plus" size="small" @click="handleCreateClick">新建</el-button>
+        <span>域名：</span>
+        <el-input
+          v-model.trim="listQuery.realmName"
+          placeholder="请输入域名"
+          size="small"
+          class="operation-input"
+        />
       </el-col>
     </el-row>
+    <el-row :gutter="20" style="margin-top: 10px;">
+      <el-col :span="6">
+        <span style="word-space: nowrap;">是否通过：</span>
+        <el-select
+          v-model="listQuery.isReach"
+          :disabled="businessDisabled"
+          size="small"
+          class="operation-input"
+        >
+          <el-option
+            v-for="option in reach"
+            :key="option.key"
+            :value="option.value"
+            :label="option.label"
+          >
+            <div class="flex">
+              <span
+                class="dot"
+                :style="{ background: option.key !== 'all' ? '#52c41a' : '#1895ff' }"
+              />
+              <span>{{ option.label }}</span>
+            </div>
+          </el-option>
+        </el-select>
+      </el-col>
+
+      <el-col :span="6">
+        <el-button type="primary" size="small" @click="handleQueryClick">查询</el-button>
+        <el-button size="small" style="margin-right: 10px;" @click="handleResetClick">重置</el-button>
+        <el-upload
+          v-loading="uploadLoading"
+          action="http://172.30.61.89:882/api/userQualificationsRealmReach/import"
+          :show-file-list="false"
+          :limit="1"
+          :before-upload="handleBeforeUpload"
+          :on-success="handleSuccessUpload"
+          :with-credentials="true"
+          :file-list="fileList"
+        >
+          <el-button size="small" icon="el-icon-upload2" type="primary">导入数据</el-button>
+        </el-upload>
+      </el-col>
+    </el-row>
+
+    <div class="upload-desc">导入数据请按照下表列顺序创建表格，目前仅支持xlsx和xls格式导入！excel日期格式请选择文本格式，格式为YYYY-MM-DD，等级请填写为数字！导入的域名，请在资质规则定义中查看技能域和专业域定义，没有的域名是统计不到的！</div>
 
     <el-table
       v-loading="tableLoading"
@@ -67,20 +116,24 @@
         :show-overflow-tooltip="item.prop !== 'action'"
       >
         <template slot-scope="{row}">
-          <div v-if="item.prop === 'action'">
-            <el-button
-              type="primary"
-              size="small"
-              icon="el-icon-edit"
-              style="margin-right: 10px;"
-              @click="handleEditClick(row)"
-            />
-
-            <el-popconfirm title="您确定删除该计划?" @onConfirm="handleDeleteClick(row)">
-              <el-button slot="reference" type="danger" size="small" icon="el-icon-delete" />
+          <div v-if="item.prop === 'action' && row.is_reach === 0">
+            <el-popconfirm title="您确定删除该域等级达成?" @onConfirm="handleDeleteClick(row)">
+              <el-button slot="reference" type="danger" size="small" style="margin-right: 10px;">删除</el-button>
+            </el-popconfirm>
+            <el-popconfirm title="您确定通过该域等级达成?" @onConfirm="handleReachClick(row, 1)">
+              <el-button slot="reference" type="success" size="small">通过</el-button>
             </el-popconfirm>
           </div>
-          <div v-else>{{ row[item.prop] }}</div>
+
+          <div v-if="item.prop === 'action' && row.is_reach !== 0">
+            <el-popconfirm title="您确定删除该域等级达成?" @onConfirm="handleDeleteClick(row)">
+              <el-button slot="reference" type="danger" size="small" style="margin-right: 10px;">删除</el-button>
+            </el-popconfirm>
+            <el-popconfirm title="您确定退回该域等级达成?" @onConfirm="handleReachClick(row, 0)">
+              <el-button slot="reference" type="warning" size="small">退回</el-button>
+            </el-popconfirm>
+          </div>
+          <div v-else style="white-space: normal;">{{ row[item.prop] }}</div>
         </template>
       </el-table-column>
     </el-table>
@@ -94,22 +147,18 @@
         @pagination="handlePageUpdate"
       />
     </div>
-
-    <Dialog ref="dialogRef" @reload="loadList" />
   </el-card>
 </template>
 
 <script>
 import Pagination from '@/components/Pagination/index'
-import Dialog from './components/Dialog'
 
 import request from '@/services/request'
-import { doQualificationsRealmPlan } from '@/services/qualifications/qualifications'
+import { doQualificationsRealmReach } from '@/services/qualifications/qualifications'
 
 export default {
   components: {
-    Pagination,
-    Dialog
+    Pagination
   },
   data() {
     return {
@@ -124,15 +173,19 @@ export default {
       listQuery: {
         business: '',
         dept: '',
-        userName: ''
+        userName: '',
+        realmName: '',
+        isReach: ''
       },
       businessDisabled: false,
       deptDisabled: false,
+      fileList: [],
+      uploadLoading: false,
       tableOptions: [
         {
           label: '人员姓名',
           prop: 'user_name',
-          minWidth: '80'
+          minWidth: '75'
         },
         {
           label: '事业部',
@@ -150,34 +203,39 @@ export default {
           minWidth: '110'
         },
         {
-          label: '域类型',
-          prop: 'realm',
-          minWidth: '80'
-        },
-        {
           label: '域名',
-          prop: 'realm_type',
+          prop: 'realm_name',
           minWidth: '80'
         },
         {
-          label: '当前等级',
-          prop: 'now_num',
+          label: '域当前等级',
+          prop: 'realm_level_now',
           minWidth: '80'
         },
         {
-          label: '计划等级',
-          prop: 'plan_num',
+          label: '域目标等级',
+          prop: 'realm_level_plan',
           minWidth: '80'
         },
         {
-          label: '计划年份',
-          prop: 'year',
+          label: '作品名称',
+          prop: 'opus_name',
+          minWidth: '160'
+        },
+        {
+          label: '作品路径',
+          prop: 'opus_path',
+          minWidth: '200'
+        },
+        {
+          label: '达成时间',
+          prop: 'reach_date',
           minWidth: '80'
         },
         {
           label: '操作',
           prop: 'action',
-          minWidth: '85'
+          minWidth: '100'
         }
       ],
       business: [
@@ -216,6 +274,23 @@ export default {
           value: '北京研发中心',
           key: 'bj'
         }
+      ],
+      reach: [
+        {
+          label: '全部',
+          key: 'all',
+          value: ''
+        },
+        {
+          label: '通过',
+          key: 'true',
+          value: '1'
+        },
+        {
+          label: '未通过',
+          key: 'false',
+          value: '0'
+        }
       ]
     }
   },
@@ -236,12 +311,11 @@ export default {
       this.listQuery = {
         business: '',
         dept: '',
-        userName: ''
+        userName: '',
+        realmName: '',
+        isReach: ''
       }
       this.loadList()
-    },
-    handleCreateClick() {
-      this.$refs.dialogRef.create()
     },
     resetPageInfo() {
       this.pageInfo = {
@@ -257,35 +331,51 @@ export default {
 
       this.queryList()
     },
-    handleEditClick(row) {
-      this.$refs.dialogRef.edit(row)
+    handleSuccessUpload(res, file, fileList) {
+      if (res.error !== undefined) {
+        this.$message.error('导入失败!' + res.error)
+        fileList.response = '导入失败!' + res.error
+        fileList.status = 'error'
+        this.fileList = fileList
+        this.uploadLoading = false
+      }
+    },
+    handleBeforeUpload() {
+      this.uploadLoading = true
     },
     async handleDeleteClick(row) {
       const values = {
-        userName: row.user_name,
-        realm: row.realm,
-        realmType: row.realm_type
+        id: row.id
       }
 
-      const { data: res } = await request('/api/userQualificationsPlan/delete', {
+      const { data: res } = await request('/api/userQualificationsRealmReach/delete', {
         method: 'DELETE',
         data: values
       })
       if (res) {
         this.$message.success('删除成功')
         this.loadList()
+      } else {
+        this.$message.error('删除失败')
       }
     },
-    async loadList() {
-      this.tableLoading = true
-      this.resetPageInfo()
-      const { data: res } = await doQualificationsRealmPlan(this.pageInfo)
-      this.list = res.list
-      this.total = res.total
+    async handleReachClick(row, isReach) {
+      const values = {
+        id: row.id,
+        isReach
+      }
 
-      this.$nextTick(() => {
-        this.tableLoading = false
+      const { data: res } = await request('/api/userQualificationsRealmReach/update', {
+        method: 'POST',
+        data: values
       })
+
+      if (res) {
+        this.$message.success('修改成功')
+        this.loadList()
+      } else {
+        this.$message.error('修改失败')
+      }
     },
     async queryList() {
       this.tableLoading = true
@@ -293,7 +383,17 @@ export default {
         conditions: this.listQuery,
         ...this.pageInfo
       }
-      const { data: res } = await doQualificationsRealmPlan(params)
+      const { data: res } = await doQualificationsRealmReach(params)
+      this.list = res.list
+      this.total = res.total
+
+      this.$nextTick(() => {
+        this.tableLoading = false
+      })
+    },
+    async loadList() {
+      this.tableLoading = true
+      const { data: res } = await doQualificationsRealmReach(this.pageInfo)
       this.list = res.list
       this.total = res.total
 
@@ -313,8 +413,14 @@ export default {
 </script>
 
 <style lang="scss" scoped>
-#qualifications_plan {
+#qualifications-realm-reach {
   margin: 20px;
+
+  .upload-desc {
+    margin-top: 10px;
+    font-size: 14px;
+    color: rgba(0, 0, 0, .65);
+  }
 
   .el-col {
     display: flex;

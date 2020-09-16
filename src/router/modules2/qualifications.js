@@ -19,19 +19,19 @@ const qualificationsRouter = {
       path: 'qualifications_list',
       name: 'qualifications_list',
       meta: { title: 'qualifications_list' },
-      component: () => import('@/views/qualifications//qualifications_list')
+      component: () => import('@/views/qualifications/qualifications_list')
     },
     {
       path: 'qualifications_plan',
       name: 'qualifications_plan',
       meta: { title: 'qualifications_plan' },
-      component: () => import('@/views/qualifications//qualifications_plan')
+      component: () => import('@/views/qualifications/qualifications_plan')
     },
     {
       path: 'qualifications_realm_reach',
       name: 'qualifications_realm_reach',
       meta: { title: 'qualifications_realm_reach' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_realm_reach')
     },
     {
       path: 'qualifications_caf_list',

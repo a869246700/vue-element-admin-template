@@ -28,6 +28,7 @@
         <el-button type="primary" size="small" @click="handleQueryClick">查询</el-button>
         <el-button size="small" @click="handleResetClick">重置</el-button>
         <el-button
+          :loading="butLoading"
           type="primary"
           icon="el-icon-download"
           size="small"
@@ -259,6 +260,7 @@ import {
   doQualificationsPlan,
   doQualificationsPerson
 } from '@/services/qualifications/qualifications'
+import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: {
@@ -266,7 +268,7 @@ export default {
   },
   data() {
     return {
-      a: false,
+      butLoading: false,
       totalTableLoading: false,
       totalList: undefined,
       totalTotal: 0, // total 数据总数
@@ -646,7 +648,16 @@ export default {
       this.queryPlanList()
     },
     // 点击导出数据
-    handleExportClick() {},
+    handleExportClick() {
+      const url = '/api/export/qualificationsStatistics'
+      const fileName = '资质统计.xls'
+      const options = {
+        orderBy: null,
+        pageNum: 1,
+        pageSize: 100
+      }
+      DownFiles(url, options, fileName, this)
+    },
     handleTotalPageUpdate(e) {
       // 1. 修改分段器配置
       this.totalPageInfo.pageNum = e.page
