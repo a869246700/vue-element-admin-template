@@ -1,0 +1,30 @@
+{
+  "id": "2011360",
+  "name": "admin",
+  "font_family": "iconfont",
+  "css_prefix_text": "icon-",
+  "description": "",
+  "glyphs": [
+    {
+      "icon_id": "5466021",
+      "name": "clock",
+      "font_class": "clock",
+      "unicode": "e711",
+      "unicode_decimal": 59153
+    },
+    {
+      "icon_id": "6010925",
+      "name": "日期",
+      "font_class": "riqi",
+      "unicode": "e616",
+      "unicode_decimal": 58902
+    },
+    {
+      "icon_id": "6022415",
+      "name": "日期",
+      "font_class": "riqi1",
+      "unicode": "e613",
+      "unicode_decimal": 58899
+    }
+  ]
+}

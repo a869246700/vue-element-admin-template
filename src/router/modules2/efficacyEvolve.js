@@ -6,7 +6,7 @@ const projectLineChildrenRouter = [
     path: 'total',
     name: 'total',
     meta: { title: '总述' },
-    component: () => import('@/views/dashboard/index')
+    component: () => import('@/views/efficacyEvolve/project-line/project_total')
   },
   {
     path: 'progress',

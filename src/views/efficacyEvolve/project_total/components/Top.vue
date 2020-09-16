@@ -4,14 +4,14 @@
       <div class="title">项目基础信息</div>
       <div class="basic-content">
         <div class="project-info">
-          <div class="project">12.XPLX</div>
+          <div class="project">{{ project }}</div>
           <div class="duty">
             <div class="avatar">
               <img src="@/assets/ka.png">
             </div>
             <div class="duty-info">
-              <span class="name">XXX-名字</span>
-              <span class="office">PTM</span>
+              <span class="name">{{ user.name }}</span>
+              <span class="office">{{ user.office }}</span>
             </div>
           </div>
         </div>
@@ -21,7 +21,7 @@
           <div class="project-cycle">
             <i class="iconfont icon-clock icon" />
             <div class="content">
-              <div>2020/09/26 ~ 2020/10/31</div>
+              <div>{{ `${project_round.start} ~ ${project_round.end}` }}</div>
               <span>项目周期</span>
             </div>
           </div>
@@ -29,7 +29,7 @@
           <div class="project-cycle">
             <i class="icon el-icon-suitcase" />
             <div class="content">
-              <div>xx个/kloc / xx个kloc</div>
+              <div>1.96个/kloc / 2.3个kloc</div>
               <span>项目缺陷数量 / 目标数量（总）</span>
             </div>
           </div>
@@ -37,13 +37,14 @@
           <div class="project-cycle">
             <i class="icon el-icon-date" />
             <div class="content">
-              <div>项目成本：xxD/k，目标：xxD/k</div>
+              <div>项目成本：1200D/k，目标：2399D/k</div>
               <el-progress :percentage="51" style="width: 100%;" />
             </div>
           </div>
         </div>
       </div>
     </div>
+
     <div class="timeline">
       <!-- 阶段测试 -->
       <div class="stage-test">
@@ -148,8 +149,18 @@ export default {
   },
   data() {
     return {
+      project: '12.4PL1',
+      user: {
+        name: '叶轩乾',
+        office: 'PTM'
+      },
+      project_round: {
+        isShow: true,
+        start: '2020/09/01',
+        end: '2020/10/31'
+      },
       currentStage: {
-        title: '准入测试',
+        title: '首轮回归',
         delay: true,
         start_title: '启动',
         start_text: '启动日期',
@@ -170,15 +181,15 @@ export default {
           {
             title: '准入',
             text: '准入',
-            delay: false,
+            delay: true,
             actual_start_date: `${new Date('2020-08-01').getMonth() + 1}月${new Date(
               '2020-08-01'
             ).getDate()}日`,
             plan_end_date: `${new Date('2020-09-01').getMonth() + 1}月${new Date(
               '2020-09-01'
             ).getDate()}日`,
-            actual_end_date: `${new Date('2020-09-01').getMonth() + 1}月${new Date(
-              '2020-09-01'
+            actual_end_date: `${new Date('2020-09-02').getMonth() + 1}月${new Date(
+              '2020-09-02'
             ).getDate()}日`,
             deviation: 0.1
           },
@@ -255,7 +266,7 @@ export default {
 
 .basic-info {
   height: 100%;
-  width: 280px;
+  width: 320px;
   padding-right: 20px;
 
   .basic-content {
