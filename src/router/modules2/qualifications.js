@@ -25,7 +25,7 @@ const qualificationsRouter = {
       path: 'qualifications_plan',
       name: 'qualifications_plan',
       meta: { title: 'qualifications_plan' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications//qualifications_plan')
     },
     {
       path: 'qualifications_realm_reach',
