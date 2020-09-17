@@ -55,7 +55,7 @@ const qualificationsRouter = {
       path: 'qualifications_caf_plan_list',
       name: 'qualifications_caf_plan_list',
       meta: { title: 'qualifications_caf_plan_list' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_caf_plan_list')
     },
     {
       path: 'qualifications_bug_list',
