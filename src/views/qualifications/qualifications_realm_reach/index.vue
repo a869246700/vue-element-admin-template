@@ -2,7 +2,7 @@
   <el-card id="qualifications-realm-reach">
     <el-row :gutter="20">
       <el-col :span="6">
-        <span style="word-space: nowrap;">事业部：</span>
+        <span>事业部：</span>
         <el-select
           v-model="listQuery.business"
           :disabled="businessDisabled"

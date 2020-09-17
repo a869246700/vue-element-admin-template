@@ -61,7 +61,7 @@ const qualificationsRouter = {
       path: 'qualifications_bug_list',
       name: 'qualifications_bug_list',
       meta: { title: 'qualifications_bug_list' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_bug_list')
     },
     {
       path: 'user_realm_exam_info',
