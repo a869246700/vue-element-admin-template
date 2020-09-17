@@ -43,7 +43,7 @@ const qualificationsRouter = {
       path: 'qualifications_tp_fail_cause',
       name: 'qualifications_tp_fail_cause',
       meta: { title: 'qualifications_tp_fail_cause' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_tp_fail_cause')
     },
     {
       path: 'qualifications_caf_grading_list',
