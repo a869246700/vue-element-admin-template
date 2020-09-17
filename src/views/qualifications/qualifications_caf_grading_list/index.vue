@@ -38,27 +38,6 @@
       </el-col>
 
       <el-col :span="6">
-        <span>id：</span>
-        <el-input
-          v-model.trim="listQuery.id"
-          placeholder="请输入id"
-          size="small"
-          class="operation-input"
-        />
-      </el-col>
-
-      <el-col :span="6">
-        <span>项目名称：</span>
-        <el-input
-          v-model.trim="listQuery.project"
-          placeholder="请输入项目名称"
-          size="small"
-          class="operation-input"
-        />
-      </el-col>
-    </el-row>
-    <el-row :gutter="20" style="margin-top: 10px;">
-      <el-col :span="6">
         <span>人员姓名：</span>
         <el-input
           v-model.trim="listQuery.userName"
@@ -69,29 +48,10 @@
       </el-col>
 
       <el-col :span="6">
-        <span>CAF文件名：</span>
-        <el-input
-          v-model.trim="listQuery.fileName"
-          placeholder="请输入CAF文件名"
-          size="small"
-          class="operation-input"
-        />
-      </el-col>
-
-      <el-col :span="6">
         <el-button type="primary" size="small" @click="handleQueryClick">查询</el-button>
         <el-button size="small" style="margin-right: 10px;" @click="handleResetClick">重置</el-button>
-        <el-button
-          :loading="butLoading"
-          size="small"
-          icon="el-icon-download"
-          type="primary"
-          @click="handleExportClick"
-        >导出数据</el-button>
       </el-col>
     </el-row>
-
-    <div class="upload-desc">如遇下表也没有的作品数据，请点击上方导出，导出适用查询！如果导出也没有找到数据，应该是作品被覆盖，请找一下是否有同项目同文件名作品！</div>
 
     <el-table
       v-loading="tableLoading"
@@ -100,6 +60,7 @@
       highlight-current-row
       style="width: 100%; margin-top: 20px;"
       :header-cell-style="{ background: '#f6f6f6' }"
+      fit
     >
       <el-table-column
         v-for="item in tableOptions"
@@ -107,9 +68,18 @@
         :label="item.label"
         :prop="item.prop"
         :min-width="item.minWidth"
+        :show-overflow-tooltip="item.prop !== 'action'"
+        :fixed="item.fixed"
       >
         <template slot-scope="{row}">
-          <div style="white-space: normal;">{{ row[item.prop] }}</div>
+          <div v-if="item.prop === 'action' && row.state === '被覆盖'">
+            <el-button type="success" size="small" @click="handleShowDataClick(row)">查看</el-button>
+          </div>
+          <div v-else-if="item.prop === 'action' && row.state !== '被覆盖'">
+            <el-button type="primary" size="small" @click="handleEditClick(row)">修改</el-button>
+            <el-button type="success" size="small" @click="handleShowDataClick(row)">查看</el-button>
+          </div>
+          <div v-else>{{ row[item.prop] }}</div>
         </template>
       </el-table-column>
     </el-table>
@@ -123,20 +93,26 @@
         @pagination="handlePageUpdate"
       />
     </div>
+
+    <edit-dialog ref="editDialogRef" @reload="loadList" />
+    <detail-dialog ref="detailDialogRef" @reload="loadList" />
   </el-card>
 </template>
 
 <script>
 import Pagination from '@/components/Pagination/index'
+import EditDialog from './components/EditDialog'
+import DetailDialog from './components/DetailDialog'
 
 import request from '@/services/request'
-import { doQualificationsTpFailCause } from '@/services/qualifications/qualifications'
-import DownFiles from '@/vendor/ExportExcel'
+import { doQualificationsCafGradingList } from '@/services/qualifications/qualifications'
 
 export default {
-  name: 'QualificationsTpFailCause',
+  name: 'QualificationsCafGradingList',
   components: {
-    Pagination
+    Pagination,
+    EditDialog,
+    DetailDialog
   },
   data() {
     return {
@@ -150,10 +126,8 @@ export default {
       tableLoading: false,
       listQuery: {
         business: '',
-        dept: '',
-        userName: '',
-        realmName: '',
-        isReach: ''
+        dept: undefined,
+        userName: undefined
       },
       businessDisabled: false,
       deptDisabled: false,
@@ -163,52 +137,63 @@ export default {
         {
           label: 'id',
           prop: 'cr_id',
-          minWidth: '70'
+          minWidth: '120'
         },
         {
           label: '项目名称',
           prop: 'project_name',
-          minWidth: '80'
+          minWidth: '120'
         },
         {
           label: '事业部',
           prop: 'business_dep',
-          minWidth: '100'
+          minWidth: '220'
+        },
+        {
+          label: '专业组',
+          prop: 'group_name',
+          minWidth: '160'
         },
         {
           label: '部门',
           prop: 'department',
-          minWidth: '90'
+          minWidth: '220'
         },
         {
-          label: '人员',
+          label: '人员姓名',
           prop: 'user_name',
-          minWidth: '50'
+          minWidth: '90'
         },
         {
           label: 'CAF文件名',
           prop: 'ci_name',
-          minWidth: '90'
+          minWidth: '280'
         },
         {
           label: '提交时间',
-          prop: 'submit_date',
-          minWidth: '80'
+          prop: 'time',
+          minWidth: '160'
         },
         {
-          label: '代码量',
-          prop: 'totalCodesSum',
-          minWidth: '60'
-        },
-        {
-          label: '用例数',
-          prop: 'actCaseNums',
-          minWidth: '60'
-        },
-        {
-          label: '原因',
-          prop: 'z_type',
+          label: '状态',
+          prop: 'state',
           minWidth: '100'
+        },
+        {
+          label: '等级',
+          prop: 'level',
+          minWidth: '100'
+        },
+        {
+          label: '类型',
+          prop: 'type',
+          minWidth: '100'
+        },
+        {
+          label: '操作',
+          prop: 'action',
+          minWidth: '145',
+          fixed: 'right'
         }
       ],
       formOptions: [
@@ -285,11 +270,13 @@ export default {
       this.loadList()
       this.queryIsShow()
     },
-    handleExportClick() {
-      const url = '/api/export/userTpInfo'
-      const options = this.pageInfo
-      const fileName = '人员TP作品明细列表.xls'
-      DownFiles(url, options, fileName, this)
+    handleEditClick(row) {
+      this.$refs.editDialogRef.dialogVisible = true
+      this.$refs.editDialogRef.setTemp(row)
+    },
+    handleShowDataClick(row) {
+      this.$refs.detailDialogRef.dialogVisible = true
+      this.$refs.detailDialogRef.loadList(row.id)
     },
     handleQueryClick() {
       this.resetPageInfo()
@@ -299,10 +286,8 @@ export default {
       this.resetPageInfo()
       this.listQuery = {
         business: '',
-        dept: '',
-        userName: '',
-        realmName: '',
-        isReach: ''
+        dept: undefined,
+        userName: undefined
       }
       this.loadList()
     },
@@ -326,7 +311,7 @@ export default {
         conditions: this.listQuery,
         ...this.pageInfo
       }
-      const { data: res } = await doQualificationsTpFailCause(params)
+      const { data: res } = await doQualificationsCafGradingList(params)
       this.list = res.list
       this.total = res.total
 
@@ -336,7 +321,7 @@ export default {
     },
     async loadList() {
       this.tableLoading = true
-      const { data: res } = await doQualificationsTpFailCause(this.pageInfo)
+      const { data: res } = await doQualificationsCafGradingList(this.pageInfo)
       this.list = res.list
       this.total = res.total
 
