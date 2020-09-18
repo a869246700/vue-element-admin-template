@@ -99,7 +99,6 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
-initRouterList()
 // 初始化路由
 export async function initRouterList() {
   const user = getValue('user')
@@ -115,6 +114,7 @@ export async function initRouterList() {
   })
 
   formatter(asyncRoutes, null, res)
+  console.log('初始化完毕')
   return true
 }
 
@@ -151,7 +151,7 @@ function formatter(data, parentName, validRouter) {
 
     item.meta.title = locale
 
-    if (item.name === 'project_twelve_four') {
+    if (item.name === 'project_twelve_four' || item.name === 'project_twelve_five') {
       item.meta.title = zn[item.meta.title]
     }
 

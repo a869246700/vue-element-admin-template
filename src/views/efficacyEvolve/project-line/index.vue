@@ -4,7 +4,25 @@
     <el-card>
       <!-- Tab 切换 -->
       <el-tabs v-model="activeName" style="margin-top:15px;">
-        <el-tab-pane v-for="item in tabMapOptions" :key="item.key" :label="item.label" lazy :name="item.key" :disabled="item.disabled">
+        <el-tab-pane
+          v-for="item in tabMapOptions"
+          :key="item.key"
+          :label="item.label"
+          lazy
+          :name="item.key"
+          :disabled="item.disabled"
+        >
+          <el-popover
+            v-if="item.disabled"
+            slot="label"
+            placement="top-start"
+            trigger="hover"
+            content="该模块尚未开发(开放)"
+          >
+            <span slot="reference" class="disabled">{{ item.label }}</span>
+          </el-popover>
+
+          <span v-else slot="label" style="color: #000">{{ item.label }}</span>
           <tab-component :is="item.name" />
         </el-tab-pane>
       </el-tabs>
@@ -54,3 +72,10 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.disabled {
+  cursor: not-allowed;
+  color: #bbb;
+}
+</style>

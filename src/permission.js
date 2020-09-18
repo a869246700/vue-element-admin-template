@@ -5,7 +5,7 @@ import store from '@/store'
 import 'nprogress/nprogress.css' // progress bar style
 import { getToken, getValue } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
-
+import { initRouterList } from '@/router'
 import i18n from '@/utils/i18n'
 
 NProgress.configure({ showSpinner: false }) // NProgress Configuration
@@ -16,6 +16,7 @@ const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
+  await initRouterList()
 
   // 设置站点title
   document.title = getPageTitle(i18n.t(to.meta.title))
