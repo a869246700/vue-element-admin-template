@@ -67,7 +67,7 @@ const qualificationsRouter = {
       path: 'user_realm_exam_info',
       name: 'user_realm_exam_info',
       meta: { title: 'user_realm_exam_info' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/user_realm_exam_info')
     },
     {
       path: 'qualifications_rule_major_define',
