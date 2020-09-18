@@ -79,7 +79,7 @@ const qualificationsRouter = {
       path: 'qualifications_definition',
       name: 'qualifications_definition',
       meta: { title: 'qualifications_definition' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_definition')
     }
   ]
 }
