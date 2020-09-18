@@ -73,7 +73,7 @@ const qualificationsRouter = {
       path: 'qualifications_rule_major_define',
       name: 'qualifications_rule_major_define',
       meta: { title: 'qualifications_rule_major_define' },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/qualifications/qualifications_rule_major_define')
     },
     {
       path: 'qualifications_definition',
