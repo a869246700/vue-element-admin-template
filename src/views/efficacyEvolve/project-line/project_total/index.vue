@@ -1,6 +1,6 @@
 <template>
   <el-card class="project-total-container">
-    <panel-group @handleSetLineChartData="handleSetLineChartData" />
+    <data-panle />
 
     <el-row style="background:#fff;padding:16px 16px 0;margin-bottom:32px;">
       <line-chart :chart-data="lineChartData" />
@@ -9,7 +9,7 @@
 </template>
 
 <script>
-import PanelGroup from './components/PanelGroup'
+import DataPanle from './components/DataPanel'
 import LineChart from './components/LineChart'
 
 const lineChartData = {
@@ -32,7 +32,7 @@ const lineChartData = {
 }
 
 export default {
-  components: { PanelGroup, LineChart },
+  components: { LineChart, DataPanle },
   data() {
     return {
       lineChartData: lineChartData.newVisitis
