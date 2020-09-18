@@ -3,7 +3,7 @@ import NProgress from 'nprogress' // progress bar
 import { Message } from 'element-ui'
 import store from '@/store'
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken } from '@/utils/auth' // get token from cookie
+import { getToken, getValue } from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
 
 import i18n from '@/utils/i18n'
@@ -23,7 +23,10 @@ router.beforeEach(async(to, from, next) => {
   // 获取 token
   const hasToken = getToken()
 
-  if (hasToken) {
+  // 获取 user
+  const user = getValue('user')
+
+  if (hasToken && user) {
     if (to.path === '/login') {
       // 已经登录，则直接跳转至 /
       next({ path: '/' })

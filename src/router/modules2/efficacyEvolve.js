@@ -108,7 +108,6 @@ const efficacyEvolveRouter = {
           path: 'project_twelve_four',
           name: 'project_twelve_four',
           meta: { title: 'project_twelve_four', icon: 'tree' },
-          redirect: '/efficacyEvolve/project_line/project_twelve_four/design',
           component: () => import('@/views/efficacyEvolve/project-line/index2'),
           children: projectLineChildrenRouter
         },

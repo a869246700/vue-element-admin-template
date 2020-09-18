@@ -25,6 +25,9 @@ import execptionRouter from './modules2/exception'
 
 // 录取权限路由列表
 import { listRouter } from '@/services/user'
+import {
+  getValue
+} from '@/utils/auth'
 
 export const constantRoutes = [
   {
@@ -96,8 +99,13 @@ export const asyncRoutes = [
   { path: '*', redirect: '/404', hidden: true }
 ]
 
+initRouterList()
 // 初始化路由
 export async function initRouterList() {
+  const user = getValue('user')
+  if (!user) {
+    return false
+  }
   const { data: res } = await listRouter()
 
   res.map(item => {
@@ -107,7 +115,7 @@ export async function initRouterList() {
   })
 
   formatter(asyncRoutes, null, res)
-  flag = true
+  return true
 }
 
 // 将路由转换成菜单
@@ -167,25 +175,11 @@ const createRouter = () => new Router({
   routes: constantRoutes
 })
 
-initRouterList()
-
 const router = createRouter()
 
 export function resetRouter() {
   const newRouter = createRouter()
   router.matcher = newRouter.matcher // reset router
 }
-
-let flag = false
-router.beforeEach((to, from, next) => {
-  if (flag) {
-    next()
-  } else {
-    const timer = setTimeout(() => {
-      next()
-      clearTimeout(timer)
-    }, 300)
-  }
-})
 
 export default router
