@@ -13,7 +13,7 @@ const beforeMenuRouter = {
       path: 'dataArrange',
       name: 'dataArrange',
       meta: { title: 'dataArrange' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -35,7 +35,7 @@ const beforeMenuRouter = {
       path: 'projectInfo',
       name: 'projectInfo',
       meta: { title: 'projectInfo' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -75,7 +75,7 @@ const beforeMenuRouter = {
       path: 'projectProcess',
       name: 'projectProcess',
       meta: { title: 'projectProcess' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -146,7 +146,7 @@ const beforeMenuRouter = {
       path: 'projectData',
       name: 'projectData',
       meta: { title: 'projectData' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -233,7 +233,7 @@ const beforeMenuRouter = {
       path: 'resource',
       name: 'resource',
       meta: { title: 'resource' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -339,7 +339,7 @@ const beforeMenuRouter = {
       path: 'case',
       name: 'case',
       meta: { title: 'case' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -361,7 +361,7 @@ const beforeMenuRouter = {
       path: 'testActionInspect',
       name: 'testActionInspect',
       meta: { title: 'testActionInspect' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {
@@ -389,7 +389,7 @@ const beforeMenuRouter = {
       path: 'qualityInfo',
       name: 'qualityInfo',
       meta: { title: 'qualityInfo' },
-      component: () => import('@/views/efficacyEvolve/index'),
+      component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
         {

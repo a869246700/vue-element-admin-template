@@ -9,19 +9,19 @@ import Layout from '@/layout'
 
 // 重构代码
 // 项目运营
-import efficacyEvolveRouter from './modules2/efficacyEvolve'
+import efficacyEvolveRouter from './modules/efficacyEvolve'
 // 资质信息
-import qualificationsRouter from './modules2/qualifications'
+import qualificationsRouter from './modules/qualifications'
 // 产出排行榜
-import rankingListRouter from './modules2/ranking_list'
+import rankingListRouter from './modules/ranking_list'
 // 历史菜单
-import beforeMenuRouter from './modules2/beforeMenu'
+import beforeMenuRouter from './modules/beforeMenu'
 // 管理中心
-import manageRouter from './modules2/manage'
+import manageRouter from './modules/manage'
 // 权限控制
-import authorityRouter from './modules2/authority'
+import authorityRouter from './modules/authority'
 // 异常处理
-import execptionRouter from './modules2/exception'
+import execptionRouter from './modules/exception'
 
 // 录取权限路由列表
 import { listRouter } from '@/services/user'
@@ -123,8 +123,9 @@ function formatter(data, parentName, validRouter) {
   return data.map(item => {
     // 全部设置为隐藏 hidden
     item.hidden = true
+
     // 如果父路由是工作线的话
-    if (parentName === 'menu.efficacyEvolve.project_line.project_twelve_four' || parentName === 'project_twelve_five' || parentName === 'project_twelve_RPL1') {
+    if (parentName === 'menu.efficacyEvolve.project_line.project_twelve_four' || parentName === 'project_twelve_five') {
       item.hidden = false
       return item
     }
@@ -139,6 +140,10 @@ function formatter(data, parentName, validRouter) {
 
     if (!item.name || !item.path) {
       return null
+    }
+
+    if (item.name === '11x_project_test' || item.name === '12x_project_test' || item.name === '12x_project_test_data') {
+      item.hidden = false
     }
 
     // 拼接出匹配字符串
