@@ -23,18 +23,14 @@ import i18n from '@/utils/i18n'
 // 引入 iconfont
 import '@/assets/iconfont/iconfont.css'
 
-// 引入 wl-gantt
-import WlGantt from 'wl-gantt'
-Vue.use(WlGantt)
-
 import * as filters from './filters' // global filters
 
-if (process.env.NODE_ENV === 'production') {
-  const {
-    mockXHR
-  } = require('../mock')
-  mockXHR()
-}
+// if (process.env.NODE_ENV === 'production') {
+//   const {
+//     mockXHR
+//   } = require('../mock')
+//   mockXHR()
+// }
 
 Vue.use(Element, {
   size: Cookies.get('size') || 'medium' // set element-ui default size

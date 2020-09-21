@@ -83,6 +83,7 @@
     & .nest-menu .el-submenu>.el-submenu__title,
     & .el-submenu .el-menu-item {
       height: $sideBarHeight !important; // 高度
+      line-height: $sideBarHeight !important;
       min-width: $sideBarWidth !important;
       background-color: $subMenuBg !important;
 

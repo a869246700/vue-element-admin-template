@@ -13,10 +13,14 @@ NProgress.configure({ showSpinner: false }) // NProgress Configuration
 // 路由跳转白名单
 const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
 
+let flag = false
 router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
-  await initRouterList()
+
+  if (!flag) {
+    flag = await initRouterList()
+  }
 
   // 设置站点title
   document.title = getPageTitle(i18n.t(to.meta.title))
@@ -26,6 +30,7 @@ router.beforeEach(async(to, from, next) => {
 
   // 获取 user
   const user = getValue('user')
+  console.log('user: ' + user)
 
   if (hasToken && user) {
     if (to.path === '/login') {

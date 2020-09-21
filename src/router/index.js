@@ -80,7 +80,7 @@ export const constantRoutes = [
             path: 'main',
             name: 'main',
             meta: { title: 'menu.main.main', icon: 'dashboard', affix: true },
-            component: () => import('@/views/dashboard/index')
+            component: () => import('@/views/mygoo/demo2')
           }
         ]
       }

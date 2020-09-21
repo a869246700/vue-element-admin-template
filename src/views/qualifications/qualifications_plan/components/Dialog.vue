@@ -17,8 +17,8 @@
           style="width: 250px;"
         >
           <el-option
-            v-for="(option, index) in qualifications_man"
-            :key="index"
+            v-for="(option, index2) in qualifications_man"
+            :key="index2"
             :value="option.value"
             :label="option.title"
           />

@@ -23,7 +23,7 @@ const codeMessage = {
 }
 
 const instance = axios.create({
-  baseURL: 'http://172.30.61.89:882',
+  baseURL: 'http://172.30.61.89:9528',
   withCredentials: true // 允许携带 cookie
 })
 
