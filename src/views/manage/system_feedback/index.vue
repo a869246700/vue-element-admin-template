@@ -27,7 +27,14 @@
       </el-col>
     </el-row>
 
-    <el-table :data="list" highlight-current-row style="margin: 20px 0;">
+    <el-table
+      v-loading="tableLoading"
+      :data="list"
+      highlight-current-row
+      border
+      :header-cell-style="{ background: '#f6f6f6' }"
+      style="margin: 20px 0;"
+    >
       <el-table-column
         v-for="item in tableOptions"
         :key="item.prop"

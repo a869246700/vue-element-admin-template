@@ -1,6 +1,13 @@
 <template>
   <div class="outbox">
-    <el-table v-loading="tableLoading" :data="list" style="width: 100%;" highlight-current-row>
+    <el-table
+      v-loading="tableLoading"
+      :data="list"
+      highlight-current-row
+      border
+      :header-cell-style="{ background: '#f6f6f6' }"
+      style="width:100%;"
+    >
       <el-table-column
         v-for="(item, index) in tableOptions"
         :key="index"

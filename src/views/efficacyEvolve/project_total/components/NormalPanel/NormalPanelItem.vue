@@ -1,13 +1,13 @@
 <template>
-  <el-card class="project-item">
+  <el-card>
     <top />
     <bottom />
   </el-card>
 </template>
 
 <script>
-import Top from './Top'
-import Bottom from './Bottom'
+import Top from './components/Top'
+import Bottom from './components/Bottom'
 
 export default {
   components: {

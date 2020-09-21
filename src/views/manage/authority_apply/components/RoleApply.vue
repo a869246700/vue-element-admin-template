@@ -15,9 +15,10 @@
     <el-table
       v-loading="tableLoading"
       :data="list"
-      style="width: 100%;margin: 20px 0;"
-      row-id="id"
       highlight-current-row
+      row-id="id"
+      :header-cell-style="{ background: '#f6f6f6' }"
+      style="margin: 20px 0;"
     >
       <el-table-column type="expand">
         <template slot-scope="{ row }">

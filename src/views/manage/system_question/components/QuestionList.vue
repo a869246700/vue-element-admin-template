@@ -60,6 +60,7 @@
       :data="list"
       border
       highlight-current-row
+      :header-cell-style="{ background: '#f6f6f6' }"
       style="margin-top: 20px;"
     >
       <el-table-column

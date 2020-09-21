@@ -29,7 +29,7 @@
           <div class="project-cycle">
             <i class="icon el-icon-suitcase" />
             <div class="content">
-              <div>1.96个/kloc / 2.3个kloc</div>
+              <div>1.96个/kloc / 2.3个/kloc</div>
               <span>项目缺陷数量 / 目标数量（总）</span>
             </div>
           </div>
@@ -48,7 +48,16 @@
     <div class="timeline">
       <!-- 阶段测试 -->
       <div class="stage-test">
-        <div class="title">{{ '阶段：' + currentStage.title }}</div>
+        <div class="title">
+          <div>{{ '阶段：' + currentStage.title }}</div>
+          <el-popover v-model="isPopoverShow" placement="bottom" width="50" trigger="click">
+            <div class="operation">
+              <div @click="handleEditClick">编辑</div>
+              <div @click="handleDeleteClick">删除</div>
+            </div>
+            <i slot="reference" class="el-icon-more" />
+          </el-popover>
+        </div>
         <div class="progress">
           <el-steps>
             <el-step status="process">
@@ -61,7 +70,9 @@
                 <span style="font-size: 13px;">{{ currentStage.start_text }}</span>
               </template>
               <template #description>
-                <span style="font-size: 12px;">{{ currentStage.plan_start_date | parseTime }}</span>
+                <span
+                  style="font-size: 12px;"
+                >{{ currentStage.plan_start_date | parseTime('{y}-{m}-{d}') }}</span>
               </template>
             </el-step>
 
@@ -75,7 +86,9 @@
                 <span style="font-size: 13px;">{{ currentStage.current_text }}</span>
               </template>
               <template #description>
-                <span style="font-size: 12px;">{{ currentStage.current_date | parseTime }}</span>
+                <span
+                  style="font-size: 12px;"
+                >{{ currentStage.current_date | parseTime('{y}-{m}-{d}') }}</span>
               </template>
             </el-step>
 
@@ -89,7 +102,9 @@
                 <span style="font-size: 13px;">{{ currentStage.end_text }}</span>
               </template>
               <template #description>
-                <span style="font-size: 12px;">{{ currentStage.plan_end_date | parseTime }}</span>
+                <span
+                  style="font-size: 12px;"
+                >{{ currentStage.plan_end_date | parseTime('{y}-{m}-{d}') }}</span>
               </template>
             </el-step>
           </el-steps>
@@ -149,6 +164,7 @@ export default {
   },
   data() {
     return {
+      isPopoverShow: false,
       project: '12.4PL1',
       user: {
         name: '叶轩乾',
@@ -253,6 +269,16 @@ export default {
         ]
       }
     }
+  },
+  methods: {
+    handleEditClick() {
+      console.log('编辑')
+      this.isPopoverShow = false
+    },
+    handleDeleteClick() {
+      console.log('删除')
+      this.isPopoverShow = false
+    }
   }
 }
 </script>
@@ -331,6 +357,11 @@ export default {
   padding-left: 20px;
   border-left: 1px solid #ccc;
 
+  .title {
+    display: flex;
+    justify-content: space-between;
+  }
+
   .stage-test {
     padding-bottom: 20px;
     border-bottom: 1px solid #ccc;
@@ -356,6 +387,20 @@ export default {
       padding: 2px 4px;
       border-radius: 15px;
       font-size: 12px;
+    }
+  }
+}
+
+.operation {
+  > div {
+    height: 30px;
+    line-height: 30px;
+    font-size: 14px;
+    text-align: center;
+    cursor: pointer;
+
+    &:hover {
+      background: #f1f1f1;
     }
   }
 }

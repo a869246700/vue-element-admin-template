@@ -24,8 +24,10 @@
     <el-table
       v-loading="tableLoading"
       :data="list"
-      style="width: 100%;margin: 20px 0;"
       highlight-current-row
+      border
+      :header-cell-style="{ background: '#f6f6f6' }"
+      style="margin: 20px 0;"
     >
       <el-table-column
         v-for="(item, index) in tableOptions"
