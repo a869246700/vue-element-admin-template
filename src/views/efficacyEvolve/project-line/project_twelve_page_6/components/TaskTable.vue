@@ -173,7 +173,7 @@ import waves from '@/directive/waves'
 import Pagination from '@/components/Pagination'
 
 import { parseTime } from '@/utils'
-import request from '@/services/post'
+import request from '@/services/request'
 import DownFiles from '@/vendor/ExportExcel'
 
 export default {

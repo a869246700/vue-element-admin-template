@@ -180,7 +180,7 @@ import waves from '@/directive/waves'
 import { statisticsTableList } from './options'
 import { parseTime } from '@/utils'
 
-import request from '@/services/post'
+import request from '@/services/request'
 import DownFiles from '@/vendor/ExportExcel'
 
 export default {

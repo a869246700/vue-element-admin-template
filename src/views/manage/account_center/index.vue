@@ -98,7 +98,7 @@
 <script>
 import Card from '@/components/Card'
 import Chart from '@/components/MyChart/Chart'
-import request from '@/services/post'
+import request from '@/services/request'
 import { mapGetters } from 'vuex'
 
 export default {

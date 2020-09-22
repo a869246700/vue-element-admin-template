@@ -1,4 +1,4 @@
-import request from '../request'
+import request from '@/services/request'
 
 export async function doQualificationsInfo(params) {
   return request(`/api/userQualifications/listQualificationsInfo`, { method: 'POST', data: params })

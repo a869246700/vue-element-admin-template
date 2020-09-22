@@ -256,7 +256,7 @@ import waves from '@/directive/waves'
 import Card from '@/components/Card/index'
 import { detailTableList, rules } from './options'
 import { parseTime } from '@/utils'
-import request from '@/services/post'
+import request from '@/services/request'
 
 export default {
   directives: { waves },

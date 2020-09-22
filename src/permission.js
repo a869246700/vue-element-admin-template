@@ -30,7 +30,6 @@ router.beforeEach(async(to, from, next) => {
 
   // 获取 user
   const user = getValue('user')
-  console.log('user: ' + user)
 
   if (hasToken && user) {
     if (to.path === '/login') {

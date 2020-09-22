@@ -36,7 +36,7 @@ import StatisticsTable from './StatisticsTable'
 import DetailTable from './DetailTable'
 import TopicWorkPackageDialog from './TopicWorkPackageDialog'
 
-import request from '@/services/post'
+import request from '@/services/request'
 
 export default {
   components: {

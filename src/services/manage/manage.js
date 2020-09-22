@@ -1,5 +1,5 @@
 
-import request from '../request'
+import request from '@/services/request'
 
 export async function demo() {
   return null
