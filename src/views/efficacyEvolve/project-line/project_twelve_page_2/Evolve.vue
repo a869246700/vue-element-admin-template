@@ -1,42 +1,42 @@
 <template>
   <div class="evolve">
-    <el-tabs v-model="active" type="card" lazy>
-      <el-tab-pane v-if="evolveGanttVisible" key="1" label="甘特图">
-        <evolve-gantt ref="ganttRef" />
-      </el-tab-pane>
+    <el-radio-group v-model="active" style="margin-bottom: 20px;">
+      <el-radio-button
+        v-for="(item, index) in tabs"
+        :key="index"
+        :label="item.value"
+      >{{ item.label }}</el-radio-button>
+    </el-radio-group>
 
-      <el-tab-pane v-if="evolveImplementCardVisible" key="2" label="用例执行">
-        <evolve-implement-card
-          ref="implementRef"
-          :project="project"
-          :current-stage.sync="currentStage"
-          :implement-stage.sync="implementStage"
-          :current-stage-type-list="currentStageTypeList"
-          :implement-stage-type-list="implementStageTypeList"
-          @system-click="handleCaseSystemClick"
-        />
-      </el-tab-pane>
+    <transition name="component-fade" mode="out-in">
+      <evolve-implement-card
+        v-if="active === '0'"
+        ref="implementRef"
+        :project="project"
+        :current-stage.sync="currentStage"
+        :implement-stage.sync="implementStage"
+        :current-stage-type-list="currentStageTypeList"
+        :implement-stage-type-list="implementStageTypeList"
+        @system-click="handleCaseSystemClick"
+      />
 
-      <el-tab-pane v-if="evolveSepcCardVisible" key="3" label="SPEC核验">
-        <evolve-spec-card
-          ref="specRef"
-          :project="project"
-          :current-stage.sync="specCurrentStage"
-          :implement-stage.sync="implementSpecStage"
-          :current-stage-type-list="currentStageTypeList"
-          :implement-stage-type-list="implementStageTypeList"
-          @system-click="handleSpecSystemClick"
-        />
-      </el-tab-pane>
+      <evolve-spec-card
+        v-else-if="active === '1'"
+        ref="specRef"
+        :project="project"
+        :current-stage.sync="specCurrentStage"
+        :implement-stage.sync="implementSpecStage"
+        :current-stage-type-list="currentStageTypeList"
+        :implement-stage-type-list="implementStageTypeList"
+        @system-click="handleSpecSystemClick"
+      />
 
-      <el-tab-pane v-if="evolveDesginCardVisible" key="4" label="用例&脚本">
-        <evolve-desgin-card ref="desginRef" :project="project" />
-      </el-tab-pane>
+      <evolve-gantt v-else-if="active === '2'" ref="ganttRef" />
 
-      <el-tab-pane v-if="evolveReviewCardVisible" key="5" label="文档评审">
-        <evolve-review-card ref="reviewRef" :project="project" />
-      </el-tab-pane>
-    </el-tabs>
+      <evolve-desgin-card v-else-if="active === '3'" ref="desginRef" :project="project" />
+
+      <evolve-review-card v-else-if="active === '4'" ref="reviewRef" :project="project" />
+    </transition>
 
     <!-- system dialog -->
     <evolve-case-implement
@@ -72,6 +72,28 @@ export default {
   data() {
     return {
       active: '0',
+      tabs: [
+        {
+          label: '用例执行',
+          value: '0'
+        },
+        {
+          label: 'SPEC核验',
+          value: '1'
+        },
+        {
+          label: '甘特图',
+          value: '2'
+        },
+        {
+          label: '用例&脚本',
+          value: '3'
+        },
+        {
+          label: '文档评审',
+          value: '4'
+        }
+      ],
       evolveGanttVisible: true, // 控制甘特图的显示与隐藏
       evolveImplementCardVisible: true, // 控制执行卡片的显示与隐藏
       evolveSepcCardVisible: true, // 控制 SPEC 卡片的显示与隐藏
@@ -95,19 +117,20 @@ export default {
   },
   watch: {
     active(newV, oldV) {
-      switch (newV) {
-        case '0':
-          break
-        case '1':
-          this.$refs.implementRef.chartResize()
-          break
-        case '2':
-          this.$refs.specRef.chartResize()
-          break
-        case '4':
-          this.$refs.reviewRef.chartResize()
-          break
-      }
+      const timer = setTimeout(() => {
+        switch (newV) {
+          case '0':
+            this.$refs.implementRef.chartResize()
+            break
+          case '1':
+            this.$refs.specRef.chartResize()
+            break
+          case '4':
+            this.$refs.reviewRef.chartResize()
+            break
+        }
+        clearTimeout(timer)
+      }, 300)
     }
   },
   created() {
@@ -190,3 +213,14 @@ export default {
   }
 }
 </script>
+
+<style lang="scss" scoped>
+.component-fade-enter-active,
+.component-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+/* .component-fade-leave-active for below version 2.1.8 */ {
+  opacity: 0;
+}
+</style>

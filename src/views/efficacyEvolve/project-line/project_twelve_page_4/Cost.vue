@@ -1,209 +1,114 @@
 <template>
   <div class="cost">
-    <!-- 项目成本卡片 -->
-    <card title="项目成本" style="margin-bottom: 10px">
-      <template #buttons>
-        <el-button
-          :loading="butLoading"
-          type="primary"
-          icon="el-icon-download"
-          size="small"
-          @click="handleResourceInvClick"
-        >导出资源投入明细</el-button>
-        <el-button type="primary" size="small" @click="handleStageAdjustClick">阶段调偏</el-button>
-      </template>
+    <el-radio-group v-model="active" style="margin-bottom: 20px;">
+      <el-radio-button
+        v-for="(item, index) in tabs"
+        :key="index"
+        :label="item.value"
+      >{{ item.label }}</el-radio-button>
+    </el-radio-group>
 
-      <template #content>
-        <!-- 总计 -->
-        <el-table
-          v-loading="isFirstTableLoading"
-          :data="projectTotalRealmCost"
-          style="width: 100%"
-          row-key="name"
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          fit
-          border
-        >
-          <el-table-column
-            v-for="item in firstTableOptions"
-            :key="item.prop"
-            :label="item.label"
-            :prop="item.prop"
-            :min-width="item.minWidth"
-            :fixed="item.fixed"
-            :show-overflow-tooltip="item.sot"
-            :align="item.children ? 'center' : ''"
-          >
-            <div v-if="item.children">
+    <transition name="component-fade" mode="out-in">
+      <div v-if="active === '0'">
+        <!-- 项目成本卡片 -->
+        <card title="项目成本" style="margin-bottom: 10px">
+          <template #buttons>
+            <el-button
+              :loading="butLoading"
+              type="primary"
+              icon="el-icon-download"
+              size="small"
+              @click="handleResourceInvClick"
+            >导出资源投入明细</el-button>
+            <el-button type="primary" size="small" @click="handleStageAdjustClick">阶段调偏</el-button>
+          </template>
+
+          <template #content>
+            <!-- 总计 -->
+            <el-table
+              v-loading="isFirstTableLoading"
+              :data="projectTotalRealmCost"
+              style="width: 100%"
+              row-key="name"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              fit
+              border
+            >
               <el-table-column
-                v-for="childItem in item.children"
-                :key="childItem.prop"
-                :prop="childItem.prop"
-                :min-width="childItem.minWidth"
+                v-for="item in firstTableOptions"
+                :key="item.prop"
+                :label="item.label"
+                :prop="item.prop"
+                :min-width="item.minWidth"
+                :fixed="item.fixed"
+                :show-overflow-tooltip="item.sot"
+                :align="item.children ? 'center' : ''"
               >
-                <template #header>
-                  <span style="margin-right: 5px">{{ childItem.label }}</span>
-                  <el-popover
-                    v-if="childItem.content"
-                    placement="top-start"
-                    :width="childItem.contentWidth"
-                    trigger="hover"
+                <div v-if="item.children">
+                  <el-table-column
+                    v-for="childItem in item.children"
+                    :key="childItem.prop"
+                    :prop="childItem.prop"
+                    :min-width="childItem.minWidth"
                   >
-                    <div v-html="childItem.content" />
-                    <i slot="reference" class="el-icon-question" />
-                  </el-popover>
-                </template>
+                    <template #header>
+                      <span style="margin-right: 5px">{{ childItem.label }}</span>
+                      <el-popover
+                        v-if="childItem.content"
+                        placement="top-start"
+                        :width="childItem.contentWidth"
+                        trigger="hover"
+                      >
+                        <div v-html="childItem.content" />
+                        <i slot="reference" class="el-icon-question" />
+                      </el-popover>
+                    </template>
 
-                <template slot-scope="{row}">
-                  <span
-                    v-if="childItem.prop==='total_target'"
-                  >{{ row[childItem.prop] | targetFilter }}</span>
+                    <template slot-scope="{row}">
+                      <span
+                        v-if="childItem.prop==='total_target'"
+                      >{{ row[childItem.prop] | targetFilter }}</span>
 
-                  <span
-                    v-else-if="childItem.prop === 'total_actual'"
-                    :class="calcRenderColor(row.total_actual, row, 1)"
-                    @click="handleActualTotalClick(row, item.label)"
-                  >{{ row.total_actual | roundFilter }}</span>
+                      <span
+                        v-else-if="childItem.prop === 'total_actual'"
+                        :class="calcRenderColor(row.total_actual, row, 1)"
+                        @click="handleActualTotalClick(row, item.label)"
+                      >{{ row.total_actual | roundFilter }}</span>
 
-                  <span
-                    v-else-if="childItem.prop === 'total_estimate' "
-                    :class="actualColor(row.total_estimate, row, 2)"
-                  >{{ row.total_estimate | roundFilter }}</span>
+                      <span
+                        v-else-if="childItem.prop === 'total_estimate' "
+                        :class="actualColor(row.total_estimate, row, 2)"
+                      >{{ row.total_estimate | roundFilter }}</span>
 
-                  <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
-                </template>
+                      <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
+                    </template>
+                  </el-table-column>
+                </div>
               </el-table-column>
-            </div>
-          </el-table-column>
-        </el-table>
+            </el-table>
 
-        <!-- 域 -->
-        <el-table
-          v-loading="isSecondTableLoading"
-          :data="projectRealmCost"
-          style="width: 100%; margin-top: 10px;"
-          row-key="name"
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          fit
-          border
-        >
-          <el-table-column
-            v-for="item in secondTableOptions"
-            :key="item.prop"
-            :label="item.label"
-            :prop="item.prop"
-            :min-width="item.minWidth"
-            :fixed="item.fixed"
-            :show-overflow-tooltip="item.sot"
-            :align="item.children ? 'center' : ''"
-          >
-            <el-table-column
-              v-for="childItem in item.children"
-              :key="childItem.prop"
-              :prop="childItem.prop"
-              :min-width="childItem.minWidth"
+            <!-- 域 -->
+            <el-table
+              v-loading="isSecondTableLoading"
+              :data="projectRealmCost"
+              style="width: 100%; margin-top: 10px;"
+              row-key="name"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              fit
+              border
             >
-              <template #header>
-                <span style="margin-right: 5px">{{ childItem.label }}</span>
-                <el-popover
-                  v-if="childItem.content"
-                  placement="top-start"
-                  :width="childItem.contentWidth"
-                  trigger="hover"
-                >
-                  <div v-html="childItem.content" />
-                  <i slot="reference" class="el-icon-question" />
-                </el-popover>
-              </template>
-
-              <template slot-scope="{row}">
-                <!-- 总计还需 -->
-                <span
-                  v-if="childItem.prop === 'total_need'"
-                >{{ (Math.round((row.demand_need+row.design_need+row.admittance_need+row.test_first_need+row.test_second_need+row.regression_need+row.on_trial_need) * 10) / 10) }}</span>
-                <!-- 总计预期 -->
-                <span
-                  v-else-if="childItem.prop === 'total_estimate'"
-                  :class="actualColor((Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10), row, item.prop, 2)"
-                >{{ (Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10) }}</span>
-                <!-- 总计偏差 -->
-                <span
-                  v-else-if="childItem.prop === 'total_deviation'"
-                >{{ (Math.round((row.demand_deviation+row.design_deviation+row.admittance_deviation+row.test_first_deviation+row.test_second_deviation+row.regression_deviation+row.on_trial_deviation) * 10) / 10) }}</span>
-
-                <!-- 目标 -->
-                <span
-                  v-else-if="childItem.prop.includes('_target')"
-                  style="word-spacing: 5px;"
-                >{{ row[childItem.prop] | targetFilter }}</span>
-
-                <!-- 实际 -->
-                <span
-                  v-else-if="childItem.prop.indexOf('_actual') >= 0"
-                  :class="actualColor(row[childItem.prop], row, item.prop, 1)"
-                  @click="handleActualTotalClick(row, item.label)"
-                >{{ row[childItem.prop] | roundFilter }}</span>
-
-                <!-- 预期 -->
-                <span
-                  v-else-if="item.prop !== 'regression' && item.prop !== 'on_trial' && item.prop !== 'total' && childItem.prop.indexOf('_estimate') >= 0"
-                  :class="actualColor(row[childItem.prop], row, item.prop, 2)"
-                >{{ row[childItem.prop] | roundFilter }}</span>
-
-                <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
-              </template>
-            </el-table-column>
-          </el-table-column>
-        </el-table>
-      </template>
-    </card>
-
-    <!-- 工序成本卡片 -->
-    <card title="工序成本" class="card">
-      <template #buttons>
-        <el-button :loading="butLoading" type="primary" @click="handleProcessCostClick">导出工序成本统计</el-button>
-      </template>
-      <template #content>
-        <div class="tree-bar">
-          <el-popover placement="left" trigger="click">
-            <el-tree
-              ref="treeRef"
-              :data="treeData"
-              show-checkbox
-              node-key="id"
-              :default-checked-keys="treeDefaultCheckVal"
-              accordion
-              :props="treeProps"
-              @check="handleTreeChange"
-            />
-            <el-button slot="reference" size="mini" style="font-size: 20px;" icon="el-icon-set-up" circle />
-          </el-popover>
-        </div>
-
-        <el-table
-          v-loading="isThirdTableLoading"
-          :data="projectProcessEfficiency"
-          height="500"
-          style="width: 100%"
-          row-key="process_name"
-          :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-          fit
-          border
-        >
-          <template v-for="item in thirdTableOptions">
-            <el-table-column
-              v-if="!item.hide"
-              :key="item.prop"
-              :label="item.label"
-              :prop="item.prop"
-              :min-width="item.minWidth"
-              :fixed="item.fixed"
-              :show-overflow-tooltip="item.sot"
-              :align="item.children ? 'center' : ''"
-            >
-              <template v-for="childItem in item.children">
+              <el-table-column
+                v-for="item in secondTableOptions"
+                :key="item.prop"
+                :label="item.label"
+                :prop="item.prop"
+                :min-width="item.minWidth"
+                :fixed="item.fixed"
+                :show-overflow-tooltip="item.sot"
+                :align="item.children ? 'center' : ''"
+              >
                 <el-table-column
-                  v-if="!childItem.hide"
+                  v-for="childItem in item.children"
                   :key="childItem.prop"
                   :prop="childItem.prop"
                   :min-width="childItem.minWidth"
@@ -222,23 +127,136 @@
                   </template>
 
                   <template slot-scope="{row}">
+                    <!-- 总计还需 -->
                     <span
-                      v-if="childItem.prop === 'total_time'"
-                      :class="calcRenderColor2(row.total_time, row, 1)"
-                      @click="handleActualTotalClick(row, '')"
+                      v-if="childItem.prop === 'total_need'"
+                    >{{ (Math.round((row.demand_need+row.design_need+row.admittance_need+row.test_first_need+row.test_second_need+row.regression_need+row.on_trial_need) * 10) / 10) }}</span>
+                    <!-- 总计预期 -->
+                    <span
+                      v-else-if="childItem.prop === 'total_estimate'"
+                      :class="actualColor((Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10), row, item.prop, 2)"
+                    >{{ (Math.round((row.demand_estimate+row.design_estimate+row.admittance_estimate+row.test_first_estimate+row.test_second_estimate+row.regression_estimate+row.on_trial_estimate) * 10) / 10) }}</span>
+                    <!-- 总计偏差 -->
+                    <span
+                      v-else-if="childItem.prop === 'total_deviation'"
+                    >{{ (Math.round((row.demand_deviation+row.design_deviation+row.admittance_deviation+row.test_first_deviation+row.test_second_deviation+row.regression_deviation+row.on_trial_deviation) * 10) / 10) }}</span>
+
+                    <!-- 目标 -->
+                    <span
+                      v-else-if="childItem.prop.includes('_target')"
+                      style="word-spacing: 5px;"
+                    >{{ row[childItem.prop] | targetFilter }}</span>
+
+                    <!-- 实际 -->
+                    <span
+                      v-else-if="childItem.prop.indexOf('_actual') >= 0"
+                      :class="actualColor(row[childItem.prop], row, item.prop, 1)"
+                      @click="handleActualTotalClick(row, item.label)"
                     >{{ row[childItem.prop] | roundFilter }}</span>
 
+                    <!-- 预期 -->
                     <span
-                      v-else
-                    >{{ row[childItem.prop] === undefined ? 0 : Math.round(row[childItem.prop] * 10) / 10 }}</span>
+                      v-else-if="item.prop !== 'regression' && item.prop !== 'on_trial' && item.prop !== 'total' && childItem.prop.indexOf('_estimate') >= 0"
+                      :class="actualColor(row[childItem.prop], row, item.prop, 2)"
+                    >{{ row[childItem.prop] | roundFilter }}</span>
+
+                    <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
+                  </template>
+                </el-table-column>
+              </el-table-column>
+            </el-table>
+          </template>
+        </card>
+
+        <!-- 工序成本卡片 -->
+        <card title="工序成本" class="card">
+          <template #buttons>
+            <el-button :loading="butLoading" type="primary" @click="handleProcessCostClick">导出工序成本统计</el-button>
+          </template>
+          <template #content>
+            <div class="tree-bar">
+              <el-popover placement="left" trigger="click">
+                <el-tree
+                  ref="treeRef"
+                  :data="treeData"
+                  show-checkbox
+                  node-key="id"
+                  :default-checked-keys="treeDefaultCheckVal"
+                  accordion
+                  :props="treeProps"
+                  @check="handleTreeChange"
+                />
+                <el-button
+                  slot="reference"
+                  size="mini"
+                  style="font-size: 20px;"
+                  icon="el-icon-set-up"
+                  circle
+                />
+              </el-popover>
+            </div>
+
+            <el-table
+              v-loading="isThirdTableLoading"
+              :data="projectProcessEfficiency"
+              height="500"
+              style="width: 100%"
+              row-key="process_name"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              fit
+              border
+            >
+              <template v-for="item in thirdTableOptions">
+                <el-table-column
+                  v-if="!item.hide"
+                  :key="item.prop"
+                  :label="item.label"
+                  :prop="item.prop"
+                  :min-width="item.minWidth"
+                  :fixed="item.fixed"
+                  :show-overflow-tooltip="item.sot"
+                  :align="item.children ? 'center' : ''"
+                >
+                  <template v-for="childItem in item.children">
+                    <el-table-column
+                      v-if="!childItem.hide"
+                      :key="childItem.prop"
+                      :prop="childItem.prop"
+                      :min-width="childItem.minWidth"
+                    >
+                      <template #header>
+                        <span style="margin-right: 5px">{{ childItem.label }}</span>
+                        <el-popover
+                          v-if="childItem.content"
+                          placement="top-start"
+                          :width="childItem.contentWidth"
+                          trigger="hover"
+                        >
+                          <div v-html="childItem.content" />
+                          <i slot="reference" class="el-icon-question" />
+                        </el-popover>
+                      </template>
+
+                      <template slot-scope="{row}">
+                        <span
+                          v-if="childItem.prop === 'total_time'"
+                          :class="calcRenderColor2(row.total_time, row, 1)"
+                          @click="handleActualTotalClick(row, '')"
+                        >{{ row[childItem.prop] | roundFilter }}</span>
+
+                        <span
+                          v-else
+                        >{{ row[childItem.prop] === undefined ? 0 : Math.round(row[childItem.prop] * 10) / 10 }}</span>
+                      </template>
+                    </el-table-column>
                   </template>
                 </el-table-column>
               </template>
-            </el-table-column>
+            </el-table>
           </template>
-        </el-table>
-      </template>
-    </card>
+        </card>
+      </div>
+    </transition>
 
     <!-- 对话框 -->
     <cost-dialog ref="dialogRef" :project="project" :table-data="dialogTableData" />
@@ -284,6 +302,29 @@ export default {
   data() {
     return {
       key: 0,
+      active: '0',
+      tabs: [
+        {
+          label: '项目成本',
+          value: '0'
+        },
+        {
+          label: '占位1',
+          value: '1'
+        },
+        {
+          label: '占位2',
+          value: '2'
+        },
+        {
+          label: '占位3',
+          value: '3'
+        },
+        {
+          label: '占位4',
+          value: '4'
+        }
+      ],
       project: undefined, // 当前的项目名
       tableData: [],
       // 目标悬浮窗显示
@@ -1254,5 +1295,14 @@ export default {
   color: #000;
   text-decoration: underline;
   cursor: pointer;
+}
+
+.component-fade-enter-active,
+.component-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+/* .component-fade-leave-active for below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>

@@ -1,163 +1,177 @@
 <template>
   <div class="quality">
-    <card title="执行">
-      <!-- BUG解决按钮 -->
-      <template #buttons>
-        <el-button
-          :loading="butLoading"
-          type="primary"
-          icon="el-icon-download"
-          size="small"
-          @click="handleExportPackageDetClick"
-        >导出工作包明细</el-button>
-        <el-button
-          :loading="butLoading"
-          type="primary"
-          icon="el-icon-download"
-          size="small"
-          @click="handleExportPackStaClick"
-        >工作包达标统计</el-button>
-        <el-popover placement="bottom-end" :width="(146 * 7)" trigger="click">
-          <el-table
-            :data="bugSolve"
-            border
-            fit
-            style="width: 100%;"
-            :header-cell-style="{'background-color': '#FAFAFA' }"
-          >
-            <el-table-column
-              v-for="item in bugSolveTableOptions"
-              :key="item.key"
-              :prop="item.prop"
-              :label="item.label"
-              :min-width="item.minWidth"
-              show-overflow-tooltip
+    <el-radio-group v-model="active" style="margin-bottom: 20px;">
+      <el-radio-button
+        v-for="(item, index) in tabs"
+        :key="index"
+        :label="item.value"
+      >{{ item.label }}</el-radio-button>
+    </el-radio-group>
+
+    <transition name="component-fade" mode="out-in">
+      <card v-if="active === '0'" title="执行">
+        <!-- BUG解决按钮 -->
+        <template #buttons>
+          <el-button
+            :loading="butLoading"
+            type="primary"
+            icon="el-icon-download"
+            size="small"
+            @click="handleExportPackageDetClick"
+          >导出工作包明细</el-button>
+          <el-button
+            :loading="butLoading"
+            type="primary"
+            icon="el-icon-download"
+            size="small"
+            @click="handleExportPackStaClick"
+          >工作包达标统计</el-button>
+          <el-popover placement="bottom-end" :width="(146 * 7)" trigger="click">
+            <el-table
+              :data="bugSolve"
+              border
+              fit
+              style="width: 100%;"
+              :header-cell-style="{'background-color': '#FAFAFA' }"
             >
-              <template slot-scope="{row}">
-                <div
-                  v-if="item.prop !== 'user_type'"
-                >{{ row[item.prop] | bugSolveFilter(item.source, row) }}</div>
-                <span v-else>{{ row[item.prop] }}</span>
-              </template>
-            </el-table-column>
-          </el-table>
-          <el-button slot="reference" type="primary" size="small" style="margin-left: 10px;">BUG解决</el-button>
-        </el-popover>
-      </template>
+              <el-table-column
+                v-for="item in bugSolveTableOptions"
+                :key="item.key"
+                :prop="item.prop"
+                :label="item.label"
+                :min-width="item.minWidth"
+                show-overflow-tooltip
+              >
+                <template slot-scope="{row}">
+                  <div
+                    v-if="item.prop !== 'user_type'"
+                  >{{ row[item.prop] | bugSolveFilter(item.source, row) }}</div>
+                  <span v-else>{{ row[item.prop] }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
+            <el-button slot="reference" type="primary" size="small" style="margin-left: 10px;">BUG解决</el-button>
+          </el-popover>
+        </template>
 
-      <!-- 主体区域 -->
-      <template #content>
-        <!-- 第一个表格区域 -->
-        <div class="first-table">
-          <div class="header">
-            <!-- radio切换 -->
-            <el-radio-group v-model="totalStageName" size="small" @change="handleTotalRadioChange">
-              <el-radio-button
-                v-for="(item, index) in totalStageNameList"
-                :key="index"
-                :label="item.stage"
-              />
-            </el-radio-group>
+        <!-- 主体区域 -->
+        <template #content>
+          <!-- 第一个表格区域 -->
+          <div class="first-table">
+            <div class="header">
+              <!-- radio切换 -->
+              <el-radio-group
+                v-model="totalStageName"
+                size="small"
+                @change="handleTotalRadioChange"
+              >
+                <el-radio-button
+                  v-for="(item, index) in totalStageNameList"
+                  :key="index"
+                  :label="item.stage"
+                />
+              </el-radio-group>
 
-            <!-- select -->
-            <el-select v-model="firstSelectVal" multiple collapse-tags placeholder="请选择">
-              <el-option
-                v-for="(item, index) in firstSelectOptions"
-                :key="index"
-                :label="item"
-                :value="item"
-              />
-            </el-select>
+              <!-- select -->
+              <el-select v-model="firstSelectVal" multiple collapse-tags placeholder="请选择">
+                <el-option
+                  v-for="(item, index) in firstSelectOptions"
+                  :key="index"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </div>
+
+            <!-- 表格 -->
+            <el-table
+              v-loading="totalTableLoading"
+              :data="qualityDefectList"
+              style="width: 100%; margin-bottom: 30px;"
+              border
+              :header-cell-style="{'background-color': '#FAFAFA', color: '#666666' }"
+              row-key="name"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              fit
+              class="total-table table"
+            >
+              <el-table-column
+                v-for="item in firstTableOptions"
+                :key="item.prop"
+                :prop="item.prop"
+                :label="item.label"
+                :min-width="item.minWidth"
+                :fixed="item.fixed"
+                show-overflow-tooltip
+              >
+                <template slot-scope="{row}">
+                  <span
+                    :class="row.children || item.prop !== 'name' ? 'with-child' : 'without-child'"
+                  >{{ row[item.prop] }}</span>
+                </template>
+              </el-table-column>
+            </el-table>
           </div>
 
-          <!-- 表格 -->
-          <el-table
-            v-loading="totalTableLoading"
-            :data="qualityDefectList"
-            style="width: 100%; margin-bottom: 30px;"
-            border
-            :header-cell-style="{'background-color': '#FAFAFA', color: '#666666' }"
-            row-key="name"
-            :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-            fit
-            class="total-table table"
-          >
-            <el-table-column
-              v-for="item in firstTableOptions"
-              :key="item.prop"
-              :prop="item.prop"
-              :label="item.label"
-              :min-width="item.minWidth"
-              :fixed="item.fixed"
-              show-overflow-tooltip
+          <!-- 第二个表格区域 -->
+          <div class="second-table">
+            <div class="header">
+              <!-- radio切换 -->
+              <el-radio-group v-model="zrStageName" size="small" @change="handleRadioChange">
+                <el-radio-button
+                  v-for="(item, index) in zrStageNameList"
+                  :key="index"
+                  :label="item.stage_name"
+                />
+              </el-radio-group>
+
+              <!-- select -->
+              <el-select v-model="secondSelectVal" multiple collapse-tags placeholder="请选择">
+                <el-option
+                  v-for="(item, index) in secondSelectOptions"
+                  :key="index"
+                  :label="item"
+                  :value="item"
+                />
+              </el-select>
+            </div>
+
+            <!-- 表格 -->
+            <el-table
+              v-loading="zrTableLoading"
+              :data="qualityZrDefectList"
+              style="width: 100%; margin-bottom: 10px; margin-top: 10px;"
+              border
+              :header-cell-style="{'background-color': '#FAFAFA' }"
+              row-key="type"
+              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              class="zr-table table"
             >
-              <template slot-scope="{row}">
-                <span
-                  :class="row.children || item.prop !== 'name' ? 'with-child' : 'without-child'"
-                >{{ row[item.prop] }}</span>
-              </template>
-            </el-table-column>
-          </el-table>
-        </div>
+              <el-table-column prop="type" label="类型" fixed width="220" show-overflow-tooltip>
+                <template slot-scope="{row}">
+                  <span
+                    v-if="row.children"
+                    class="with-child"
+                    @click="handleTypeClcik(row)"
+                  >{{ row.type }}</span>
+                  <span v-else class="without-child" @click="handleTypeClcik(row)">{{ row.type }}</span>
+                </template>
+              </el-table-column>
 
-        <!-- 第二个表格区域 -->
-        <div class="second-table">
-          <div class="header">
-            <!-- radio切换 -->
-            <el-radio-group v-model="zrStageName" size="small" @change="handleRadioChange">
-              <el-radio-button
-                v-for="(item, index) in zrStageNameList"
-                :key="index"
-                :label="item.stage_name"
-              />
-            </el-radio-group>
+              <el-table-column prop="code" label="代码量" fixed min-width="70" />
 
-            <!-- select -->
-            <el-select v-model="secondSelectVal" multiple collapse-tags placeholder="请选择">
-              <el-option
-                v-for="(item, index) in secondSelectOptions"
-                :key="index"
-                :label="item"
-                :value="item"
+              <el-table-column
+                v-for="item in secondTableOptions"
+                :key="item.prop"
+                :prop="item.prop"
+                :label="item.label"
+                :min-width="item.minWidth"
               />
-            </el-select>
+            </el-table>
           </div>
-
-          <!-- 表格 -->
-          <el-table
-            v-loading="zrTableLoading"
-            :data="qualityZrDefectList"
-            style="width: 100%; margin-bottom: 10px; margin-top: 10px;"
-            border
-            :header-cell-style="{'background-color': '#FAFAFA' }"
-            row-key="type"
-            :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
-            class="zr-table table"
-          >
-            <el-table-column prop="type" label="类型" fixed width="220" show-overflow-tooltip>
-              <template slot-scope="{row}">
-                <span
-                  v-if="row.children"
-                  class="with-child"
-                  @click="handleTypeClcik(row)"
-                >{{ row.type }}</span>
-                <span v-else class="without-child" @click="handleTypeClcik(row)">{{ row.type }}</span>
-              </template>
-            </el-table-column>
-
-            <el-table-column prop="code" label="代码量" fixed min-width="70" />
-
-            <el-table-column
-              v-for="item in secondTableOptions"
-              :key="item.prop"
-              :prop="item.prop"
-              :label="item.label"
-              :min-width="item.minWidth"
-            />
-          </el-table>
-        </div>
-      </template>
-    </card>
+        </template>
+      </card>
+    </transition>
 
     <!-- bug 明细 -->
     <quality-bug-detail-dialog
@@ -197,6 +211,29 @@ export default {
   data() {
     return {
       key: 1,
+      active: '0',
+      tabs: [
+        {
+          label: '缺陷质量',
+          value: '0'
+        },
+        {
+          label: '占位1',
+          value: '1'
+        },
+        {
+          label: '占位2',
+          value: '2'
+        },
+        {
+          label: '占位3',
+          value: '3'
+        },
+        {
+          label: '占位4',
+          value: '4'
+        }
+      ],
       project: undefined, // 当前项目名
       tableType: ['sta', 'main', 'assembly'], // 请求的tableType
       bugSolve: [], // BUG解决的表格数据
@@ -788,5 +825,14 @@ export default {
     color: #1889ff;
     cursor: pointer;
   }
+}
+
+.component-fade-enter-active,
+.component-fade-leave-active {
+  transition: opacity 0.2s ease;
+}
+.component-fade-enter, .component-fade-leave-to
+/* .component-fade-leave-active for below version 2.1.8 */ {
+  opacity: 0;
 }
 </style>
