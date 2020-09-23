@@ -11,7 +11,7 @@
 
     <el-table
       v-loading="tableLoading"
-      :data="list"
+      :data="showList"
       highlight-current-row
       border
       style="width: 100%; margin-top: 10px;"
@@ -35,21 +35,52 @@
             :min-width="child.width"
           />
         </template>
+
+        <template slot-scope="{row}">
+          <div v-if="item.key === 'action'">
+            <el-button type="primary" size="small" @click="handleEditClick(row)">修改</el-button>
+          </div>
+          <div
+            v-if="item.sot"
+            style="overflow: hidden; text-overflow:ellipsis; white-space: nowrap;"
+          >{{ row[item.key] }}</div>
+          <div v-else>{{ row[item.key] }}</div>
+        </template>
       </el-table-column>
     </el-table>
+
+    <div class="pagination">
+      <pagination
+        :total="total"
+        :page="pageInfo.pageNum"
+        :limit="pageInfo.pageSize"
+        :auto-scroll="false"
+        @pagination="handlePageUpdate"
+      />
+    </div>
+
+    <edit-dialog ref="editDialogRef" @reload="init" />
   </el-card>
 </template>
 
 <script>
+import Pagination from '@/components/Pagination/index'
+import EditDialog from './components/EditDialog'
+
 import request from '@/services/request'
 
 export default {
   name: 'PlatformProjectTotal',
+  components: { Pagination, EditDialog },
   data() {
     return {
       tableLoading: false,
       list: [],
       total: 0,
+      pageInfo: {
+        pageNum: 1,
+        pageSize: 10
+      },
       tableOptions: [
         {
           title: '平台项目',
@@ -132,13 +163,13 @@ export default {
               title: '计划时间',
               dataIndex: 'pilot_plan_date',
               key: 'pilot_plan_date',
-              width: 120
+              width: 100
             },
             {
               title: '实际时间',
               dataIndex: 'pilot_actual_date',
               key: 'pilot_actual_date',
-              width: 120
+              width: 100
             }
           ]
         },
@@ -288,12 +319,26 @@ export default {
       ]
     }
   },
+  computed: {
+    showList() {
+      const page = this.pageInfo.pageNum
+      const limit = this.pageInfo.pageSize
+      return this.list.slice((page - 1) * limit, page * limit)
+    }
+  },
   created() {
     this.init()
   },
   methods: {
     init() {
       this.queryByPlatformEvolveInfoList()
+    },
+    handlePageUpdate(e) {
+      this.pageInfo.pageNum = e.page
+      this.pageInfo.pageSize = e.limit
+    },
+    handleEditClick(row) {
+      this.$refs.editDialogRef.setTemp(row)
     },
     async queryByPlatformEvolveInfoList() {
       this.tableLoading = true
