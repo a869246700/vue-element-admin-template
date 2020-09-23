@@ -60,12 +60,12 @@
 
       <div style="position:relative">
         <div class="tips">
-          <span>Username : admin</span>
-          <span>Password : any</span>
+          <span>账号 : 研究院账号</span>
+          <span>密码 : any</span>
         </div>
         <div class="tips">
-          <span style="margin-right:18px;">Username : editor</span>
-          <span>Password : any</span>
+          <span style="margin-right:18px;">测试账号 : lujiwei</span>
+          <span>密码 : any</span>
         </div>
 
         <el-button class="thirdparty-button" type="primary" @click="showDialog=true">Or connect with</el-button>

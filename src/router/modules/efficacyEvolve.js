@@ -137,7 +137,7 @@ const efficacyEvolveRouter = {
           meta: {
             title: '12x_project_test_data'
           },
-          component: () => import('@/views/mygoo/demo2')
+          component: () => import('@/views/efficacyEvolve/project-line/platform_project_total')
         },
         {
           path: '11x_project_test',
@@ -206,7 +206,7 @@ const efficacyEvolveRouter = {
           title: 'platform_project_total',
           noCahe: true
         },
-        component: () => import('@/views/mygoo/demo2')
+        component: () => import('@/views/efficacyEvolve/project-line/platform_project_total')
       },
       {
         path: 'business_promise_cash',
@@ -215,7 +215,7 @@ const efficacyEvolveRouter = {
           title: 'business_promise_cash',
           noCahe: true
         },
-        component: () => import('@/views/mygoo/demo2')
+        component: () => import('@/views/efficacyEvolve/platform/business_promise_cash')
       },
       {
         path: 'project_select',
@@ -224,7 +224,7 @@ const efficacyEvolveRouter = {
           title: 'project_select',
           noCahe: true
         },
-        component: () => import('@/views/mygoo/demo2')
+        component: () => import('@/views/efficacyEvolve/platform/project_select')
       }
       ]
     },
