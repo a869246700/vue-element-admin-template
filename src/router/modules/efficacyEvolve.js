@@ -105,7 +105,7 @@ const efficacyEvolveRouter = {
         title: 'summary_sta',
         noCahe: true
       },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/efficacyEvolve/summary_sta')
     },
     // 项目线
     {
