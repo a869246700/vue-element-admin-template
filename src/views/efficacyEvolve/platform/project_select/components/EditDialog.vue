@@ -222,9 +222,9 @@ export default {
   },
   methods: {
     setTemp(row) {
-      console.log(row)
       this.dialogVisible = true
       this.temp = {
+        id: row.id,
         project: row.project,
         customer: row.customer,
         isPass: row.is_pass,
@@ -243,7 +243,7 @@ export default {
     },
     async handleComfirmClick() {
       try {
-        const { data: res } = await request('/api/projectEvolveSta/updatePlatformPromiseInfo', {
+        const { data: res } = await request('/api/projectEvolveSta/updatePlatformSelectInfo', {
           method: 'POST',
           data: this.temp
         })

@@ -45,7 +45,7 @@
       />
     </el-table>
 
-    <div class="pagination">
+    <div v-if="total > pageInfo.pageSize" class="pagination">
       <pagination
         :total="total"
         :page="pageInfo.pageNum"

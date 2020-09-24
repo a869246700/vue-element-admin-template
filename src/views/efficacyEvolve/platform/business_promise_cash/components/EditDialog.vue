@@ -188,6 +188,7 @@ export default {
     setTemp(row) {
       this.dialogVisible = true
       this.temp = {
+        id: row.id,
         project: row.project,
         version: row.version,
         product: row.product,

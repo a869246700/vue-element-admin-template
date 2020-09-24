@@ -19,10 +19,15 @@
             trigger="hover"
             content="该模块尚未开发(开放)"
           >
-            <span slot="reference" class="disabled">{{ item.label }}</span>
+            <span slot="reference" class="disabled" style="padding: 0 15px;">{{ item.label }}</span>
           </el-popover>
 
-          <span v-else slot="label" style="color: #000">{{ item.label }}</span>
+          <span
+            v-else
+            slot="label"
+            :class="activeName === item.key ? 'active' : ''"
+            style="padding: 0 15px;"
+          >{{ item.label }}</span>
           <tab-component :is="item.name" />
         </el-tab-pane>
       </el-tabs>
@@ -34,7 +39,7 @@
 </template>
 
 <script>
-import Dashboard from '@/views/dashboard/index'
+import ProjectTotal from '@/views/efficacyEvolve/project-line/project_total'
 import Evolve from './project_twelve_page_2/Evolve'
 import Quality from './project_twelve_page_3/Quality'
 import Cost from './project_twelve_page_4/Cost'
@@ -44,7 +49,7 @@ import TechnologyProject from './project_twelve_page_8/TechnologyProject'
 
 export default {
   components: {
-    Dashboard,
+    ProjectTotal,
     Evolve,
     Quality,
     Cost,
@@ -57,7 +62,7 @@ export default {
       name: '12.5PL1',
       activeName: '2',
       tabMapOptions: [
-        { label: '总述', key: '1', name: 'Dashboard', disabled: false },
+        { label: '总述', key: '1', name: 'ProjectTotal', disabled: false },
         { label: '进展管理', key: '2', name: 'Evolve', disabled: false },
         { label: '质量管理', key: '3', name: 'Quality', disabled: false },
         { label: '成本管理', key: '4', name: 'Cost', disabled: false },
@@ -74,6 +79,10 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.active {
+  color: #1895ff;
+}
+
 .disabled {
   cursor: not-allowed;
   color: #bbb;

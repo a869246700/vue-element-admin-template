@@ -397,6 +397,7 @@ export default {
     return {
       dialogVisible: false,
       temp: {
+        id: '',
         project: '',
         relevance: '',
         customer: '',
@@ -433,6 +434,7 @@ export default {
       console.log(row)
       this.dialogVisible = true
       this.temp = {
+        id: row.id,
         project: row.project,
         relevance: row.relevance,
         customer: row.customer,
@@ -465,7 +467,7 @@ export default {
     },
     async handleComfirmClick() {
       try {
-        const { data: res } = await request('/api/projectEvolveSta/updatePlatformPromiseInfo', {
+        const { data: res } = await request('/api/projectEvolveSta/updatePlatformEvolveInfo', {
           method: 'POST',
           data: this.temp
         })

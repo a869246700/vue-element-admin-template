@@ -117,19 +117,13 @@ const efficacyEvolveRouter = {
       component: () => import('@/views/efficacyEvolve'),
       redirect: 'noRedirect',
       children: [
-        // {
-        //   path: 'project_total',
-        //   name: 'project_total',
-        //   meta: { title: 'project_total' },
-        //   component: () => import('@/views/efficacyEvolve/project_total')
-        // },
         {
           path: '12x_project_test',
           name: '12x_project_test',
           meta: {
             title: '12x_project_test'
           },
-          component: () => import('@/views/efficacyEvolve/project_total')
+          component: () => import('@/views/efficacyEvolve/project-line/project_total_test')
         },
         {
           path: '12x_project_test_data',
@@ -244,7 +238,7 @@ const efficacyEvolveRouter = {
           title: 'user_total',
           noCahe: true
         },
-        component: () => import('@/views/mygoo/demo2')
+        component: () => import('@/views/efficacyEvolve/user_evolve/user_total')
       },
       {
         path: 'user_bug_evolve',
@@ -261,7 +255,7 @@ const efficacyEvolveRouter = {
         meta: {
           title: 'user_week_effect_sta'
         },
-        component: () => import('@/views/mygoo/demo2')
+        component: () => import('@/views/efficacyEvolve/user_evolve/user_week_effect_sta')
       }
       ]
     },
