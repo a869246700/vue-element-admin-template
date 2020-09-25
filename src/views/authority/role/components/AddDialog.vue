@@ -2,18 +2,19 @@
   <el-dialog title="新增角色信息" :visible.sync="dialogVisible" width="40%">
     <el-form ref="formRef" :model="temp" :rules="rules" label-width="110px">
       <el-form-item prop="roleCn" label="角色名称" style="margin-left: 20%;">
-        <el-input v-model.trim="temp.roleCn" style="width: 70%" />
+        <el-input v-model.trim="temp.roleCn" placeholder="请输入角色名称!" style="width: 70%" />
       </el-form-item>
       <el-form-item prop="roleEn" label="角色英文名称" style="margin-left: 20%;">
-        <el-input v-model.trim="temp.roleEn" style="width: 70%" />
+        <el-input v-model.trim="temp.roleEn" placeholder="请输入角色英文名称!" style="width: 70%" />
       </el-form-item>
-      <el-form-item prop="routerSelectedList" label="路由选择" style="margin-left: 20%;">
+      <el-form-item prop="routerId" label="路由选择" style="margin-left: 20%;">
         <el-cascader
           v-model="temp.routerSelectedList"
           :options="routerList"
           :props="props"
           :show-all-levels="false"
           style="width: 70%"
+          placeholder="请选择路由!"
           @change="handleCheckChange"
         />
         <!-- <el-cascader
@@ -69,6 +70,10 @@ export default {
         routerSelectedList: [],
         routerId: []
       }
+
+      this.$nextTick(() => {
+        this.$refs.formRef.clearValidate()
+      })
     },
     handleFilterNodes(node, keyword) {
       if (node.text.includes(keyword)) {

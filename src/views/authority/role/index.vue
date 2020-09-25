@@ -62,7 +62,7 @@
       />
     </div>
 
-    <add-dialog ref="addDialogRef" />
+    <add-dialog ref="addDialogRef" @reload="init" />
   </el-card>
 </template>
 
@@ -132,7 +132,7 @@ export default {
     },
     // 点击删除
     async handleDeteleClick(row) {
-      const { data: res } = await request('api/authority/role/updateByDelete', {
+      const { data: res } = await request('/api/authority/role/updateByDelete', {
         method: 'DELETE',
         params: {
           id: row.id
@@ -141,6 +141,7 @@ export default {
 
       if (res && res !== undefined) {
         this.$message.success('删除成功')
+        this.init()
       }
     },
     handleQueryClick() {
