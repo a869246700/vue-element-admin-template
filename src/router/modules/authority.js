@@ -20,25 +20,25 @@ const authorityRouter = {
       path: 'role',
       name: 'role',
       meta: { title: 'role', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/authority/role')
     },
     {
       path: 'router',
       name: 'router',
       meta: { title: 'router', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/authority/router')
     },
     {
       path: 'role_man',
       name: 'role_man',
       meta: { title: 'role_man', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/authority/role_man')
     },
     {
       path: 'role_auth_list',
       name: 'role_auth_list',
       meta: { title: 'role_auth_list', noCahe: true },
-      component: () => import('@/views/mygoo/demo2')
+      component: () => import('@/views/authority/role_auth_list')
     }
   ]
 }
