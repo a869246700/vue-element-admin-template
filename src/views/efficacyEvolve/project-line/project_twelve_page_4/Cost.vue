@@ -10,6 +10,10 @@
 
     <transition name="component-fade" mode="out-in">
       <div v-if="active === '0'">
+        <cost-chart ref="costChartRef" :project="project" />
+      </div>
+
+      <div v-if="active === '1'">
         <!-- 项目成本卡片 -->
         <card title="项目成本" style="margin-bottom: 10px">
           <template #buttons>
@@ -44,46 +48,52 @@
                 :show-overflow-tooltip="item.sot"
                 :align="item.children ? 'center' : ''"
               >
-                <div v-if="item.children">
-                  <el-table-column
-                    v-for="childItem in item.children"
-                    :key="childItem.prop"
-                    :prop="childItem.prop"
-                    :min-width="childItem.minWidth"
-                  >
-                    <template #header>
-                      <span style="margin-right: 5px">{{ childItem.label }}</span>
-                      <el-popover
-                        v-if="childItem.content"
-                        placement="top-start"
-                        :width="childItem.contentWidth"
-                        trigger="hover"
-                      >
-                        <div v-html="childItem.content" />
-                        <i slot="reference" class="el-icon-question" />
-                      </el-popover>
-                    </template>
+                <template v-if="item.prop === 'name'" slot-scope="{row}">
+                  <span v-if="row.is_finish === 1">
+                    {{ row[item.prop] }}
+                    <i class="el-icon-circle-check" style="color: #7bed9f; font-size: 16px;" />
+                  </span>
+                  <span v-else>{{ row[item.prop] }}</span>
+                </template>
 
-                    <template slot-scope="{row}">
-                      <span
-                        v-if="childItem.prop==='total_target'"
-                      >{{ row[childItem.prop] | targetFilter }}</span>
+                <el-table-column
+                  v-for="childItem in item.children"
+                  :key="childItem.prop"
+                  :prop="childItem.prop"
+                  :min-width="childItem.minWidth"
+                >
+                  <template #header>
+                    <span style="margin-right: 5px">{{ childItem.label }}</span>
+                    <el-popover
+                      v-if="childItem.content"
+                      placement="top-start"
+                      :width="childItem.contentWidth"
+                      trigger="hover"
+                    >
+                      <div v-html="childItem.content" />
+                      <i slot="reference" class="el-icon-question" />
+                    </el-popover>
+                  </template>
 
-                      <span
-                        v-else-if="childItem.prop === 'total_actual'"
-                        :class="calcRenderColor(row.total_actual, row, 1)"
-                        @click="handleActualTotalClick(row, item.label)"
-                      >{{ row.total_actual | roundFilter }}</span>
+                  <template slot-scope="{row}">
+                    <span
+                      v-if="childItem.prop==='total_target'"
+                    >{{ row[childItem.prop] | targetFilter }}</span>
 
-                      <span
-                        v-else-if="childItem.prop === 'total_estimate' "
-                        :class="actualColor(row.total_estimate, row, 2)"
-                      >{{ row.total_estimate | roundFilter }}</span>
+                    <span
+                      v-else-if="childItem.prop === 'total_actual'"
+                      :class="calcRenderColor(row.total_actual, row, 1)"
+                      @click="handleActualTotalClick(row, item.label)"
+                    >{{ row.total_actual | roundFilter }}</span>
 
-                      <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
-                    </template>
-                  </el-table-column>
-                </div>
+                    <span
+                      v-else-if="childItem.prop === 'total_estimate' "
+                      :class="actualColor(row.total_estimate, row, 2)"
+                    >{{ row.total_estimate | roundFilter }}</span>
+
+                    <span v-else>{{ row[childItem.prop] | roundFilter }}</span>
+                  </template>
+                </el-table-column>
               </el-table-column>
             </el-table>
 
@@ -270,6 +280,7 @@
 import Card from '@/components/Card/index'
 import CostDialog from './components/CostDialog'
 import CostSourceAdjust from './components/CostSourceAdjust'
+import CostChart from './components/CostChart'
 
 import { deepClone } from '@/utils'
 import request from '@/services/request'
@@ -297,7 +308,8 @@ export default {
   components: {
     Card,
     CostDialog,
-    CostSourceAdjust
+    CostSourceAdjust,
+    CostChart
   },
   data() {
     return {
@@ -305,11 +317,11 @@ export default {
       active: '0',
       tabs: [
         {
-          label: '项目成本',
+          label: '成本统计图',
           value: '0'
         },
         {
-          label: '占位1',
+          label: '项目成本',
           value: '1'
         },
         {
@@ -562,7 +574,7 @@ export default {
         {
           prop: 'name',
           label: '类型',
-          minWidth: '220',
+          minWidth: '380',
           fixed: 'left',
           sot: true
         },
