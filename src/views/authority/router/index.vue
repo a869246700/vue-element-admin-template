@@ -12,11 +12,10 @@
       </el-col>
       <el-col :span="6">
         <el-button type="primary" size="small" @click="handleQueryClick">查询</el-button>
-        <el-button size="small" style="margin-right: 10px;" @click="handleResetClick">重置</el-button>
+        <el-button size="small" @click="handleResetClick">重置</el-button>
         <el-button
           type="primary"
           size="small"
-          style="margin-right: 10px;"
           @click="handleCreateClick"
         >新增</el-button>
       </el-col>

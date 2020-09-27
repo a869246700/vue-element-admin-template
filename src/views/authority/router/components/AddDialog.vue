@@ -18,7 +18,7 @@
         />
       </el-form-item>
       <el-form-item prop="def" label="权限选择" style="margin-left: 20%;">
-        <el-select v-model="temp.def" clearable placeholder="请选择权限!" style="width: 70%">
+        <el-select v-model="temp.def" filterable clearable placeholder="请选择权限!" style="width: 70%">
           <el-option
             v-for="(item, index) in authorityList"
             :key="index"
