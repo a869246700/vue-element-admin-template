@@ -1,6 +1,11 @@
 <template>
   <!-- 用例执行统计卡片 -->
-  <el-dialog title="合计芯片用例执行统计" :visible.sync="outerDialogVisible" width="70%" lock-scroll>
+  <el-dialog
+    :title="product_name + '芯片用例执行统计'"
+    :visible.sync="outerDialogVisible"
+    width="70%"
+    lock-scroll
+  >
     <el-card>
       <el-row :gutter="20" style="margin-bottom: 20px;">
         <!--  -->
@@ -23,20 +28,19 @@
 
         <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 9}" :lg="{span: 9}" :xl="{span: 9}">
           <el-radio-group v-model="implementType" size="small" @change="handleTypeChange">
-            <el-radio-button label="手工" />
-            <el-radio-button label="自动化" />
-            <el-radio-button label="全部" />
+            <el-radio-button label="手工">手工</el-radio-button>
+            <el-radio-button label="自动化">自动化</el-radio-button>
+            <el-radio-button label>全部</el-radio-button>
           </el-radio-group>
         </el-col>
       </el-row>
 
       <el-table
-        v-loading="tableLoading"
-        :data="implementNumSystemList"
+        v-loading="outerTableLoading"
+        :data="outerData"
         border
         style="width: 100%;"
         :header-cell-style="{'background-color': '#FAFAFA' }"
-        fit
         highlight-current-row
       >
         <el-table-column
@@ -57,6 +61,16 @@
           </template>
         </el-table-column>
       </el-table>
+
+      <div v-if="outerTotal >= outerPageInfo.pageSize" class="pagination">
+        <pagination
+          :total="outerTotal"
+          :page="outerPageInfo.pageNum"
+          :limit="outerPageInfo.pageSize"
+          :auto-scroll="false"
+          @pagination="handleOuterPageUpdate"
+        />
+      </div>
     </el-card>
 
     <el-dialog
@@ -77,7 +91,7 @@
 
       <el-table
         v-loading="innerTableLoading"
-        :data="innerTableData"
+        :data="innerData"
         border
         style="width: 100%; margin-top: 20px;"
         :header-cell-style="{'background-color': '#FAFAFA' }"
@@ -93,28 +107,31 @@
           show-overflow-tooltip
         />
       </el-table>
+
+      <div v-if="innerTotal >= innerPageInfo.pageSize" class="pagination">
+        <pagination
+          :total="innerTotal"
+          :page="innerPageInfo.pageNum"
+          :limit="innerPageInfo.pageSize"
+          :auto-scroll="false"
+          @pagination="handleInnerPageUpdate"
+        />
+      </div>
     </el-dialog>
   </el-dialog>
 </template>
 
 <script>
+import Pagination from '@/components/Pagination/index'
+
 import request from '@/services/request'
 
 export default {
+  components: {
+    Pagination
+  },
   props: {
-    project: {
-      type: String,
-      default: ''
-    },
-    implementStage: {
-      type: String,
-      default: ''
-    },
     implementStageTypeList: {
-      type: Array,
-      default: () => []
-    },
-    implementNumSystemList: {
       type: Array,
       default: () => []
     }
@@ -123,11 +140,21 @@ export default {
     return {
       product_name: undefined,
       implementType: '手工', // 测试类型
-      iStage: this.implementStage, // 阶段类型
-      tableData: this.implementNumSystemList, // 外部表格数据
-      tableLoading: false, // 外部表格加载状态
+      iStage: '', // 阶段类型
+      outerTableData: [], // 外部表格数据
+      outerTableLoading: false, // 外部表格加载状态
       isSpec: 0, // 是否是 spec 的点击事件
       outerDialogVisible: false, // 控制外部对话框的显示与隐藏
+      outerPageInfo: {
+        pageNum: 1,
+        pageSize: 10
+      },
+      outerTotal: 0,
+      innerPageInfo: {
+        pageNum: 1,
+        pageSize: 10
+      },
+      innerTotal: 0,
       // ----------内部----------
       innerDialogVisible: false, // 控制内部对话框的显示与隐藏
       innerTableLoading: false,
@@ -141,8 +168,16 @@ export default {
     iStageComputed() {
       return this.implementStage
     },
-    list() {
-      return this.implementNumSystemList
+    outerData() {
+      const page = this.outerPageInfo.pageNum
+      const limit = this.outerPageInfo.pageSize
+      return this.outerTableData.slice((page - 1) * limit, page * limit)
+    },
+    innerData() {
+      const page = this.innerPageInfo.pageNum
+      const limit = this.innerPageInfo.pageSize
+
+      return this.innerTableData.slice((page - 1) * limit, page * limit)
     },
     // 表单配置项
     tableOptions() {
@@ -305,31 +340,101 @@ export default {
     iStageComputed(newV, oldV) {
       this.iStage = newV
       this.handleTypeChange()
-    },
-    list(newV, oldV) {
-      this.tableData = newV
     }
   },
   methods: {
-    handleTypeChange() {
-      this.$emit('change', this.product_name, this.iStage, this.implementType, this.isSpec)
+    resetOuterPageInfo() {
+      this.outerPageInfo = {
+        pageNum: 1,
+        pageSize: 10
+      }
     },
+    resetInnerPageInfo() {
+      this.innerPageInfo = {
+        pageNum: 1,
+        pageSize: 10
+      }
+    },
+    // 产品点击
+    systemClick(project, stage, product, type, isSpec) {
+      this.outerDialogVisible = true
+      // 1. 重置页面
+      this.resetOuterPageInfo()
+      // 2. 数据赋值
+      this.project = project
+      this.iStage = stage
+      this.product_name = product
+      this.implementType = type
+      this.isSpec = isSpec
+
+      this.queryImplementNumSystem(
+        this.project,
+        this.iStage,
+        this.product_name,
+        this.implementType,
+        this.isSpec
+      )
+    },
+    // 外部分页器修改数据
+    handleOuterPageUpdate(e) {
+      this.outerPageInfo.pageNum = e.page
+      this.outerPageInfo.pageSize = e.limit
+    },
+    // 内部分页器修改数据
+    handleInnerPageUpdate(e) {
+      this.innerPageInfo.pageNum = e.page
+      this.innerPageInfo.pageSize = e.limit
+    },
+    // 类型切换
+    handleTypeChange() {
+      this.resetOuterPageInfo()
+      this.queryImplementNumSystem(
+        this.project,
+        this.iStage,
+        this.product_name,
+        this.implementType,
+        this.isSpec
+      )
+    },
+    // 域点击
     handleItemClick(row) {
       this.innerDialogVisible = true
+      this.resetInnerPageInfo()
       this.innerImplementStage = this.iStageComputed
       this.innerProductName = row.product_name
       this.innerCurrentSystem = row.system
 
       this.handleInnerTypeChange()
     },
-    // -----------内部---------
+    // 内部点击
     handleInnerTypeChange() {
+      this.resetInnerPageInfo()
       this.queryImplementNumType(
         this.project,
         this.innerImplementStage,
         this.innerProductName,
         this.innerCurrentSystem
       )
+    },
+    // 域统计
+    async queryImplementNumSystem(project, stage, product, type, isSpec) {
+      this.outerTableLoading = true
+      const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumSystem', {
+        method: 'GET',
+        params: {
+          project,
+          stage,
+          product,
+          type,
+          isSpec
+        }
+      })
+      this.outerTableData = res
+      this.outerTotal = res.length
+
+      this.$nextTick(() => {
+        this.outerTableLoading = false
+      })
     },
     // 用例执行-类型统计
     async queryImplementNumType(project, stage, product, system) {
@@ -341,10 +446,11 @@ export default {
           stage,
           product,
           system,
-          isSpec: 0
+          isSpec: this.isSpec
         }
       })
       this.innerTableData = res
+      this.innerTotal = res.length
 
       this.$nextTick(() => {
         this.innerTableLoading = false

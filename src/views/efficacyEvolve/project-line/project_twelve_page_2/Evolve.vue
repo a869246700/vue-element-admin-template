@@ -9,65 +9,64 @@
     </el-radio-group>
 
     <transition name="component-fade" mode="out-in">
-      <evolve-implement-card
+      <implement-card
         v-if="active === '0'"
         ref="implementRef"
         :project="project"
-        :current-stage.sync="currentStage"
-        :implement-stage.sync="implementStage"
+        :current-stage="currentStage"
+        :implement-stage="implementStage"
         :current-stage-type-list="currentStageTypeList"
         :implement-stage-type-list="implementStageTypeList"
         @system-click="handleCaseSystemClick"
+        @type-click="handleCaseTypeClick"
       />
 
-      <evolve-spec-card
+      <spec-card
         v-else-if="active === '1'"
         ref="specRef"
         :project="project"
-        :current-stage.sync="specCurrentStage"
-        :implement-stage.sync="implementSpecStage"
+        :current-stage="specCurrentStage"
+        :implement-stage="implementSpecStage"
         :current-stage-type-list="currentStageTypeList"
         :implement-stage-type-list="implementStageTypeList"
         @system-click="handleSpecSystemClick"
+        @type-click="handleSpecTypeClick"
       />
 
       <evolve-gantt v-else-if="active === '2'" ref="ganttRef" />
 
-      <evolve-desgin-card v-else-if="active === '3'" ref="desginRef" :project="project" />
+      <desgin-card v-else-if="active === '3'" ref="desginRef" :project="project" />
 
-      <evolve-review-card v-else-if="active === '4'" ref="reviewRef" :project="project" />
+      <review-card v-else-if="active === '4'" ref="reviewRef" :project="project" />
     </transition>
 
     <!-- system dialog -->
-    <evolve-case-implement
-      ref="systemDialogRef"
-      :project="project"
-      :implement-stage="implementStage"
-      :implement-stage-type-list="implementStageTypeList"
-      :implement-num-system-list="implementNumSystemList"
-      @change="handleSystemTypeChange"
-    />
+    <case-implement ref="systemDialogRef" :implement-stage-type-list="implementStageTypeList" />
+
+    <implement-type-system ref="typeSystemDialogRef" :project="project" />
   </div>
 </template>
 
 <script>
-import EvolveGantt from './components/EvolveGantt'
-import EvolveImplementCard from './components/EvolveImplementCard'
-import EvolveSpecCard from './components/EvolveSpecCard'
-import EvolveDesginCard from './components/EvolveDesginCard'
-import EvolveReviewCard from './components/EvolveReviewCard'
-import EvolveCaseImplement from './components/EvolveCaseImplement'
+import ImplementCard from './ImplementCard/ImplementCard'
+import SpecCard from './SpecCard/SpecCard'
+import EvolveGantt from './EvolveGantt/EvolveGantt'
+import DesginCard from './DesginCard/DesginCard'
+import ReviewCard from './ReviewCard/ReviewCard'
+import CaseImplement from './CaseImplement/CaseImplement'
+import ImplementTypeSystem from './ImplementTypeSystem/ImplementTypeSystem'
 
 import request from '@/services/request'
 
 export default {
   components: {
     EvolveGantt,
-    EvolveImplementCard,
-    EvolveSpecCard,
-    EvolveDesginCard,
-    EvolveReviewCard,
-    EvolveCaseImplement
+    ImplementCard,
+    SpecCard,
+    DesginCard,
+    ReviewCard,
+    CaseImplement,
+    ImplementTypeSystem
   },
   data() {
     return {
@@ -138,40 +137,20 @@ export default {
     this.queryImplementStageType()
   },
   methods: {
-    handleSystemTypeChange(product_name, stage, type, isSpec) {
-      // this.$refs.systemDialogRef.outerDialogVisible = true
-      this.$refs.systemDialogRef.tableLoading = true
-      this.$refs.systemDialogRef.product_name = product_name
-      this.$refs.systemDialogRef.isSpec = isSpec
-
-      this.queryImplementNumSystem(this.project, stage, product_name, type, 0)
-      this.$refs.systemDialogRef.tableLoading = false
+    handleCaseTypeClick(type, stage, projectStage) {
+      // 首轮  阶段一 isSpec type
+      this.$refs.typeSystemDialogRef.typeClick(stage, projectStage, 0, type)
+    },
+    handleSpecTypeClick(type, stage, projectStage) {
+      this.$refs.typeSystemDialogRef.typeClick(stage, projectStage, 1, type)
     },
     // 用例产品点击
-    handleCaseSystemClick(product_name) {
-      this.$refs.systemDialogRef.outerDialogVisible = true
-      this.$refs.systemDialogRef.tableLoading = true
-      this.$refs.systemDialogRef.product_name = product_name
-      this.$refs.systemDialogRef.isSpec = 0
-
-      // 查询域信息
-      this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工', 0)
-      this.$nextTick(() => {
-        this.$refs.systemDialogRef.tableLoading = false
-      })
+    handleCaseSystemClick(product_name, iStage) {
+      this.$refs.systemDialogRef.systemClick(this.project, iStage, product_name, '手工', 0)
     },
     // Spec产品点击
-    handleSpecSystemClick(product_name) {
-      this.$refs.systemDialogRef.outerDialogVisible = true
-      this.$refs.systemDialogRef.tableLoading = true
-      this.$refs.systemDialogRef.product_name = product_name
-      this.$refs.systemDialogRef.isSpec = 1
-
-      // 查询域信息
-      this.queryImplementNumSystem(this.project, this.implementStage, product_name, '手工', 1)
-      this.$nextTick(() => {
-        this.$refs.systemDialogRef.tableLoading = false
-      })
+    handleSpecSystemClick(product_name, iStage) {
+      this.$refs.systemDialogRef.systemClick(this.project, iStage, product_name, '手工', 1)
     },
     // 项目阶段类型
     async queryProjectMilepostList(project) {
@@ -180,6 +159,7 @@ export default {
         params: { project, isNow: true }
       })
       this.implementStage = res[0] === undefined ? '次轮' : res[0].stage
+      this.implementSpecStage = this.implementStage
     },
     // 用例执行-阶段类型 列表
     async queryImplementStageType() {
@@ -187,28 +167,6 @@ export default {
         method: 'GET'
       })
       this.implementStageTypeList = res
-    },
-    // 用例执行-域统计
-    async queryImplementNumSystem(project, stage, product, type, isSpec) {
-      const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumSystem', {
-        method: 'GET',
-        params: {
-          project,
-          stage,
-          product,
-          type,
-          isSpec
-        }
-      })
-      this.implementNumSystemList = res
-    },
-    // 进展-设计-TP用例总计
-    async evolveTpCaseTotal(project) {
-      const { data: res } = await request('/api/projectEvolveSta/queryByTpCaseTotal', {
-        method: 'GET',
-        params: { project }
-      })
-      console.log(res)
     }
   }
 }

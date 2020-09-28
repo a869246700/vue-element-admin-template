@@ -50,6 +50,12 @@ const manageRouter = {
       name: 'system_question',
       meta: { title: 'system_question', noCahe: true },
       component: () => import('@/views/manage/system_question')
+    },
+    {
+      path: 'system_web_hook',
+      name: 'system_web_hook',
+      meta: { title: 'system_question', noCahe: true },
+      component: () => import('@/views/manage/system_web_hook')
     }
   ]
 }

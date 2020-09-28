@@ -3,7 +3,7 @@
   <div id="project-line">
     <el-card>
       <!-- Tab 切换 -->
-      <el-tabs v-model="activeName" style="margin-top:15px;">
+      <el-tabs v-model="activeName">
         <el-tab-pane
           v-for="item in tabMapOptions"
           :key="item.key"
@@ -19,15 +19,10 @@
             trigger="hover"
             content="该模块尚未开发(开放)"
           >
-            <span slot="reference" class="disabled" style="padding: 0 15px;">{{ item.label }}</span>
+            <span slot="reference" class="disabled" style="padding: 0 10px;">{{ item.label }}</span>
           </el-popover>
 
-          <span
-            v-else
-            slot="label"
-            :class="activeName === item.key ? 'active' : ''"
-            style="padding: 0 15px;"
-          >{{ item.label }}</span>
+          <span v-else slot="label" :class="activeName === item.key ? 'active' : ''" style="padding: 0 10px;">{{ item.label }}</span>
           <tab-component :is="item.name" />
         </el-tab-pane>
       </el-tabs>
@@ -86,5 +81,9 @@ export default {
 .disabled {
   cursor: not-allowed;
   color: #bbb;
+}
+
+.el-card_body {
+  padding: 0px!important;
 }
 </style>

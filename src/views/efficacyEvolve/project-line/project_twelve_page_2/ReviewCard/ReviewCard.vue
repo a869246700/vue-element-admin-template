@@ -200,18 +200,18 @@ export default {
         {
           prop: 'project',
           label: '项目名称',
-          minWidth: 89
+          minWidth: 90
         },
         {
           prop: 'work_package',
           label: '工作包',
-          minWidth: 186,
+          minWidth: 190,
           hide: this.reviewTableStage
         },
         {
           prop: 'ptgttm',
           label: 'PTGTTM',
-          minWidth: 100
+          minWidth: 90
         }
       ]
       return options.filter((item) => !item.hide)

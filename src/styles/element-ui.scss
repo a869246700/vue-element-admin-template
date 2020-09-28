@@ -111,6 +111,10 @@
   white-space: nowrap;
 }
 
+body .el-table th.gutter {
+  display: table-cell!important;
+}
+
 #system-notice .el-table .cell {
   white-space: normal;
 }

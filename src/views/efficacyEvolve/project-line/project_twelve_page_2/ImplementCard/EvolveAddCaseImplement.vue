@@ -2,7 +2,7 @@
   <el-dialog
     title="用例执行分析"
     :visible.sync="dialogVisible"
-    width="70%"
+    width="80%"
     :before-close="handleDialogClose"
   >
     <el-table v-loading="tableLoading" :data="list" show-header border style="width: 100%;">

@@ -9,6 +9,7 @@ export default {
   'menu.manage.system_help': '系统帮助',
   'menu.manage.system_notice': '系统公告',
   'menu.manage.system_question': '问题管理',
+  'menu.manage.system_web_hook': '微信机器人',
   'menu.beforeMenu': '历史菜单',
   'menu.authority': '权限控制',
   'menu.authority.authority-index': '员工权限分配',

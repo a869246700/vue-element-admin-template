@@ -1,28 +1,38 @@
 <template>
   <div class="implement-card">
-    <!-- 用例卡片 -->
-    <card title="用例执行" class="case card">
+    <card title="SPEC核验" class="case card">
       <template #buttons>
-        <el-button type="primary" size="small" @click="handleBugChokeClick">Bug阻塞</el-button>
         <el-button
           :loading="butLoading"
           type="primary"
           icon="el-icon-download"
           size="small"
-          @click="handleExportCaseStaClick"
-        >导出用例统计</el-button>
+          @click="handleSpecStaClick"
+        >导出SPEC统计</el-button>
         <el-button
           :loading="butLoading"
           type="primary"
           icon="el-icon-download"
           size="small"
-          @click="handleExportCaseInfoClick"
-        >导出用例执行明细</el-button>
+          @click="handleSpecDetClick"
+        >导出SPEC明细</el-button>
       </template>
-
       <!-- 用例卡片 -->
       <template #content>
         <div class="content">
+          <el-radio-group
+            v-model="cStage"
+            size="small"
+            style="margin-right: 10px;"
+            @change="handleImplementStageChange"
+          >
+            <el-radio-button
+              v-for="(item, index) in currentStageTypeList"
+              :key="index"
+              :label="item.stage"
+            />
+          </el-radio-group>
+
           <el-radio-group v-model="iStage" size="small" @change="handleImplementStageChange">
             <el-radio-button key="9" label="汇总" />
             <el-radio-button
@@ -68,21 +78,12 @@
 
           <!-- 表格一区域 -->
           <card class="case-first card">
-            <template #buttons>
-              <el-button
-                :loading="butLoading"
-                type="primary"
-                size="small"
-                @click="handleAddCaseImplementClick"
-              >添加用例执行分析</el-button>
-            </template>
-
             <template #content>
               <!-- select -->
               <div class="filter-container">
-                <el-select v-model="FirstSelectVal" multiple collapse-tags placeholder="请选择">
+                <el-select v-model="firstSelectVal" multiple collapse-tags placeholder="请选择">
                   <el-option
-                    v-for="(item, index) in caseSelectOptions"
+                    v-for="(item, index) in firstSelectOptions"
                     :key="index"
                     :label="item"
                     :value="item"
@@ -98,32 +99,28 @@
                   border
                   style="width: 100%"
                   :header-cell-style="{'background-color': '#FAFAFA' }"
-                  fit
                   highlight-current-row
                 >
                   <el-table-column
-                    prop="product_name"
-                    label="芯片平台 "
-                    width="115px"
-                    show-overflow-tooltip
-                  >
-                    <template slot-scope="{ row }">
-                      <span class="title" @click="handleSystemClick(row)">{{ row.product_name }}</span>
-                    </template>
-                  </el-table-column>
-                  <el-table-column
                     v-for="item in firstTableOptions"
-                    :key="item.prop"
-                    :label="item.label"
-                    :prop="item.prop"
-                    :min-width="item.minWidth ? item.minWidth : 100"
-                    show-overflow-tooltip
+                    :key="item.key"
+                    :prop="item.dataIndex"
+                    :label="item.title"
+                    :min-width="item.width"
+                    :fixed="item.fixed"
                   >
-                    <template slot-scope="{ row }">
+                    <template slot-scope="{row}">
                       <span
-                        v-if="row.product_name === '合计' && item.prop === 'exe_day_num'"
+                        v-if="item.dataIndex === 'product_name'"
+                        class="title"
+                        @click="handleSystemClick(row)"
+                      >{{ row.product_name }}</span>
+
+                      <span
+                        v-else-if="item.dataIndex === 'exe_day_num' && row.product_name === '合计' && row.exe_day_num === undefined"
                       >{{ Math.ceil(row.tomorrow_num === 0 ? 0 : (row.no_num / row.tomorrow_num)) }}</span>
-                      <span v-else>{{ row[item.prop] }}</span>
+
+                      <span v-else>{{ row[item.dataIndex] }}</span>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -133,20 +130,11 @@
 
           <!-- 表格二区域 -->
           <card class="case-second card">
-            <template #buttons>
-              <el-button
-                :loading="butLoading"
-                type="primary"
-                size="small"
-                @click="handleAddCaseImplementClick"
-              >添加用例执行分析</el-button>
-            </template>
-
             <template #content>
               <div class="filter-container">
                 <el-select v-model="secondSelectVal" multiple collapse-tags placeholder="请选择">
                   <el-option
-                    v-for="(item, index) in caseSelectOptions"
+                    v-for="(item, index) in secondSelectOptions"
                     :key="index"
                     :label="item"
                     :value="item"
@@ -157,24 +145,33 @@
               <!-- 表格 -->
               <div class="table">
                 <el-table
+                  v-loading="productTableLoading"
                   :data="implementNumTypeList"
                   border
                   style="width: 100%"
                   :header-cell-style="{'background-color': '#FAFAFA' }"
                   highlight-current-row
                 >
-                  <el-table-column prop="type" label="类型 " min-width="120px" show-overflow-tooltip />
                   <el-table-column
                     v-for="item in secondTableOptions"
-                    :key="item.prop"
-                    :label="item.label"
-                    :prop="item.prop"
-                    align="center"
-                    :min-width="item.minWidth ? item.minWidth + 'px' : '100px'"
-                    show-overflow-tooltip
+                    :key="item.key"
+                    :prop="item.dataIndex"
+                    :label="item.title"
+                    :min-width="item.width"
+                    :fixed="item.fixed"
                   >
                     <template slot-scope="{row}">
-                      <span>{{ row[item.prop] }}</span>
+                      <span
+                        v-if="item.dataIndex === 'type'"
+                        class="title"
+                        @click="handleTypeClick(row)"
+                      >{{ row.type + row.type_new }}</span>
+
+                      <span
+                        v-else-if="item.dataIndex === 'exe_day_num' && row.type === '合计' && row.exe_day_num === undefined"
+                      >{{ Math.ceil(row.tomorrow_num === 0 ? 0 : (row.no_num / row.tomorrow_num)) }}</span>
+
+                      <span v-else>{{ row[item.dataIndex] }}</span>
                     </template>
                   </el-table-column>
                 </el-table>
@@ -184,28 +181,219 @@
         </div>
       </template>
     </card>
-    <!-- BUG阻塞 -->
-    <evolve-bug-choke ref="bugChoke" :list="bugChoke" :project="project" />
-
-    <!-- 添加用例分析 -->
-    <evolve-add-case-implement ref="addCaseImplement" :list="implementNumProductList" />
   </div>
 </template>
 
 <script>
 import Card from '@/components/Card/index'
 import Chart from '@/components/MyChart/Chart'
-import EvolveBugChoke from './EvolveBugChoke'
-import EvolveAddCaseImplement from './EvolveAddCaseImplement'
+
 import request from '@/services/request'
 import DownFiles from '@/vendor/ExportExcel'
+
+const firstTableOptions = [
+  {
+    title: '芯片平台',
+    dataIndex: 'product_name',
+    key: 'product_name',
+    width: 120,
+    fixed: 'left'
+  },
+  {
+    title: '用例总数',
+    dataIndex: 'all_num',
+    key: 'all_num',
+    width: 90
+  },
+  {
+    title: '已执行',
+    dataIndex: 'exe_num',
+    key: 'exe_num',
+    width: 80
+  },
+  {
+    title: '执行率',
+    dataIndex: 'exe_rate',
+    key: 'exe_rate',
+    width: 80
+  },
+  {
+    title: '未执行',
+    dataIndex: 'no_num',
+    key: 'no_num',
+    width: 80
+  },
+  {
+    title: 'SKIP',
+    dataIndex: 'skip_num',
+    key: 'skip_num',
+    width: 80
+  },
+  {
+    title: 'PASS数',
+    dataIndex: 'pass_num',
+    key: 'pass_num',
+    width: 90
+  },
+  {
+    title: 'PASS率',
+    dataIndex: 'pass_rate',
+    key: 'pass_rate',
+    width: 90
+  },
+  {
+    title: 'FAIL数',
+    dataIndex: 'fail_num',
+    key: 'fail_num',
+    width: 90
+  },
+  {
+    title: 'FAIL率',
+    dataIndex: 'fail_rate',
+    key: 'fail_rate',
+    width: 80
+  },
+  {
+    title: '未分析',
+    dataIndex: 'no_analyse_num',
+    key: 'no_analyse_num',
+    width: 80
+  },
+  {
+    title: '今日执行总数',
+    dataIndex: 'day_all_num',
+    key: 'day_all_num',
+    width: 120
+  },
+  {
+    title: '今日PASS总数',
+    dataIndex: 'day_pass_num',
+    key: 'day_pass_num',
+    width: 135
+  },
+  {
+    title: '计划明日执行个数',
+    dataIndex: 'tomorrow_num',
+    key: 'tomorrow_num',
+    width: 145
+  },
+  {
+    title: '还需执行天数',
+    dataIndex: 'exe_day_num',
+    key: 'exe_day_num',
+    width: 120
+  },
+  {
+    title: '执行分析',
+    dataIndex: 'analyse',
+    key: 'analyse',
+    width: 450
+  }
+]
+
+const secondTableOptions = [
+  {
+    title: '类型',
+    dataIndex: 'type',
+    key: 'type',
+    width: 120
+  },
+  {
+    title: '用例总数',
+    dataIndex: 'all_num',
+    key: 'all_num',
+    width: 90
+  },
+  {
+    title: '已执行',
+    dataIndex: 'exe_num',
+    key: 'exe_num',
+    width: 80
+  },
+  {
+    title: '执行率',
+    dataIndex: 'exe_rate',
+    key: 'exe_rate',
+    width: 80
+  },
+  {
+    title: '未执行',
+    dataIndex: 'no_num',
+    key: 'no_num',
+    width: 80
+  },
+  {
+    title: 'SKIP',
+    dataIndex: 'skip_num',
+    key: 'skip_num',
+    width: 80
+  },
+  {
+    title: 'PASS数',
+    dataIndex: 'pass_num',
+    key: 'pass_num',
+    width: 90
+  },
+  {
+    title: 'PASS率',
+    dataIndex: 'pass_rate',
+    key: 'pass_rate',
+    width: 90
+  },
+  {
+    title: 'FAIL数',
+    dataIndex: 'fail_num',
+    key: 'fail_num',
+    width: 90
+  },
+  {
+    title: 'FAIL率',
+    dataIndex: 'fail_rate',
+    key: 'fail_rate',
+    width: 80
+  },
+  {
+    title: '未分析',
+    dataIndex: 'no_analyse_num',
+    key: 'no_analyse_num',
+    width: 80
+  },
+  {
+    title: '今日执行总数',
+    dataIndex: 'day_all_num',
+    key: 'day_all_num',
+    width: 120
+  },
+  {
+    title: '今日PASS总数',
+    dataIndex: 'day_pass_num',
+    key: 'day_pass_num',
+    width: 135
+  },
+  {
+    title: '计划明日执行个数',
+    dataIndex: 'tomorrow_num',
+    key: 'tomorrow_num',
+    width: 145
+  },
+  {
+    title: '还需执行天数',
+    dataIndex: 'exe_day_num',
+    key: 'exe_day_num',
+    width: 120
+  },
+  {
+    title: '执行分析',
+    dataIndex: 'analyse',
+    key: 'analyse',
+    width: 450
+  }
+]
 
 export default {
   components: {
     Card,
-    Chart,
-    EvolveBugChoke,
-    EvolveAddCaseImplement
+    Chart
   },
   props: {
     project: {
@@ -231,10 +419,10 @@ export default {
   },
   data() {
     return {
-      key: 1,
       cStage: this.currentStage,
       iStage: this.implementStage,
-      caseSelectOptions: [
+      firstSelectOptions: [
+        '芯片平台',
         '用例总数',
         '已执行',
         '执行率',
@@ -246,9 +434,13 @@ export default {
         'FAIL率',
         '未分析',
         '今日执行总数',
-        '今日PASS总数'
+        '今日PASS总数',
+        '计划明日执行个数',
+        '还需执行天数',
+        '执行分析'
       ],
-      FirstSelectVal: [
+      firstSelectVal: [
+        '芯片平台',
         '用例总数',
         '已执行',
         '执行率',
@@ -260,9 +452,31 @@ export default {
         'FAIL率',
         '未分析',
         '今日执行总数',
-        '今日PASS总数'
+        '今日PASS总数',
+        '计划明日执行个数',
+        '还需执行天数',
+        '执行分析'
+      ],
+      secondSelectOptions: [
+        '类型',
+        '用例总数',
+        '已执行',
+        '执行率',
+        '未执行',
+        'SKIP',
+        'PASS数',
+        'PASS率',
+        'FAIL数',
+        'FAIL率',
+        '未分析',
+        '今日执行总数',
+        '今日PASS总数',
+        '计划明日执行个数',
+        '还需执行天数',
+        '执行分析'
       ],
       secondSelectVal: [
+        '类型',
         '用例总数',
         '已执行',
         '执行率',
@@ -274,7 +488,10 @@ export default {
         'FAIL率',
         '未分析',
         '今日执行总数',
-        '今日PASS总数'
+        '今日PASS总数',
+        '计划明日执行个数',
+        '还需执行天数',
+        '执行分析'
       ],
       implementNumProductList: [], // 产品统计
       productTableLoading: false, // 控制产品表格的加载
@@ -289,95 +506,14 @@ export default {
     }
   },
   computed: {
-    productTableOptions() {
-      return [
-        {
-          prop: 'all_num',
-          label: '用例总数',
-          minWidth: 89
-        },
-        {
-          prop: 'exe_num',
-          label: '已执行',
-          minWidth: 75
-        },
-        {
-          prop: 'exe_rate',
-          label: '执行率',
-          minWidth: 78
-        },
-        {
-          prop: 'no_num',
-          label: '未执行',
-          minWidth: 75
-        },
-        {
-          prop: 'skip_num',
-          label: 'SKIP',
-          minWidth: 70
-        },
-        {
-          prop: 'pass_num',
-          label: 'PASS数',
-          minWidth: 89
-        },
-        {
-          prop: 'pass_rate',
-          label: 'PASS率',
-          minWidth: 89
-        },
-        {
-          prop: 'fail_num',
-          label: 'FAIL数',
-          minWidth: 80
-        },
-        {
-          prop: 'fail_rate',
-          label: 'FAIL率',
-          minWidth: 78
-        },
-        {
-          prop: 'no_analyse_num',
-          label: '未分析',
-          minWidth: 75
-        },
-        {
-          prop: 'day_all_num',
-          label: '今日执行总数',
-          minWidth: 117
-        },
-        {
-          prop: 'day_pass_num',
-          label: '今日PASS总数',
-          minWidth: 132
-        },
-        {
-          prop: 'tomorrow_num',
-          label: '计划明日执行个数',
-          minWidth: 145
-        },
-        {
-          prop: 'exe_day_num',
-          label: '还需执行天数',
-          minWidth: 117
-        },
-        {
-          prop: 'analyse',
-          label: '执行分析',
-          minWidth: 200
-        }
-      ]
-    },
     implementStageComputed() {
       return this.implementStage
     },
     firstTableOptions() {
-      return this.productTableOptions.filter((item) => this.FirstSelectVal.indexOf(item.label) >= 0)
+      return firstTableOptions.filter((item) => this.firstSelectVal.indexOf(item.title) >= 0)
     },
     secondTableOptions() {
-      return this.productTableOptions.filter(
-        (item) => this.secondSelectVal.indexOf(item.label) >= 0
-      )
+      return secondTableOptions.filter((item) => this.secondSelectVal.indexOf(item.title) >= 0)
     }
   },
   watch: {
@@ -385,22 +521,45 @@ export default {
       this.iStage = newV
     }
   },
-  created() {
-    const timer = setTimeout(() => {
-      this.getDataList()
-      clearTimeout(timer)
-    }, 500)
+  mounted() {
+    this.init()
   },
   methods: {
-    // 图标resize()
+    // 图表的 resize
     chartResize() {
       this.$nextTick(() => {
         this.$refs.caseChartRef.resize()
         this.$refs.chipChartRef.resize()
       })
     },
+    // 点击导出SPEC统计
+    handleSpecStaClick() {
+      const url = '/api/export/implementCaseNumSta'
+      const obj = {
+        conditions: {
+          project: this.project,
+          stage: this.iStage,
+          isSpec: 1
+        }
+      }
+      const fileName = this.project + this.cStage + this.iStage + '阶段SPEC核验统计.xls'
+      DownFiles(url, obj, fileName, this)
+    },
+    // 点击导出SPEC明细
+    handleSpecDetClick() {
+      const url = '/api/export/projectTaskCaseInfo'
+      const obj = {
+        conditions: {
+          project: this.project,
+          stage: this.iStage,
+          isSpec: 1
+        }
+      }
+      const fileName = this.project + this.cStage + this.iStage + '阶段SPEC核验明细列表.xls'
+      DownFiles(url, obj, fileName, this)
+    },
     // 获取数据列表
-    getDataList() {
+    init() {
       this.caseStaEcharts(this.project, this.iStage, this.cStage)
       // 获取类型数据统计
       this.queryImplementNumType(this.project, this.iStage, this.cStage)
@@ -409,61 +568,14 @@ export default {
     },
     // radio 切换
     handleImplementStageChange() {
-      this.getDataList()
-    },
-    // 点击 BUG阻塞 按钮
-    handleBugChokeClick() {
-      this.$refs.bugChoke.dialogVisible = true
-      this.$refs.bugChoke.tableLoading = true
-      this.queryByBugChoke(this.project)
-    },
-    // 点击导出用例统计
-    handleExportCaseStaClick() {
-      const url = '/api/export/implementCaseNumSta'
-      const fileName = this.project + this.cStage + this.iStage + '阶段用例执行统计.xls'
-      DownFiles(
-        url,
-        {
-          conditions: {
-            project: this.project,
-            stage: this.iStage,
-            isSpec: 0
-          }
-        },
-        fileName,
-        this
-      )
-    },
-    // 点击导出用例明细
-    async handleExportCaseInfoClick() {
-      const url = '/api/export/projectTaskCaseInfo'
-      const fileName = this.project + this.cStage + this.iStage + '阶段用例执行明细列表.xls'
-      DownFiles(
-        url,
-        {
-          conditions: {
-            project: this.project,
-            stage: this.iStage,
-            isSpec: 0
-          }
-        },
-        fileName,
-        this
-      )
-    },
-    // 点击 添加用例执行分析 按钮
-    handleAddCaseImplementClick() {
-      this.$refs.addCaseImplement.dialogVisible = true
-      this.$refs.addCaseImplement.tableLoading = true
-      this.queryByBugChoke(this.project)
-
-      this.$nextTick(() => {
-        this.$refs.addCaseImplement.tableLoading = false
-      })
+      this.init()
     },
     // 点击产品
     handleSystemClick(row) {
-      this.$emit('system-click', row.product_name)
+      this.$emit('system-click', row.product_name, this.iStage)
+    },
+    handleTypeClick(row) {
+      this.$emit('type-click', row.type + row.type_new, this.iStage, this.cStage)
     },
     // 用例执行-阶段类型 数据
     async queryImplementNumType(project, stage, projectStage) {
@@ -474,7 +586,7 @@ export default {
           project,
           stage,
           projectStage,
-          isSpec: 0
+          isSpec: 1
         }
       })
 
@@ -492,7 +604,7 @@ export default {
           project,
           stage,
           projectStage,
-          isSpec: 0
+          isSpec: 1
         }
       })
 
@@ -574,13 +686,12 @@ export default {
 
       this.$nextTick(() => {
         this.productTableLoading = false
-        this.chipPlatFormChartLoading = false
+        this.chipPlatFormChartLoading = true
       })
     },
     // 获取用例执行情况图标配置项
     async caseStaEcharts(project, stage, projectStage) {
       this.caseImplementChartLoading = true
-      this.chipPlatFormChartLoading = true
 
       const { data: res } = await request('/api/projectEvolveSta/queryByImplementNumTotal', {
         method: 'GET',
@@ -588,7 +699,7 @@ export default {
           project,
           stage,
           projectStage,
-          isSpec: 0
+          isSpec: 1
         }
       })
 
@@ -676,7 +787,6 @@ export default {
 
       this.$nextTick(() => {
         this.caseImplementChartLoading = false
-        this.chipPlatFormChartLoading = false
       })
     },
     // 进展-执行-用例-BUG阻塞
@@ -688,10 +798,6 @@ export default {
         }
       })
       this.bugChoke = res
-
-      this.$nextTick(() => {
-        this.$refs.bugChoke.tableLoading = false
-      })
     }
   }
 }
