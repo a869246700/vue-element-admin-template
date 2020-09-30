@@ -166,6 +166,7 @@ export default {
           this.$store
             .dispatch('user/login', this.loginForm)
             .then(() => {
+              // setValue('user', 'eyzaIsgytIsFsiEUGQTGW7fIEmM6XFoFpp12Z8vTeWODZ1I7z8rqL0uUA8%2Fld5G%2BpZ0UUdSluDLqhcdlghG5v4ylvTioGlQzOsW%2B54SmfH%2BVdX1d5pjrmxAwnFqdzYJBqBcCq0yPUjU51G2Qiz0NdEkSshAVGvhLWRrsEm3ab3ksnST4FV1xVU1%2BzkRIEOcd0a0EzuM3%2BprzR4MBwg2RQRfd6dXSBbEOJgCmEc6nILc4473ZSXtPiglF42RyF4FOEkYfZk6bIfG0La5FPKTEImRQ3tNsg%2BOkg2dSO8%2FK6i%2BuA2shCPi2n4xhVaoiHw394%2BlDP7geqxMQKxZQBZ65zX2gSMcz0wC49J307FOSlPQSRh9mTpsh8R3Q9miaLxMfi4cx5Myi2WPeU0Xn6qB3y0IGJXjv%2B5fJsfmUX3MyNdloYWJmi5AGEpgUz1y8SFcbDm1I06J3M94JnBPUgDNDzXrXUnvA%2Bt9q4nqSwEAiZ3j0b3RycAqJsmy%2FLEAZl2KbYEmoVvdEHDN14hJ12%2B7oNjLNc14Elg%2F6Fj9%2B%2FFJfMHSKzDjHEQcGaYgrLr38GrZN5hjK0YrwOXoXZbCjomUaDcX9p47yVHrica6ZiKfjF1K97k0Q2aZHiSKENJ177laH0DczxjFl1a3eAyB5rpinKfQk22BxHcyYX0gEZefJ3MEtDEZRqwVX5tSF736Jryj3rpDkrYrdDjs5BAyVSEYvL1vpbuf%2BucXKf6luNcNDXBDzNIqpKRd9wPBA9lttI5u%2BSXc2v7%2BvYDNlGSmv2SMpyiVh76YuoxzbzFnrVVpmJRDGY3a5jun6sq47gK%2BLs4yp3De9flfzJBrJpU%2Bbt3Km5Dq%2FKo8ruQcdavabg4te8DSIsUtlGPEY1F51dB5vrgGJJs%2FfLKacim34kf2dR74%2Fshx%2FDTyggfLRODnw0P%2FFRMndUiZjU7ti%2Bvkd%2F3ViwMOOMwlGzSaYHw77hL2OgTNXmZD23Cs3z4GiozilnBjtWPUd88oTZZYhrS3oO8HVnvAJGOCCp%2Fgh3uq9XLjjcIXQVCYzYcyoi4%2FeopshBELyl7QjnUZiSawHj3lEnrhJNMrxvInpVqQJijHbSixVESNpcuD1BNMTi3Bzt6%2FANA2JGnbzXbCiH9ai7YGTnFq1CRRBcpa6tOkSrk4%3D')
               this.$router.push({ path: this.redirect || '/', query: this.otherQuery })
               this.loading = false
             })

@@ -101,6 +101,8 @@ export default {
     },
     async logout() {
       await this.$store.dispatch('user/logout')
+
+      // 退出系统，返回单点登录界面
       this.$router.push(`/login?redirect=${this.$route.fullPath}`)
     },
     avatarLoad() {

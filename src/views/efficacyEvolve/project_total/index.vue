@@ -7,8 +7,8 @@
       </el-radio-group>
 
       <div style="display: flex; align-items: center;">
-        <div>
-          <i class="el-icon-plus" style="font-size: 24px;" />
+        <div style="border: 1px solid #ccc; padding: 4px;">
+          <i class="el-icon-plus" style="font-size: 24px;" @click="handleCreateClick" />
         </div>
 
         <div class="panel-select">
@@ -66,13 +66,8 @@ export default {
       return this.sizeActive === '0'
     }
   },
-  watch: {
-    panelActive(newV, oldV) {
-      console.log(newV)
-    }
-  },
   methods: {
-    handleAddClick() {
+    handleCreateClick() {
       this.$router.push('/efficacyEvolve/project_line/add_project')
     },
     handleSizeChange(flag) {

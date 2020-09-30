@@ -326,7 +326,7 @@ export default {
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
           // 模拟 id
-          this.temp.id = this.list.length === 0 ? 1 : this.list[this.list.length - 1].id + 1 
+          this.temp.id = this.list.length === 0 ? 1 : this.list[this.list.length - 1].id + 1
           console.log(this.temp)
           // 添加数据
           this.list.push(this.temp)

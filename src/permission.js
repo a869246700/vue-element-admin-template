@@ -1,14 +1,23 @@
 import router from './router'
 import NProgress from 'nprogress' // progress bar
-import { Message } from 'element-ui'
+import {
+  Message
+} from 'element-ui'
 import store from '@/store'
 import 'nprogress/nprogress.css' // progress bar style
-import { getToken, getValue } from '@/utils/auth' // get token from cookie
+import {
+  getToken,
+  getValue
+} from '@/utils/auth' // get token from cookie
 import getPageTitle from '@/utils/get-page-title'
-import { initRouterList } from '@/router'
+import {
+  initRouterList
+} from '@/router'
 import i18n from '@/utils/i18n'
 
-NProgress.configure({ showSpinner: false }) // NProgress Configuration
+NProgress.configure({
+  showSpinner: false
+}) // NProgress Configuration
 
 // 路由跳转白名单
 const whiteList = ['/login', '/auth-redirect'] // no redirect whitelist
@@ -18,7 +27,10 @@ router.beforeEach(async(to, from, next) => {
   // start progress bar
   NProgress.start()
 
-  if (!flag) {
+  // 获取 user
+  const user = getValue('user')
+
+  if (!flag && user) {
     flag = await initRouterList()
   }
 
@@ -28,13 +40,12 @@ router.beforeEach(async(to, from, next) => {
   // 获取 token
   const hasToken = getToken()
 
-  // 获取 user
-  const user = getValue('user')
-
-  if (hasToken && user) {
+  if (hasToken) {
     if (to.path === '/login') {
       // 已经登录，则直接跳转至 /
-      next({ path: '/' })
+      next({
+        path: '/'
+      })
       NProgress.done()
     } else {
       const hasRoles = store.getters.roles && store.getters.roles.length > 0
@@ -43,14 +54,19 @@ router.beforeEach(async(to, from, next) => {
       } else {
         try {
           // 获取角色
-          const { roles } = await store.dispatch('user/setRoles')
+          const {
+            roles
+          } = await store.dispatch('user/setRoles')
 
           // 根据角色获取不同的路由
           const accessRoutes = await store.dispatch('permission/generateRoutes', roles)
 
           // 添加不同角色的路由
           router.addRoutes(accessRoutes)
-          next({ ...to, replace: true })
+          next({
+            ...to,
+            replace: true
+          })
         } catch (error) {
           // remove token and go to login page to re-login
           await store.dispatch('user/resetToken')

@@ -34,7 +34,7 @@
 </template>
 
 <script>
-import ProjectTotal from '@/views/efficacyEvolve/project-line/project_total'
+import ProjectTotal from '@/views/efficacyEvolve/project_line/project_total'
 import Evolve from './project_twelve_page_2/Evolve'
 import Quality from './project_twelve_page_3/Quality'
 import Cost from './project_twelve_page_4/Cost'
@@ -66,7 +66,7 @@ export default {
         { label: '技术项目', key: '7', name: 'TechnologyProject', disabled: false },
         { label: '积分考核', key: '8', disabled: true },
         { label: '项目报告推送', key: '9', disabled: true },
-        { label: '项目要素设计管理', key: '10', disabled: true }
+        { label: '项目要素设置', key: '10', disabled: true }
       ]
     }
   }

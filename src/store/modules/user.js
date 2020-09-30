@@ -11,11 +11,13 @@ import router, {
 } from '@/router'
 
 import {
-  loginSystem
+  loginSystem,
+  logoutSystem
 } from '@/services/user'
 import {
   initRouterList
 } from '@/router'
+import { Message } from 'element-ui'
 
 const state = {
   currentUser: JSON.parse(window.localStorage.getItem('currentUser')) || {},
@@ -95,29 +97,33 @@ const actions = {
   },
 
   // 用户注销
-  logout({
+  async logout({
     commit,
     state,
     dispatch
   }) {
-    return new Promise((resolve, reject) => {
-      commit('SET_TOKEN', '')
-      commit('SET_ROLES', [])
+    try {
+      const res = await logoutSystem()
 
-      removeValue('name')
-      removeValue('avatar')
-      removeValue('user')
-      removeToken()
-      resetRouter()
+      if (res) {
+        commit('SET_TOKEN', '')
+        commit('SET_ROLES', [])
 
-      // reset visited views and cached views
-      // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
-      dispatch('tagsView/delAllViews', null, {
-        root: true
-      })
+        removeValue('name')
+        removeValue('avatar')
+        removeValue('user')
+        removeToken()
+        resetRouter()
 
-      resolve()
-    })
+        // reset visited views and cached views
+        // to fixed https://github.com/PanJiaChen/vue-element-admin/issues/2485
+        dispatch('tagsView/delAllViews', null, {
+          root: true
+        })
+      }
+    } catch (e) {
+      Message.error('退出请求错误')
+    }
   },
 
   // 移除 token

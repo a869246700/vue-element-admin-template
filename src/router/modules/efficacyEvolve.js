@@ -7,7 +7,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '总述'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_total')
+  component: () => import('@/views/efficacyEvolve/project_line/project_total')
 },
 {
   path: 'progress',
@@ -15,7 +15,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '进展管理'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_2/Evolve')
+  component: () => import('@/views/efficacyEvolve/project_line/project_twelve_page_2/Evolve')
 },
 {
   path: 'quality',
@@ -23,7 +23,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '质量管理'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_3/Quality')
+  component: () => import('@/views/efficacyEvolve/project_line/project_twelve_page_3/Quality')
 },
 {
   path: 'cost',
@@ -31,7 +31,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '成本管理'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_4/Cost')
+  component: () => import('@/views/efficacyEvolve/project_line/project_twelve_page_4/Cost')
 },
 {
   path: 'risk_management',
@@ -39,7 +39,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '风险管理'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_5/RiskManage')
+  component: () => import('@/views/efficacyEvolve/project_line/project_twelve_page_5/RiskManage')
 },
 {
   path: 'test_task',
@@ -47,7 +47,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '测试任务'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_6/TestTask')
+  component: () => import('@/views/efficacyEvolve/project_line/project_twelve_page_6/TestTask')
 },
 {
   path: 'technology_project',
@@ -55,7 +55,7 @@ const projectLineChildrenRouter = [{
   meta: {
     title: '技术项目'
   },
-  component: () => import('@/views/efficacyEvolve/project-line/project_twelve_page_8/TechnologyProject')
+  component: () => import('@/views/efficacyEvolve/project_line/project_twelve_page_8/TechnologyProject')
 },
 {
   path: 'design',
@@ -78,7 +78,7 @@ const projectLineChildrenRouter = [{
   path: 'communication_management',
   name: 'communication_management',
   meta: {
-    title: '项目要素设计管理',
+    title: '项目要素设置',
     noCahe: true
   },
   component: () => import('@/views/mygoo/demo2')
@@ -123,7 +123,7 @@ const efficacyEvolveRouter = {
           meta: {
             title: '12x_project_test'
           },
-          component: () => import('@/views/efficacyEvolve/project-line/project_total_test')
+          component: () => import('@/views/efficacyEvolve/project_total')
         },
         {
           path: '12x_project_test_data',
@@ -131,7 +131,7 @@ const efficacyEvolveRouter = {
           meta: {
             title: '12x_project_test_data'
           },
-          component: () => import('@/views/efficacyEvolve/project-line/platform_project_total')
+          component: () => import('@/views/efficacyEvolve/project_line/platform_project_total')
         },
         {
           path: '11x_project_test',
@@ -150,7 +150,7 @@ const efficacyEvolveRouter = {
             title: '添加项目',
             noCahe: true
           },
-          component: () => import('@/views/efficacyEvolve/project_total/components/AddProject')
+          component: () => import('@/views/efficacyEvolve/project_line/add_project')
         },
         {
           path: 'project_twelve_four',
@@ -159,7 +159,7 @@ const efficacyEvolveRouter = {
             title: 'project_twelve_four',
             icon: 'tree'
           },
-          component: () => import('@/views/efficacyEvolve/project-line/index2'),
+          component: () => import('@/views/efficacyEvolve/project_line/index2'),
           children: projectLineChildrenRouter
         },
         {
@@ -170,7 +170,7 @@ const efficacyEvolveRouter = {
             noCahe: true,
             icon: 'tree'
           },
-          component: () => import('@/views/efficacyEvolve/project-line')
+          component: () => import('@/views/efficacyEvolve/project_line')
         },
         {
           path: 'project_twelve_RPL1',
@@ -200,7 +200,7 @@ const efficacyEvolveRouter = {
           title: 'platform_project_total',
           noCahe: true
         },
-        component: () => import('@/views/efficacyEvolve/project-line/platform_project_total')
+        component: () => import('@/views/efficacyEvolve/project_line/platform_project_total')
       },
       {
         path: 'business_promise_cash',
