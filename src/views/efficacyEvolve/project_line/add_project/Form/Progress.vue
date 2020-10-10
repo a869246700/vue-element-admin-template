@@ -1,5 +1,5 @@
 <template>
-  <div class="progress">
+  <el-form ref="formRef" :model="temp" :rules="rules" class="progress">
     <div class="implement">
       <div class="title">用例执行</div>
       <div class="content">
@@ -7,36 +7,61 @@
           执行映射
           <span class="remarks">(与测试管理系统下发用例的关系，未填写则默认为【首轮用例】)</span>
 
-          <div class="form-item">
-            <el-input v-model.trim="temp.zr_mapping" size="small" style="width: 200px" />
+          <el-form-item prop="zr_mapping" class="form-item">
+            <el-input
+              v-model.trim="temp.zr_mapping"
+              size="small"
+              placeholder="默认值，如有特殊请填入"
+              style="width: 200px"
+            />
             <span class="segmentation" />
             <span class="fw600">准入测试</span>
             <span class="remarks">例如：【首轮用例】映射为“首轮执行”的用例归类</span>
-          </div>
+          </el-form-item>
 
-          <div class="form-item">
-            <el-input v-model.trim="temp.sl_mapping" size="small" style="width: 200px" />
+          <el-form-item prop="sl_mapping" class="form-item">
+            <el-input
+              v-model.trim="temp.sl_mapping"
+              size="small"
+              placeholder="默认值，如有特殊请填入"
+              style="width: 200px"
+            />
             <span class="segmentation" />
             <span class="fw600">首轮测试</span>
-          </div>
+          </el-form-item>
 
-          <div class="form-item">
-            <el-input v-model.trim="temp.cl_mapping" size="small" style="width: 200px" />
+          <el-form-item prop="cl_mapping" class="form-item">
+            <el-input
+              v-model.trim="temp.cl_mapping"
+              size="small"
+              placeholder="默认值，如有特殊请填入"
+              style="width: 200px"
+            />
             <span class="segmentation" />
             <span class="fw600">次轮测试</span>
-          </div>
+          </el-form-item>
 
-          <div class="form-item">
-            <el-input v-model.trim="temp.slhg_mapping" size="small" style="width: 200px" />
+          <el-form-item prop="slhg_mapping" class="form-item">
+            <el-input
+              v-model.trim="temp.slhg_mapping"
+              size="small"
+              placeholder="默认值，如有特殊请填入"
+              style="width: 200px"
+            />
             <span class="segmentation" />
             <span class="fw600">首轮回归</span>
-          </div>
+          </el-form-item>
 
-          <div class="form-item">
-            <el-input v-model.trim="temp.clhg_mapping" size="small" style="width: 200px" />
+          <el-form-item prop="clhg_mapping" class="form-item">
+            <el-input
+              v-model.trim="temp.clhg_mapping"
+              size="small"
+              placeholder="默认值，如有特殊请填入"
+              style="width: 200px"
+            />
             <span class="segmentation" />
             <span class="fw600">次轮回归</span>
-          </div>
+          </el-form-item>
         </div>
 
         <div class="content-item">
@@ -80,7 +105,7 @@
       <div class="title">文档评审</div>
       <div class="content">按照当前模板获取 “PMS系统” 的数据信息呈现;</div>
     </div>
-  </div>
+  </el-form>
 </template>
 
 <script>
@@ -88,8 +113,19 @@ export default {
   data() {
     return {
       temp: {
-        case_dimension: []
-      }
+        case_dimension: ['芯片平台', '用例属性', '测试域']
+      },
+      rules: {}
+    }
+  },
+  methods: {
+    // 提供验证方法
+    validate() {
+      let tag = false
+      this.$refs.formRef.validate(valid => {
+        tag = valid
+      })
+      return tag
     }
   }
 }
@@ -99,6 +135,10 @@ export default {
 .progress {
   font-size: 15px;
   font-weight: normal;
+
+  .el-form-item {
+    margin-bottom: 0px;
+  }
 
   & > div:nth-child(-n + 2) {
     margin-bottom: 15px;

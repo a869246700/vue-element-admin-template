@@ -1,97 +1,107 @@
 <template>
   <el-card id="add-project" style="margin: 20px">
-    <el-form ref="addFormRef" :model="temp" :rules="rules" label-position="right">
-      <transition name="page-fade" mode="out-in">
-        <!-- baseinfo -->
-        <div v-if="active === 0" class="base-info-page">
-          <el-row :gutter="20">
-            <el-col :span="12" style="border-right: 1px solid #ccc">
-              <div class="title">项目基础属性设置</div>
-              <el-form-item label="项目名称" prop="project" style="margin-top: 10px">
-                <el-input
-                  v-model.trim="temp.project"
-                  size="small"
-                  placeholder="请输入项目名称"
-                  style="width: 100%"
-                />
-              </el-form-item>
-              <el-form-item label="项目类型" prop="type">
-                <el-input v-model.trim="temp.type" size="small" placeholder="请输入项目类型" />
-              </el-form-item>
-              <el-form-item label="项目需求&业务目标简介" prop="need">
-                <el-input
-                  v-model.trim="temp.need"
-                  type="textarea"
-                  :rows="5"
-                  placeholder="请输入项目需求&业务目标简介"
-                />
-              </el-form-item>
-            </el-col>
+    <transition name="page-fade" mode="out-in">
+      <!-- baseinfo -->
+      <el-form
+        v-if="active === 0"
+        ref="baseInfoFormRef"
+        :model="temp"
+        :rules="rules"
+        label-position="right"
+        class="base-info-page"
+      >
+        <el-row :gutter="20">
+          <el-col :span="10" style="border-right: 1px solid #ccc">
+            <div class="title">项目基础属性设置</div>
+            <el-form-item label="项目名称" prop="project" style="margin-top: 10px">
+              <el-input
+                v-model.trim="temp.project"
+                placeholder="请输入项目名称"
+                style="width: 100%"
+              />
+            </el-form-item>
+            <el-form-item label="项目类型" prop="type">
+              <el-input v-model.trim="temp.type" placeholder="请输入项目类型" />
+            </el-form-item>
+            <el-form-item label="项目需求&业务目标简介" prop="need">
+              <el-input
+                v-model.trim="temp.need"
+                type="textarea"
+                :rows="5"
+                placeholder="请输入项目需求&业务目标简介"
+              />
+            </el-form-item>
+          </el-col>
 
-            <el-col :span="6">
-              <div class="title">项目主要角色</div>
-              <el-form-item label="项目PTM" prop="ptm" style="margin-top: 10px">
-                <el-input v-model.trim="temp.ptm" size="small" placeholder="请输入项目PTM" />
-              </el-form-item>
-              <el-form-item label="项目PTGTTL" prop="ptgttl">
-                <el-input v-model.trim="temp.ptgttl" size="small" placeholder="请输入项目PTGTTL" />
-              </el-form-item>
-              <el-form-item label="项目PTTL" prop="pttl">
-                <el-input v-model.trim="temp.pttl" size="small" placeholder />
-              </el-form-item>
-              <el-form-item label="项目PTGTTM" prop="ptgttm">
-                <el-input v-model.trim="temp.ptgttm" size="small" placeholder />
-              </el-form-item>
-            </el-col>
+          <el-col :span="7">
+            <div class="title">项目主要角色</div>
+            <el-form-item label="项目PTM" prop="ptm" style="margin-top: 10px">
+              <el-input v-model.trim="temp.ptm" placeholder="请输入项目PTM" />
+            </el-form-item>
+            <el-form-item label="项目PTGTTL" prop="ptgttl">
+              <el-input v-model.trim="temp.ptgttl" placeholder="请输入项目PTGTTL" />
+            </el-form-item>
+            <el-form-item label="项目PTTL" prop="pttl">
+              <el-input v-model.trim="temp.pttl" placeholder />
+            </el-form-item>
+            <el-form-item label="项目PTGTTM" prop="ptgttm">
+              <el-input v-model.trim="temp.ptgttm" placeholder />
+            </el-form-item>
+          </el-col>
 
-            <el-col :span="6" class="authority">
-              <div class="title">权限管理</div>
-              <div>1. PTM拥有的权限。。。</div>
-              <div>2. PTGTTL拥有的权限。。。</div>
-              <div>3. PTTL拥有的权限。。。</div>
-              <div>4. PTGTTM拥有的权限。。。</div>
-              <div>5. PTTE拥有的权限。。。</div>
-            </el-col>
-          </el-row>
-          <div class="footer">
-            <el-button type="primary" @click="handleNextClick">下一步</el-button>
-          </div>
+          <el-col :span="7" class="authority">
+            <div class="title">权限管理</div>
+            <div>1. PTM拥有的权限。。。</div>
+            <div>2. PTGTTL拥有的权限。。。</div>
+            <div>3. PTTL拥有的权限。。。</div>
+            <div>4. PTGTTM拥有的权限。。。</div>
+            <div>5. PTTE拥有的权限。。。</div>
+          </el-col>
+        </el-row>
+        <div class="footer">
+          <el-button type="primary" @click="handleNextClick">下一步</el-button>
         </div>
+      </el-form>
 
-        <!-- 模块选择页面 -->
-        <div v-if="active === 1" class="model-select-page">
-          <el-row :gutter="20">
-            <el-col :span="4" class="model-menu-select">
-              <div class="title">模块菜单管理</div>
-              <div class="check-list">
-                <span class="check">(勾选所需要的项目组件)</span>
-                <div class="el-checkbox-group">
-                  <el-checkbox
-                    v-for="(item, index) in checkSelectList"
-                    :key="index"
-                    v-model="item.checked"
-                    :label="item.value"
-                  >
-                    {{ item.label }}
-                  </el-checkbox>
-                </div>
+      <!-- 模块选择页面 -->
+      <div v-if="active === 1" class="model-select-page">
+        <el-row :gutter="20">
+          <el-col :span="4" class="model-menu-select">
+            <div class="title">模块菜单管理</div>
+            <div class="check-list">
+              <span class="check">(勾选所需要的项目组件)</span>
+              <div class="el-checkbox-group">
+                <el-checkbox
+                  v-for="(item, index) in checkSelectList"
+                  :key="index"
+                  v-model="item.checked"
+                  :label="item.value"
+                  @change="handleCheckboxChange(item, index)"
+                >
+                  {{ item.label }}
+                </el-checkbox>
               </div>
-            </el-col>
-            <el-col :span="20" class="model-menu-content">
-              <el-tabs v-model="currentModel" tab-position="left">
-                <el-tab-pane v-for="(item, index) in tabList" :key="index" :label="item.label">
-                  <tab-component :is="item.cName" />
-                </el-tab-pane>
-              </el-tabs>
-            </el-col>
-          </el-row>
-          <div class="footer">
-            <el-button type="primary" @click="handlePreClick">上一步</el-button>
-            <el-button type="primary" @click="handleNextClick">下一步</el-button>
-          </div>
+            </div>
+          </el-col>
+          <el-col :span="20" class="model-menu-content">
+            <el-tabs v-model="currentModel" tab-position="left" @tab-click="handleTabClick">
+              <el-tab-pane
+                v-for="item in tabList"
+                :key="item.value"
+                :label="item.label"
+                :name="item.value"
+              >
+                <tab-component :is="item.cName" :ref="item.ref" />
+              </el-tab-pane>
+            </el-tabs>
+          </el-col>
+        </el-row>
+        <div class="footer">
+          <el-button type="primary" @click="handlePreClick">上一步</el-button>
+          <el-button type="primary" @click="handleCompleteClick">完成</el-button>
         </div>
-      </transition>
-    </el-form>
+      </div>
+    </transition>
   </el-card>
 </template>
 
@@ -99,6 +109,11 @@
 import Progress from './Form/Progress'
 import Quality from './Form/Quality'
 import Cost from './Form/Cost'
+import Risk from './Form/Risk'
+import Task from './Form/Task'
+import Technology from './Form/Technology'
+import Integral from './Form/Integral'
+import ProjectReport from './Form/ProjectReport'
 
 const rules = {
   project: [
@@ -146,10 +161,10 @@ const rules = {
 }
 
 export default {
-  components: { Progress, Quality, Cost },
+  components: { Progress, Quality, Cost, Risk, Task, Technology, Integral, ProjectReport },
   data() {
     return {
-      active: 1,
+      active: 0,
       temp: {},
       rules,
       checkSelectList: [
@@ -157,52 +172,62 @@ export default {
           value: '0',
           label: '进展管理',
           cName: 'Progress',
+          ref: 'progressRef',
           checked: true
         },
         {
           value: '1',
           label: '质量管理',
           cName: 'Quality',
+          ref: 'qualityRef',
           checked: true
         },
         {
           value: '2',
           label: '成本管理',
           cName: 'Cost',
+          ref: 'costRef',
           checked: true
         },
         {
           value: '3',
           label: '风险管理',
           cName: 'Risk',
+          ref: 'riskRef',
           checked: false
         },
         {
           value: '4',
           label: '测试任务',
           cName: 'Task',
+          ref: 'taskRef',
           checked: false
         },
         {
           value: '5',
           label: '技术项目',
           cName: 'Technology',
+          ref: 'technologyRef',
           checked: false
         },
         {
           value: '6',
           label: '积分考核',
           cName: 'Integral',
+          ref: 'integralRef',
           checked: false
         },
         {
           value: '7',
           label: '项目报告推送',
+          ref: 'projectReportRef',
           cName: 'ProjectReport',
           checked: false
         }
       ],
-      currentModel: '0'
+      currentModel: '0',
+      oldCurrentModel: '0',
+      tempModel: '0'
     }
   },
   computed: {
@@ -210,12 +235,102 @@ export default {
       return this.checkSelectList.filter((item) => item.checked)
     }
   },
+  watch: {
+    currentModel(newV, oldV) {
+      this.oldCurrentModel = oldV
+    }
+  },
   methods: {
     handlePreClick() {
       this.active--
     },
     handleNextClick() {
-      this.active++
+      if (this.active === 0) {
+        this.$refs.baseInfoFormRef.validate((valid) => {
+          if (valid) {
+            this.active++
+          }
+        })
+      }
+    },
+    // 监听checkbox值改变
+    handleCheckboxChange(item, index) {
+      // 1. 如果 checkbox 的绑定项的 checked 修改为 false
+      // 2. 判断 item.value 是不是与 currentModel 的值相等
+      if (!item.checked && item.value === this.currentModel) {
+        // 3. 判断是否在这个元素之前是否有checked为true的元素
+        let temp = null
+        for (const i in this.checkSelectList) {
+          // 如果在此之前不存在，则不存在
+          if (i >= index) {
+            break
+          }
+          if (this.checkSelectList[i].checked) {
+            temp = this.checkSelectList[i]
+          }
+        }
+        // 如果在此之前找到checked为true,且是最后一个找到的，则将currentModel和tempModel赋值为item.value
+        if (temp) {
+          this.currentModel = temp.value
+          this.tempModel = temp.value
+        } else {
+          this.currentModel = this.tabList.length > 0 ? this.tabList[0].value : '0'
+          this.tempModel = this.tabList.length > 0 ? this.tabList[0].value : '0'
+        }
+      } else if (item.checked && this.tabList.length === 1) {
+        // 在勾选时，当所有checked都是false的情况下
+        this.currentModel = item.value
+        this.tempModel = item.value
+      }
+    },
+    handleCompleteClick() {
+      // 1.当前表单组件进行校验
+      // 2.每个表单组件进行取值
+      console.log(this.$refs)
+      const params = {
+        base: this.temp,
+        progress:
+          this.$refs.progressRef && this.$refs.progressRef.length !== 0
+            ? this.$refs.progressRef[0].temp
+            : null,
+        quality:
+          this.$refs.qualityRef && this.$refs.qualityRef.length !== 0
+            ? this.$refs.qualityRef[0].temp
+            : null,
+        cost:
+          this.$refs.costRef && this.$refs.costRef.length !== 0
+            ? this.$refs.costRef[0].temp
+            : null,
+        technology:
+          this.$refs.technologyRef && this.$refs.technologyRef.length !== 0
+            ? this.$refs.technologyRef[0].temp
+            : null
+      }
+      console.log(params)
+    },
+    handleTabClick() {
+      // 即将离开的组件不存在校验的方法
+      if (!this.$refs[this.checkSelectList[this.tempModel].ref][0].validate) {
+        console.log('不存在校验方法')
+        // temp = current
+        this.$nextTick(() => {
+          this.tempModel = this.currentModel
+        })
+        return
+      }
+      // 即将离开的组件存在校验的方法
+      const res = this.$refs[this.checkSelectList[this.tempModel].ref][0].validate()
+      if (!res) {
+        // 校验不通过。current = temp
+        this.$nextTick(() => {
+          this.currentModel = this.tempModel
+        })
+      } else {
+        // 校验通过，temp = current
+        this.$nextTick(() => {
+          this.tempModel = this.currentModel
+        })
+      }
     }
   }
 }
