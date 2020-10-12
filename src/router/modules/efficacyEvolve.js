@@ -97,6 +97,15 @@ const efficacyEvolveRouter = {
   },
   // hidden: true, // 控制是否在侧边栏显示与隐藏的属性
   children: [
+    {
+      path: 'AddProject',
+      name: 'AddProject',
+      hidden: true,
+      meta: {
+        title: '添加项目'
+      },
+      component: () => import('@/views/efficacyEvolve/project_line/add_project')
+    },
     // 资源统计
     {
       path: 'summary_sta',
@@ -118,10 +127,10 @@ const efficacyEvolveRouter = {
       redirect: 'noRedirect',
       children: [
         {
-          path: '12x_project_test',
-          name: '12x_project_test',
+          path: 'ProjectTotal',
+          name: 'ProjectTotal',
           meta: {
-            title: '12x_project_test'
+            title: 'ProjectTotal'
           },
           component: () => import('@/views/efficacyEvolve/project_total')
         },
@@ -141,10 +150,9 @@ const efficacyEvolveRouter = {
           },
           component: () => import('@/views/mygoo/demo2')
         },
-
         {
-          path: 'add_project',
-          name: 'add_project',
+          path: 'AddProject',
+          name: 'AddProject',
           hidden: true,
           meta: {
             title: '添加项目'

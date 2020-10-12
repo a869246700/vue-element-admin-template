@@ -66,12 +66,9 @@ export default {
       return this.sizeActive === '0'
     }
   },
-  created() {
-    console.log('初始化')
-  },
   methods: {
     handleCreateClick() {
-      this.$router.push('/efficacyEvolve/project_line/add_project')
+      this.$router.push('/efficacyEvolve/AddProject')
     },
     handleSizeChange(flag) {
       this.sizeActive = String(flag)

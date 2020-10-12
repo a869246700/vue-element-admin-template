@@ -63,6 +63,7 @@
           </el-col>
         </el-row>
         <div class="footer">
+          <el-button type="danger" @click="handleCancleClick">取消</el-button>
           <el-button type="primary" @click="handleNextClick">下一步</el-button>
         </div>
       </el-form>
@@ -101,7 +102,8 @@
           </el-col>
         </el-row>
         <div class="footer">
-          <el-button type="primary" @click="handlePreClick">上一步</el-button>
+          <el-button type="danger" @click="handleCancleClick">取消</el-button>
+          <el-button type="info" @click="handlePreClick">上一步</el-button>
           <el-button type="primary" @click="handleCompleteClick">完成</el-button>
         </div>
       </div>
@@ -119,58 +121,57 @@ import Technology from './Form/Technology'
 import Integral from './Form/Integral'
 import ProjectReport from './Form/ProjectReport'
 
-const rules = {
-  project: [
-    {
-      required: true,
-      message: '请填写项目名称',
-      trigger: 'blur'
-    }
-  ],
-  type: [
-    {
-      required: true,
-      message: '请填写项目类型',
-      trigger: 'change'
-    }
-  ],
-  need: [
-    {
-      required: true,
-      message: '请填写项目需求&业务目标简介',
-      trigger: 'blur'
-    }
-  ],
-  ptm: [
-    {
-      required: true,
-      message: '请填写PTM',
-      trigger: 'blur'
-    }
-  ],
-  ptgttl: [
-    {
-      required: true,
-      message: '请填写PTGTTL',
-      trigger: 'blur'
-    }
-  ],
-  deviation: [
-    {
-      required: true,
-      message: '请填写偏差率',
-      trigger: 'blur'
-    }
-  ]
-}
-
 export default {
+  name: 'AddProject',
   components: { Progress, Quality, Cost, Risk, Task, Technology, Integral, ProjectReport },
   data() {
     return {
       active: 0,
       temp: {},
-      rules,
+      rules: {
+        project: [
+          {
+            required: true,
+            message: '请填写项目名称',
+            trigger: 'blur'
+          }
+        ],
+        type: [
+          {
+            required: true,
+            message: '请填写项目类型',
+            trigger: 'change'
+          }
+        ],
+        need: [
+          {
+            required: true,
+            message: '请填写项目需求&业务目标简介',
+            trigger: 'blur'
+          }
+        ],
+        ptm: [
+          {
+            required: true,
+            message: '请填写PTM',
+            trigger: 'blur'
+          }
+        ],
+        ptgttl: [
+          {
+            required: true,
+            message: '请填写PTGTTL',
+            trigger: 'blur'
+          }
+        ],
+        deviation: [
+          {
+            required: true,
+            message: '请填写偏差率',
+            trigger: 'blur'
+          }
+        ]
+      },
       checkSelectList: [
         {
           value: '0',
@@ -237,10 +238,8 @@ export default {
       return this.checkSelectList.filter((item) => item.checked)
     }
   },
-  watch: {
-    currentModel(newV, oldV) {
-      this.oldCurrentModel = oldV
-    }
+  created() {
+    console.log('添加项目初始化')
   },
   methods: {
     handlePreClick() {
@@ -282,6 +281,23 @@ export default {
         this.currentModel = item.value
       }
     },
+    // 点击取消，确认取消按钮
+    handleCancleClick() {
+      this.$confirm('确定取消创建项目？', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning',
+        lockScroll: false
+      })
+        .then(() => {
+          // 1. 调用删除项目的接口
+          // 2. 返回上一级
+          this.$store.dispatch('tagsView/delView', this.$route)
+          this.$router.go(-1)
+        })
+        .catch(() => {})
+    },
+    //  点击完成按钮
     handleCompleteClick() {
       // 1.当前表单组件进行校验
       const existComponents = this.$refs
@@ -324,8 +340,9 @@ export default {
             : null
       }
       console.log(params)
-
-      // this.$router.push('/efficacyEvolve/project_line/12x_project_test')
+      // 返回页面
+      this.$store.dispatch('tagsView/delView', this.$route)
+      this.$router.push('/efficacyEvolve/project_line/12x_project_test')
     }
   }
 }

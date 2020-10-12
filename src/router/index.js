@@ -114,7 +114,7 @@ export async function initRouterList() {
   })
 
   formatter(asyncRoutes, null, res)
-  console.log('初始化完毕')
+  console.log('路由初始化完毕')
   return true
 }
 
@@ -142,7 +142,7 @@ function formatter(data, parentName, validRouter) {
       return null
     }
 
-    if (item.name === '11x_project_test' || item.name === '12x_project_test' || item.name === '12x_project_test_data') {
+    if (item.name === '11x_project_test' || item.name === 'ProjectTotal' || item.name === '12x_project_test_data') {
       item.hidden = false
     }
 
