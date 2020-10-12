@@ -38,6 +38,101 @@
           />
         </el-form-item>
       </div>
+
+      <div class="form-item">
+        <div class="title">质量缺陷</div>
+        <div class="quality-defect el-form-item">
+          <div>
+            <!-- 缺陷质量目标&相关要素设置 -->
+            <div style="font-size: 16px">缺陷质量目标&相关要素设置</div>
+            <div style="margin-top: 5px; margin-left: 20px">
+              <div style="margin-top: 5px">
+                缺陷质量总目标：<el-input
+                  v-model.trim="temp.defact_total"
+                  size="mini"
+                  style="width: 100px"
+                />
+                <span style="margin-left: 5px">个/Kloc</span>
+              </div>
+
+              <div>
+                <div style="margin-top: 5px">
+                  工作包质量目标：<el-input
+                    v-model.trim="temp.workpackage_quality"
+                    size="mini"
+                    style="width: 100px"
+                  />
+                  <span style="margin-left: 5px">个/Kloc</span>
+                </div>
+                <div style="margin-left: 40px">
+                  <div style="margin-top: 5px">
+                    准入：<el-input
+                      v-model.trim="temp.zr_workpackage_quality"
+                      size="mini"
+                      style="width: 100px"
+                    />
+                    <span style="margin-left: 5px">个/Kloc</span>
+                  </div>
+                  <div style="margin-top: 5px">
+                    内测：<el-input
+                      v-model.trim="temp.nc_workpackage_quality"
+                      size="mini"
+                      style="width: 100px"
+                    />
+                    <span style="margin-left: 5px">个/Kloc</span>
+                  </div>
+                </div>
+              </div>
+
+              <div style="margin-top: 5px">
+                遗留BUG目标：<el-input
+                  v-model.trim="temp.legacy_bug_target"
+                  size="mini"
+                  style="width: 100px"
+                />
+                <span style="margin-left: 5px">个/Kloc</span>
+              </div>
+
+              <div>
+                <div style="margin-top: 5px">
+                  遗漏BUG目标：<el-input
+                    v-model.trim="temp.omission_bug_target"
+                    size="mini"
+                    style="width: 100px"
+                  />
+                  <span style="margin-left: 5px">个/Kloc</span>
+                </div>
+                <div style="margin-left: 40px">
+                  <div style="margin-top: 5px">
+                    工作包遗漏：<el-input
+                      v-model.trim="temp.workpackage_omission"
+                      size="mini"
+                      style="width: 100px"
+                    />
+                    <span style="margin-left: 5px">个/Kloc</span>
+                  </div>
+                  <div style="margin-top: 5px">
+                    遗留遗漏：<el-input
+                      v-model.trim="temp.legacy_omission"
+                      size="mini"
+                      style="width: 100px"
+                    />
+                    <span style="margin-left: 5px">个/Kloc</span>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <!-- 缺陷质量预警 -->
+            <div style="margin-top: 10px; font-size: 16px">缺陷质量预警</div>
+            <div style="margin-top: 5px; margin-left: 20px">
+              质量数据超出/低于目标数据
+              <el-input v-model.trim="temp.defect_warning" size="mini" style="width: 60px" />
+              %后，进行【标红】预警;
+            </div>
+          </div>
+        </div>
+      </div>
     </div>
   </el-form>
 </template>
@@ -59,7 +154,7 @@ export default {
   methods: {
     validate() {
       let tag = false
-      this.$refs.formRef.validate(valid => {
+      this.$refs.formRef.validate((valid) => {
         tag = valid
       })
       return tag
@@ -90,16 +185,15 @@ export default {
 
 <style lang="scss" scoped>
 .quality {
-  font-size: 14px;
+  font-size: 15px;
   font-weight: normal;
 
   .form-container {
-    padding: 10px;
-    border: 1px solid #aaa;
-
     .form-item {
-      &:nth-child(-n + 1) {
-        margin-bottom: 30px;
+      margin-bottom: 25px;
+
+      &:nth-last-of-type(1) {
+        margin-bottom: 0;
       }
 
       .title {
@@ -108,13 +202,15 @@ export default {
       }
 
       .el-form-item {
+        padding: 10px;
+        border: 1px solid #aaa;
         margin-top: 10px;
       }
     }
   }
 
   .el-form-item:nth-last-child(1) {
-    margin-bottom: 0!important;
+    margin-bottom: 0 !important;
   }
 }
 </style>

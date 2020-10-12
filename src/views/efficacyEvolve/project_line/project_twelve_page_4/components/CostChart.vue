@@ -1,5 +1,5 @@
 <template>
-  <card title="成本统计图">
+  <card title="成本统计图" class="cost-chart">
     <div>
       <chart
         ref="echartsTypeCostSummaryStaRef"
@@ -60,16 +60,24 @@ export default {
           project
         }
       })
-
+      console.log(res)
       this.echartsTypeCostSummaryStaOptions = {
+        backgroundColor: '#fff',
         title: {
-          text: '大类资源统计'
+          text: '大类资源统计',
+          top: 10,
+          left: 10
         },
         tooltip: {
-          trigger: 'axis'
+          trigger: 'axis',
+          axisPointer: {
+            type: 'cross'
+          },
+          padding: [5, 10]
         },
         legend: {
           data: res.legend,
+          top: 10,
           selected: {
             合计: false
           }
@@ -127,14 +135,18 @@ export default {
         }
       })
       this.echartsRealmCostSummaryStaOptions = {
+        backgroundColor: '#fff',
         title: {
-          text: '业务域资源统计'
+          text: '业务域资源统计',
+          top: 10,
+          left: 10
         },
         tooltip: {
           trigger: 'axis'
         },
         legend: {
           data: res.legend,
+          top: 10,
           selected: {
             合计: false
           }
@@ -188,4 +200,7 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.cost-chart {
+  background-color: rgb(240, 242, 245);
+}
 </style>

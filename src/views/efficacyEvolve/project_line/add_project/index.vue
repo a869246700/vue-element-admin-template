@@ -21,7 +21,11 @@
               />
             </el-form-item>
             <el-form-item label="项目类型" prop="type">
-              <el-input v-model.trim="temp.type" placeholder="请输入项目类型" />
+              <el-select v-model="temp.type" placeholder="请选择项目类型" style="width: 100%">
+                <el-option key="single" label="单阶段" value="1" />
+                <el-option key="multiple" label="多阶段" value="2" />
+                <el-option key="maintain" label="维护阶段" value="3" />
+              </el-select>
             </el-form-item>
             <el-form-item label="项目需求&业务目标简介" prop="need">
               <el-input
@@ -84,7 +88,7 @@
             </div>
           </el-col>
           <el-col :span="20" class="model-menu-content">
-            <el-tabs v-model="currentModel" tab-position="left" @tab-click="handleTabClick">
+            <el-tabs v-model="currentModel" tab-position="left">
               <el-tab-pane
                 v-for="item in tabList"
                 :key="item.value"
@@ -127,7 +131,7 @@ const rules = {
     {
       required: true,
       message: '请填写项目类型',
-      trigger: 'blur'
+      trigger: 'change'
     }
   ],
   need: [
@@ -225,9 +229,7 @@ export default {
           checked: false
         }
       ],
-      currentModel: '0',
-      oldCurrentModel: '0',
-      tempModel: '0'
+      currentModel: '0'
     }
   },
   computed: {
@@ -269,24 +271,41 @@ export default {
             temp = this.checkSelectList[i]
           }
         }
-        // 如果在此之前找到checked为true,且是最后一个找到的，则将currentModel和tempModel赋值为item.value
+        // 如果在此之前找到checked为true,且是最后一个找到的，则将currentModel赋值为item.value
         if (temp) {
           this.currentModel = temp.value
-          this.tempModel = temp.value
         } else {
           this.currentModel = this.tabList.length > 0 ? this.tabList[0].value : '0'
-          this.tempModel = this.tabList.length > 0 ? this.tabList[0].value : '0'
         }
       } else if (item.checked && this.tabList.length === 1) {
         // 在勾选时，当所有checked都是false的情况下
         this.currentModel = item.value
-        this.tempModel = item.value
       }
     },
     handleCompleteClick() {
       // 1.当前表单组件进行校验
+      const existComponents = this.$refs
+
+      for (const key in existComponents) {
+        if (
+          existComponents[key] &&
+          existComponents[key].length !== 0 &&
+          existComponents[key][0].validate
+        ) {
+          // 调用检测方法
+          const result = existComponents[key][0].validate()
+          // 没通过校验
+          if (!result) {
+            const failedCheck = this.checkSelectList.find((ele) => {
+              return ele.ref === key
+            })
+
+            this.currentModel = failedCheck.value // 未通过的只想未通过
+            return
+          }
+        }
+      }
       // 2.每个表单组件进行取值
-      console.log(this.$refs)
       const params = {
         base: this.temp,
         progress:
@@ -298,39 +317,15 @@ export default {
             ? this.$refs.qualityRef[0].temp
             : null,
         cost:
-          this.$refs.costRef && this.$refs.costRef.length !== 0
-            ? this.$refs.costRef[0].temp
-            : null,
+          this.$refs.costRef && this.$refs.costRef.length !== 0 ? this.$refs.costRef[0].temp : null,
         technology:
           this.$refs.technologyRef && this.$refs.technologyRef.length !== 0
             ? this.$refs.technologyRef[0].temp
             : null
       }
       console.log(params)
-    },
-    handleTabClick() {
-      // 即将离开的组件不存在校验的方法
-      if (!this.$refs[this.checkSelectList[this.tempModel].ref][0].validate) {
-        console.log('不存在校验方法')
-        // temp = current
-        this.$nextTick(() => {
-          this.tempModel = this.currentModel
-        })
-        return
-      }
-      // 即将离开的组件存在校验的方法
-      const res = this.$refs[this.checkSelectList[this.tempModel].ref][0].validate()
-      if (!res) {
-        // 校验不通过。current = temp
-        this.$nextTick(() => {
-          this.currentModel = this.tempModel
-        })
-      } else {
-        // 校验通过，temp = current
-        this.$nextTick(() => {
-          this.tempModel = this.currentModel
-        })
-      }
+
+      // this.$router.push('/efficacyEvolve/project_line/12x_project_test')
     }
   }
 }

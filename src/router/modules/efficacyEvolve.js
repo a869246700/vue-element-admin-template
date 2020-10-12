@@ -147,8 +147,7 @@ const efficacyEvolveRouter = {
           name: 'add_project',
           hidden: true,
           meta: {
-            title: '添加项目',
-            noCahe: true
+            title: '添加项目'
           },
           component: () => import('@/views/efficacyEvolve/project_line/add_project')
         },
