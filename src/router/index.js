@@ -74,13 +74,13 @@ export const constantRoutes = [
         path: 'main',
         redirect: '/main/main',
         hidden: true,
-        component: () => import('@/views/efficacyEvolve/index'),
+        component: () => import('@/views/main'),
         children: [
           {
             path: 'main',
             name: 'main',
             meta: { title: 'menu.main.main', icon: 'dashboard', affix: true },
-            component: () => import('@/views/mygoo/demo2')
+            component: () => import('@/views/main/main')
           }
         ]
       }

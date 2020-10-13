@@ -68,7 +68,7 @@ export default {
   },
   methods: {
     handleCreateClick() {
-      this.$router.push('/efficacyEvolve/AddProject')
+      this.$router.push('/efficacyEvolve/project_line/AddProject')
     },
     handleSizeChange(flag) {
       this.sizeActive = String(flag)

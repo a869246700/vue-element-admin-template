@@ -238,9 +238,6 @@ export default {
       return this.checkSelectList.filter((item) => item.checked)
     }
   },
-  created() {
-    console.log('添加项目初始化')
-  },
   methods: {
     handlePreClick() {
       this.active--
