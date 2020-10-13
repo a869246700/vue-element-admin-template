@@ -23,6 +23,7 @@
         <el-select
           v-model="temp.questionType"
           size="small"
+          filterable
           style="width: 100%;"
           placeholder="请选择问题类型"
         >
@@ -46,7 +47,7 @@
       </el-form-item>
 
       <el-form-item label="责任人" prop="userName">
-        <el-select v-model="temp.userName" size="small" style="width: 100%;" placeholder="请选择问题类型">
+        <el-select v-model="temp.userName" size="small" filterable style="width: 100%;" placeholder="请选择问题类型">
           <el-option
             v-for="(item, index) in personSelectList"
             :key="index"
@@ -60,6 +61,7 @@
         <el-select
           v-model="temp.manageName"
           size="small"
+          filterable
           style="width: 100%;"
           placeholder="请选择问题类型"
         >

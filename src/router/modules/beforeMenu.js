@@ -13,7 +13,7 @@ const beforeMenuRouter = {
       path: 'dataArrange',
       name: 'dataArrange',
       meta: { title: 'dataArrange' },
-      component: () => import('@/views/efficacyEvolve'),
+      component: () => import('@/views/beforeMenu'),
       redirect: 'noRedirect',
       children: [
         {
