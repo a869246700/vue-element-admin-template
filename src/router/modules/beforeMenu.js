@@ -339,20 +339,20 @@ const beforeMenuRouter = {
       path: 'case',
       name: 'case',
       meta: { title: 'case' },
-      component: () => import('@/views/efficacyEvolve'),
+      component: () => import('@/views/beforeMenu'),
       redirect: 'noRedirect',
       children: [
         {
           path: 'case_info_list',
           name: 'case_info_list',
           meta: { title: 'case_info_list', noCahe: true },
-          component: () => import('@/views/mygoo/demo2')
+          component: () => import('@/views/beforeMenu')
         },
         {
           path: 'case_info_handle_list',
           name: 'case_info_handle_list',
           meta: { title: 'case_info_handle_list', noCahe: true },
-          component: () => import('@/views/mygoo/demo2')
+          component: () => import('@/views/beforeMenu/case/case_info_handle_list')
         }
       ]
     },

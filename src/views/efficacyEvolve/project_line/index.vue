@@ -22,7 +22,7 @@
             <span slot="reference" class="disabled" style="padding: 0 10px;">{{ item.label }}</span>
           </el-popover>
 
-          <span v-else slot="label" :class="activeName === item.key ? 'active' : ''" style="padding: 0 10px;">{{ item.label }}</span>
+          <span v-else slot="label" style="padding: 0 10px;">{{ item.label }}</span>
           <tab-component :is="item.name" />
         </el-tab-pane>
       </el-tabs>

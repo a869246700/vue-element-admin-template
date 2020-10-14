@@ -22,6 +22,8 @@ import manageRouter from './modules/manage'
 import authorityRouter from './modules/authority'
 // 异常处理
 import execptionRouter from './modules/exception'
+// 积分管理
+import integralRouter from './modules/integral'
 
 // 录取权限路由列表
 import { listRouter } from '@/services/user'
@@ -92,6 +94,7 @@ export const asyncRoutes = [
   efficacyEvolveRouter,
   qualificationsRouter,
   rankingListRouter,
+  integralRouter,
   beforeMenuRouter,
   manageRouter,
   authorityRouter,
