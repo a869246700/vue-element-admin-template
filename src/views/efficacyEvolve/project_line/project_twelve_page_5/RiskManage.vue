@@ -26,7 +26,7 @@
 
     <!-- charts区域 -->
     <div class="charts">
-      <risk-chart />
+      <risk-chart ref="riskChartRef" />
     </div>
   </div>
 </template>
@@ -57,6 +57,9 @@ export default {
     })
   },
   methods: {
+    chartResize() {
+      this.$refs.riskChartRef.chartResize()
+    },
     // 处理阶段值的改变
     handleStageChange(e) {
       console.log(e)

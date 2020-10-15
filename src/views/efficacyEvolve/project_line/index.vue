@@ -3,7 +3,7 @@
   <div id="project-line">
     <el-card>
       <!-- Tab 切换 -->
-      <el-tabs v-model="activeName">
+      <el-tabs v-model="activeName" @tab-click="handleTabClick">
         <el-tab-pane
           v-for="item in tabMapOptions"
           :key="item.key"
@@ -23,7 +23,7 @@
           </el-popover>
 
           <span v-else slot="label" style="padding: 0 10px;">{{ item.label }}</span>
-          <tab-component :is="item.name" />
+          <tab-component :is="item.name" :ref="item.name + 'Ref'" />
         </el-tab-pane>
       </el-tabs>
 
@@ -68,6 +68,12 @@ export default {
         { label: '项目报告推送', key: '9', disabled: true },
         { label: '项目要素设置', key: '10', disabled: true }
       ]
+    }
+  },
+  methods: {
+    handleTabClick(e) {
+      const currentCom = this.tabMapOptions.find(ele => ele.key === this.activeName).name + 'Ref'
+      this.$refs[currentCom] && this.$refs[currentCom].length !== 0 && this.$refs[currentCom][0].chartResize && this.$refs[currentCom][0].chartResize()
     }
   }
 }

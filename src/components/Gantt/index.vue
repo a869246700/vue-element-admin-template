@@ -195,7 +195,6 @@ export default {
               }
             ]
           }
-
         case '周':
           return {
             scale_unit: 'week',

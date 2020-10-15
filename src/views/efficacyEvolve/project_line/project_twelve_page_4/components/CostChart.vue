@@ -49,8 +49,11 @@ export default {
     },
     // 调整chart
     chartResize() {
-      this.$refs.echartsTypeCostSummaryStaRef.resize()
-      this.$refs.echartsRealmCostSummaryStaRef.resize()
+      this.$nextTick(() => {
+        // console.log('调整chart')
+        this.$refs.echartsTypeCostSummaryStaRef.resize()
+        this.$refs.echartsRealmCostSummaryStaRef.resize()
+      })
     },
     async getEchartsTypeCostSummarySta(project) {
       this.echartsTypeCostSummaryStaLoading = true
@@ -60,7 +63,6 @@ export default {
           project
         }
       })
-      console.log(res)
       this.echartsTypeCostSummaryStaOptions = {
         backgroundColor: '#fff',
         title: {
@@ -198,9 +200,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.cost-chart {
-  background-color: rgb(240, 242, 245);
-}
-</style>

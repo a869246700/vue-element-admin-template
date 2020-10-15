@@ -8,7 +8,7 @@
       :xl="{span: 12}"
       style="padding-right:8px;margin-bottom:30px;"
     >
-      <chart v-loading="isChartLoading" :chart-data="mockData" title="风险类别" />
+      <chart ref="firstChartRef" v-loading="isChartLoading" :chart-data="mockData" title="风险类别" />
     </el-col>
     <el-col
       :xs="{span: 24}"
@@ -18,7 +18,7 @@
       :xl="{span: 12}"
       style="padding-right:8px;margin-bottom:30px;"
     >
-      <chart v-loading="isChartLoading" :chart-data="mockData2" title="风险影响" />
+      <chart ref="secondChartRef" v-loading="isChartLoading" :chart-data="mockData2" title="风险影响" />
     </el-col>
   </el-row>
 </template>
@@ -70,6 +70,15 @@ export default {
     setTimeout(() => {
       this.isChartLoading = false
     }, 3000)
+  },
+  methods: {
+    chartResize() {
+      this.$nextTick(() => {
+        // console.log('图表调整')
+        this.$refs.firstChartRef.resize()
+        this.$refs.secondChartRef.resize()
+      })
+    }
   }
 }
 </script>

@@ -1,11 +1,9 @@
 <template>
   <div class="evolve">
-    <el-radio-group v-model="active" style="margin-bottom: 20px;">
-      <el-radio-button
-        v-for="(item, index) in tabs"
-        :key="index"
-        :label="item.value"
-      >{{ item.label }}</el-radio-button>
+    <el-radio-group v-model="active" style="margin-bottom: 20px">
+      <el-radio-button v-for="(item, index) in tabs" :key="index" :label="item.value">{{
+        item.label
+      }}</el-radio-button>
     </el-radio-group>
 
     <transition name="component-fade" mode="out-in">
@@ -137,6 +135,19 @@ export default {
     this.queryImplementStageType()
   },
   methods: {
+    chartResize() {
+      switch (this.active) {
+        case '0':
+          this.$refs.implementRef.chartResize()
+          break
+        case '1':
+          this.$refs.specRef.chartResize()
+          break
+        case '4':
+          this.$refs.reviewRef.chartResize()
+          break
+      }
+    },
     handleCaseTypeClick(type, stage, projectStage) {
       // 首轮  阶段一 isSpec type
       this.$refs.typeSystemDialogRef.typeClick(stage, projectStage, 0, type)

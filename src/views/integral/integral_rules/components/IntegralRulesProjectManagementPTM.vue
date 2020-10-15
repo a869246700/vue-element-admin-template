@@ -107,6 +107,113 @@
           <td>1</td>
         </tr>
       </tbody>
+
+      <br>
+
+      <tbody>
+        <tr class="x1">
+          <td>PTTL难度系数</td>
+          <td />
+        </tr>
+
+        <tr class="x2">
+          <td>条件</td>
+          <td>难度系数</td>
+        </tr>
+
+        <tr class="x3">
+          <td>项目代码量＜5K</td>
+          <td>0</td>
+        </tr>
+
+        <tr class="x4">
+          <td>项目代码量【5K，10K】</td>
+          <td>0.5</td>
+        </tr>
+
+        <tr class="x5">
+          <td>项目代码量>5K</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+
+      <br>
+
+      <tbody>
+        <tr class="x1">
+          <td>阶段系数</td>
+          <td />
+        </tr>
+
+        <tr class="x2">
+          <td>阶段</td>
+          <td>难度系数</td>
+        </tr>
+
+        <tr class="x3">
+          <td>立项,CC</td>
+          <td>0</td>
+        </tr>
+
+        <tr class="x4">
+          <td>EC</td>
+          <td>0.2</td>
+        </tr>
+
+        <tr class="x5">
+          <td>转测试</td>
+          <td>0.5</td>
+        </tr>
+
+        <tr class="x6">
+          <td>试点发布,完成(正式发布)</td>
+          <td>1</td>
+        </tr>
+      </tbody>
+
+      <br>
+
+      <tbody>
+        <tr class="x1">
+          <td>版本类型为维护升级代码量为0的项目</td>
+          <td />
+        </tr>
+
+        <tr class="x2">
+          <td>类型</td>
+          <td>PTM分数</td>
+        </tr>
+
+        <tr class="x3">
+          <td>合入的bug大于30个</td>
+          <td>50</td>
+        </tr>
+
+        <tr class="x4">
+          <td>合入的bug小于30个</td>
+          <td>20</td>
+        </tr>
+      </tbody>
+
+      <br>
+
+      <tbody>
+        <tr class="x1">
+          <td>项目挑选规则：</td>
+        </tr>
+
+        <tr class="x2">
+          <td>
+            1. 2019年的10月以后的项目才纳入，
+            <br>
+            如果有个别再这个规则之外，单独纳入
+          </td>
+        </tr>
+
+        <tr class="x3">
+          <td>2. 10.x的项目管理暂不纳入</td>
+        </tr>
+      </tbody>
     </table>
   </div>
 </template>

@@ -1,11 +1,9 @@
 <template>
-  <div class="quality">
-    <el-radio-group v-model="active" style="margin-bottom: 20px;">
-      <el-radio-button
-        v-for="(item, index) in tabs"
-        :key="index"
-        :label="item.value"
-      >{{ item.label }}</el-radio-button>
+  <div id="quality">
+    <el-radio-group v-model="active" style="margin-bottom: 20px">
+      <el-radio-button v-for="(item, index) in tabs" :key="index" :label="item.value">{{
+        item.label
+      }}</el-radio-button>
     </el-radio-group>
 
     <transition name="component-fade" mode="out-in">
@@ -26,13 +24,13 @@
             size="small"
             @click="handleExportPackStaClick"
           >工作包达标统计</el-button>
-          <el-popover placement="bottom-end" :width="(146 * 7)" trigger="click">
+          <el-popover placement="bottom-end" :width="146 * 7" trigger="click">
             <el-table
               :data="bugSolve"
               border
               fit
-              style="width: 100%;"
-              :header-cell-style="{'background-color': '#FAFAFA' }"
+              style="width: 100%"
+              :header-cell-style="{ 'background-color': '#FAFAFA' }"
             >
               <el-table-column
                 v-for="item in bugSolveTableOptions"
@@ -42,15 +40,20 @@
                 :min-width="item.minWidth"
                 show-overflow-tooltip
               >
-                <template slot-scope="{row}">
-                  <div
-                    v-if="item.prop !== 'user_type'"
-                  >{{ row[item.prop] | bugSolveFilter(item.source, row) }}</div>
+                <template slot-scope="{ row }">
+                  <div v-if="item.prop !== 'user_type'">
+                    {{ row[item.prop] | bugSolveFilter(item.source, row) }}
+                  </div>
                   <span v-else>{{ row[item.prop] }}</span>
                 </template>
               </el-table-column>
             </el-table>
-            <el-button slot="reference" type="primary" size="small" style="margin-left: 10px;">BUG解决</el-button>
+            <el-button
+              slot="reference"
+              type="primary"
+              size="small"
+              style="margin-left: 10px"
+            >BUG解决</el-button>
           </el-popover>
         </template>
 
@@ -87,11 +90,11 @@
             <el-table
               v-loading="totalTableLoading"
               :data="qualityDefectList"
-              style="width: 100%; margin-bottom: 30px;"
+              style="width: 100%; margin-bottom: 30px"
               border
-              :header-cell-style="{'background-color': '#FAFAFA', color: '#666666' }"
+              :header-cell-style="{ 'background-color': '#FAFAFA', color: '#666666' }"
               row-key="name"
-              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
               fit
               class="total-table table"
             >
@@ -104,7 +107,7 @@
                 :fixed="item.fixed"
                 show-overflow-tooltip
               >
-                <template slot-scope="{row}">
+                <template slot-scope="{ row }">
                   <span
                     :class="row.children || item.prop !== 'name' ? 'with-child' : 'without-child'"
                   >{{ row[item.prop] }}</span>
@@ -140,21 +143,21 @@
             <el-table
               v-loading="zrTableLoading"
               :data="qualityZrDefectList"
-              style="width: 100%; margin-bottom: 10px; margin-top: 10px;"
+              style="width: 100%; margin-bottom: 10px; margin-top: 10px"
               border
-              :header-cell-style="{'background-color': '#FAFAFA' }"
+              :header-cell-style="{ 'background-color': '#FAFAFA' }"
               row-key="type"
-              :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
+              :tree-props="{ children: 'children', hasChildren: 'hasChildren' }"
               class="zr-table table"
             >
               <el-table-column prop="type" label="类型" fixed width="220" show-overflow-tooltip>
-                <template slot-scope="{row}">
-                  <span
-                    v-if="row.children"
-                    class="with-child"
-                    @click="handleTypeClcik(row)"
-                  >{{ row.type }}</span>
-                  <span v-else class="without-child" @click="handleTypeClcik(row)">{{ row.type }}</span>
+                <template slot-scope="{ row }">
+                  <span v-if="row.children" class="with-child" @click="handleTypeClcik(row)">{{
+                    row.type
+                  }}</span>
+                  <span v-else class="without-child" @click="handleTypeClcik(row)">{{
+                    row.type
+                  }}</span>
                 </template>
               </el-table-column>
 
@@ -171,6 +174,8 @@
           </div>
         </template>
       </card>
+
+      <bug-analyze v-else-if="active === '1'" ref="bugAnalyzeRef" />
     </transition>
 
     <!-- bug 明细 -->
@@ -191,6 +196,7 @@
 
 <script>
 import Card from '@/components/Card/index'
+import BugAnalyze from './components/BugAnalyze'
 import QualityBugDetailDialog from './components/QualityBugDetailDialog'
 import QualityBugPackageDialog from './components/QualityBugPackageDialog'
 
@@ -206,7 +212,8 @@ export default {
   components: {
     QualityBugDetailDialog,
     QualityBugPackageDialog,
-    Card
+    Card,
+    BugAnalyze
   },
   data() {
     return {
@@ -218,7 +225,7 @@ export default {
           value: '0'
         },
         {
-          label: '占位1',
+          label: 'BUG分析',
           value: '1'
         },
         {
@@ -572,6 +579,17 @@ export default {
         }
       ]
       return list.filter((item) => this.secondSelectVal.indexOf(item.label) >= 0)
+    }
+  },
+  watch: {
+    active(newV, oldV) {
+      switch (newV) {
+        case '1':
+          this.$nextTick(() => {
+            this.$refs.bugAnalyzeRef.chartResize && this.$refs.bugAnalyzeRef.chartResize()
+          })
+          break
+      }
     }
   },
   created() {

@@ -1085,10 +1085,16 @@ export default {
       this.getProjectProcessEfficiency(this.project)
       this.getRealmAdjustList(this.project)
     },
+    chartResize() {
+      switch (this.active) {
+        case '0':
+          this.$refs.costChartRef.chartResize()
+          break
+      }
+    },
     // tree 选择项修改
     handleTreeChange(node, nodes) {
       this.treeCheckedVal = nodes.checkedKeys
-      console.log(1)
     },
     // 导出资源投入明细
     handleResourceInvClick() {
