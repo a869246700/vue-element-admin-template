@@ -57,9 +57,9 @@ export default {
         },
         grid: {
           top: 80,
-          left: 80,
-          right: 80,
-          bottom: 50,
+          left: 50,
+          right: 50,
+          bottom: 0,
           containLabel: true
         },
         dataZoom: [
@@ -67,13 +67,6 @@ export default {
             type: 'inside',
             bottom: 10,
             start: 0,
-            end: 100
-          },
-          {
-            show: true,
-            type: 'slider',
-            top: '90%',
-            start: 50,
             end: 100
           }
         ],

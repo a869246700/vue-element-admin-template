@@ -1,30 +1,35 @@
 <template>
-  <card title="成本统计图" class="cost-chart">
-    <div>
-      <chart
-        ref="echartsTypeCostSummaryStaRef"
-        v-loading="echartsTypeCostSummaryStaLoading"
-        :option-rate="echartsTypeCostSummaryStaOptions"
-      />
-    </div>
+  <div class="cost-chart">
+    <summary-sta style="margin: 0px; margin-bottom: 10px;" />
 
-    <div style="margin-top: 20px;">
-      <chart
-        ref="echartsRealmCostSummaryStaRef"
-        v-loading="echartsRealmCostSummaryStaLoading"
-        :option-rate="echartsRealmCostSummaryStaOptions"
-      />
-    </div>
-  </card>
+    <card title="成本统计图">
+      <div>
+        <chart
+          ref="echartsTypeCostSummaryStaRef"
+          v-loading="echartsTypeCostSummaryStaLoading"
+          :option-rate="echartsTypeCostSummaryStaOptions"
+        />
+      </div>
+
+      <div style="margin-top: 20px">
+        <chart
+          ref="echartsRealmCostSummaryStaRef"
+          v-loading="echartsRealmCostSummaryStaLoading"
+          :option-rate="echartsRealmCostSummaryStaOptions"
+        />
+      </div>
+    </card>
+  </div>
 </template>
 
 <script>
 import Card from '@/components/Card'
 import Chart from '@/components/MyChart/Chart'
+import SummarySta from '@/views/efficacyEvolve/summary_sta'
 
 import request from '@/services/request'
 export default {
-  components: { Card, Chart },
+  components: { Card, Chart, SummarySta },
   props: {
     project: {
       type: String,

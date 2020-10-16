@@ -6,7 +6,7 @@
       :md="{span: 8}"
       :lg="{span: 8}"
       :xl="{span: 8}"
-      style="border: 1px solid #ccc; margin-top: 10px;"
+      style="border: 1px solid #ccc; border-right: none; margin-top: 10px;"
     >
       <div>
         <div v-loading="summaryStageStaLoading" class="header">

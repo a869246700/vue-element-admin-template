@@ -1,20 +1,40 @@
 <template>
   <el-row>
-    <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 8}" :xl="{span: 8}">
+    <el-col
+      :xs="{ span: 24 }"
+      :sm="{ span: 24 }"
+      :md="{ span: 24 }"
+      :lg="{ span: 8 }"
+      :xl="{ span: 8 }"
+      style="border-right: none"
+    >
       <chart
         ref="echartsProjectBigTypeSummaryRef"
         v-loading="echartsProjectBigTypeSummaryLoading"
         :option-rate="echartsProjectBigTypeSummaryOptions"
       />
     </el-col>
-    <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 8}" :xl="{span: 8}">
+    <el-col
+      :xs="{ span: 24 }"
+      :sm="{ span: 24 }"
+      :md="{ span: 24 }"
+      :lg="{ span: 8 }"
+      :xl="{ span: 8 }"
+      style="border-right: none"
+    >
       <chart
         ref="echartsProjectSmallTypeSummaryRef"
         v-loading="echartsProjectSmallTypeSummaryLoading"
         :option-rate="echartsProjectSmallTypeSummaryOptions"
       />
     </el-col>
-    <el-col :xs="{span: 24}" :sm="{span: 24}" :md="{span: 24}" :lg="{span: 8}" :xl="{span: 8}">
+    <el-col
+      :xs="{ span: 24 }"
+      :sm="{ span: 24 }"
+      :md="{ span: 24 }"
+      :lg="{ span: 8 }"
+      :xl="{ span: 8 }"
+    >
       <chart
         ref="echartsProjectInfoSummaryRef"
         v-loading="echartsProjectInfoSummaryLoading"

@@ -583,13 +583,14 @@ export default {
   },
   watch: {
     active(newV, oldV) {
-      switch (newV) {
-        case '1':
-          this.$nextTick(() => {
-            this.$refs.bugAnalyzeRef.chartResize && this.$refs.bugAnalyzeRef.chartResize()
-          })
-          break
-      }
+      const timer = setTimeout(() => {
+        switch (newV) {
+          case '1':
+            this.$refs.bugAnalyzeRef.chartResize()
+            break
+        }
+        clearTimeout(timer)
+      }, 300)
     }
   },
   created() {
@@ -606,7 +607,6 @@ export default {
     },
     // 导出工作包明细
     handleExportPackageDetClick() {
-      console.log('导出工作包明细')
       const index = this.totalStageNameList.findIndex((e) => e.stage === this.totalStageName)
       const url = '/api/export/exeQualityWorkPackage'
       const obj = {
