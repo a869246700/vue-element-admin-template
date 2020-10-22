@@ -96,7 +96,7 @@
                 :label="item.label"
                 :name="item.value"
               >
-                <tab-component :is="item.cName" :ref="item.ref" />
+                <tab-component :is="item.cName" :ref="item.ref" :project="temp.project" />
               </el-tab-pane>
             </el-tabs>
           </el-col>
@@ -104,7 +104,7 @@
         <div class="footer">
           <el-button type="danger" @click="handleCancleClick">取消</el-button>
           <el-button type="info" @click="handlePreClick">上一步</el-button>
-          <el-button type="primary" @click="handleCompleteClick">完成</el-button>
+          <el-button type="success" @click="handleCompleteClick">完成</el-button>
         </div>
       </div>
     </transition>
@@ -295,7 +295,7 @@ export default {
         .catch(() => {})
     },
     //  点击完成按钮
-    handleCompleteClick() {
+    async handleCompleteClick() {
       // 1.当前表单组件进行校验
       const existComponents = this.$refs
 
@@ -337,9 +337,10 @@ export default {
             : null
       }
       console.log(params)
+
       // 返回页面
-      this.$store.dispatch('tagsView/delView', this.$route)
-      this.$router.push('/efficacyEvolve/project_line/12x_project_test')
+      // this.$store.dispatch('tagsView/delView', this.$route)
+      // this.$router.push('/efficacyEvolve/project_line/12x_project_test')
     }
   }
 }

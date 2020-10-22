@@ -40,7 +40,7 @@ router.beforeEach(async(to, from, next) => {
   // 获取 token
   const hasToken = getToken()
 
-  if (hasToken) {
+  if (hasToken && user) {
     if (to.path === '/login') {
       // 已经登录，则直接跳转至 /
       next({

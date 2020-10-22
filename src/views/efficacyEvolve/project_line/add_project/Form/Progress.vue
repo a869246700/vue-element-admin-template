@@ -105,11 +105,24 @@
       <div class="title">文档评审</div>
       <div class="content">按照当前模板获取 “PMS系统” 的数据信息呈现;</div>
     </div>
+
+    <div class="footer">
+      <el-button type="primary" @click="handleSaveClick">保存</el-button>
+    </div>
   </el-form>
 </template>
 
 <script>
+import request from '@/services/request'
+
 export default {
+  props: {
+    project: {
+      type: String,
+      default: '',
+      required: true
+    }
+  },
   data() {
     return {
       temp: {
@@ -126,6 +139,15 @@ export default {
         tag = valid
       })
       return tag
+    },
+    // 保存数据
+    async handleSaveClick() {
+      this.temp.project = this.project
+      const { data: res } = await request('/api/zcodergoo/addProgressModel', {
+        method: 'POST',
+        data: this.temp
+      })
+      console.log(res)
     }
   }
 }
@@ -185,6 +207,12 @@ export default {
     font-size: 13px;
     color: #aaa;
     font-weight: normal;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
   }
 }
 </style>

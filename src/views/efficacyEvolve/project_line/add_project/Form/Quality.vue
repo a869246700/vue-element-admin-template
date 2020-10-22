@@ -47,7 +47,8 @@
             <div style="font-size: 16px">缺陷质量目标&相关要素设置</div>
             <div style="margin-top: 5px; margin-left: 20px">
               <div style="margin-top: 5px">
-                缺陷质量总目标：<el-input
+                缺陷质量总目标：
+                <el-input
                   v-model.trim="temp.defact_total"
                   size="mini"
                   style="width: 100px"
@@ -134,13 +135,24 @@
         </div>
       </div>
     </div>
+    <div class="footer">
+      <el-button type="primary" @click="handleSaveClick">保存</el-button>
+    </div>
   </el-form>
 </template>
 
 <script>
+import request from '@/services/request'
 import DownFiles from '@/vendor/ExportExcel'
 
 export default {
+  props: {
+    project: {
+      type: String,
+      default: '',
+      required: true
+    }
+  },
   data() {
     return {
       butLoading: false,
@@ -178,6 +190,15 @@ export default {
       if (res.error) {
         this.$message.error(res.error)
       }
+    },
+    // 保存数据
+    async handleSaveClick() {
+      this.temp.project = this.project
+      const { data: res } = await request('/api/zcodergoo/addQualityModel', {
+        method: 'POST',
+        data: this.temp
+      })
+      console.log(res)
     }
   }
 }
@@ -211,6 +232,12 @@ export default {
 
   .el-form-item:nth-last-child(1) {
     margin-bottom: 0 !important;
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
   }
 }
 </style>
