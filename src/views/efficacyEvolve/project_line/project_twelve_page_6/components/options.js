@@ -66,12 +66,12 @@ export const rules = {
 
 export const wbsTableOptions = [
   {
-    prop: 'plan_start_date',
+    prop: 'planStartDate',
     label: '计划开始时间',
     minWidth: '140'
   },
   {
-    prop: 'plan_end_date',
+    prop: 'planEndDate',
     label: '计划结束时间',
     minWidth: '140'
   },

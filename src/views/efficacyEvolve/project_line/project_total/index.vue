@@ -49,6 +49,5 @@ export default {
 <style lang="scss" scoped>
 .project-total-container {
   margin: 20px;
-  background-color: rgb(240, 242, 245);
 }
 </style>

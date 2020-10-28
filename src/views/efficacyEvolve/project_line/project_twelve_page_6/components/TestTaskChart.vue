@@ -5,10 +5,15 @@
 <script>
 import echarts from 'echarts'
 import resize from '@/components/Charts/mixins/resize'
+import request from '@/services/request'
 
 export default {
   mixins: [resize],
   props: {
+    project: {
+      type: String,
+      required: true
+    },
     className: {
       type: String,
       default: 'chart'
@@ -41,6 +46,7 @@ export default {
   },
   mounted() {
     this.initChart()
+    this.init()
   },
   beforeDestroy() {
     if (!this.chart) {
@@ -50,6 +56,9 @@ export default {
     this.chart = null
   },
   methods: {
+    init() {
+      this.getEchartsData(this.project)
+    },
     initChart() {
       this.chart = echarts.init(document.getElementById(this.id))
 
@@ -299,6 +308,15 @@ export default {
           }
         ]
       })
+    },
+    async getEchartsData(project) {
+      const { data: res } = await request('/api/zcodergoo/echarts/taskPerformance', {
+        method: 'POST',
+        data: {
+          project
+        }
+      })
+      console.log(res)
     }
   }
 }

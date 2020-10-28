@@ -29,13 +29,25 @@
         </el-form-item>
       </div>
     </div>
+
+    <div class="footer">
+      <el-button type="primary" @click="handleSaveClick">保存</el-button>
+    </div>
   </el-form>
 </template>
 
 <script>
+import request from '@/services/request'
 import DownFiles from '@/vendor/ExportExcel'
 
 export default {
+  props: {
+    project: {
+      type: String,
+      default: '',
+      required: true
+    }
+  },
   data() {
     return {
       butLoading: false,
@@ -79,6 +91,15 @@ export default {
         this.temp.workpackage_topic_mapping = [file]
         this.$refs.workpackageTopicRef.clearValidate()
       }
+    },
+    // 保存数据
+    async handleSaveClick() {
+      this.temp.project = this.project
+      const { data: res } = await request('/api/zcodergoo/addTechnologyModel', {
+        method: 'POST',
+        data: this.temp
+      })
+      console.log(res)
     }
   }
 }
@@ -116,6 +137,12 @@ export default {
         width: 70px;
       }
     }
+  }
+
+  .footer {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 10px;
   }
 }
 </style>

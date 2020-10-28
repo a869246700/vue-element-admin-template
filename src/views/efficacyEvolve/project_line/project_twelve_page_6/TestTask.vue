@@ -2,11 +2,11 @@
   <div class="test-task">
     <el-tabs v-model="active" type="card" @tab-click="handleTabClick">
       <el-tab-pane label="WBS" name="1">
-        <test-task-wbs />
+        <test-task-wbs :project="project" />
       </el-tab-pane>
 
       <el-tab-pane label="任务执行情况" name="2">
-        <test-task-chart ref="taskChartRef" height="500px" width="100%" />
+        <test-task-chart ref="taskChartRef" height="500px" width="100%" :project="project" />
       </el-tab-pane>
 
       <el-tab-pane label="专项任务" name="3">

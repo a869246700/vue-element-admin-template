@@ -7,6 +7,7 @@
       :data="list"
       style="width: 100%"
       row-key="id"
+      :header-cell-style="{background: '#f6f6f6'}"
       :tree-props="{children: 'children', hasChildren: 'hasChildren'}"
       fit
       border
@@ -29,7 +30,7 @@
           <el-popover placement="bottom" width="50" trigger="click">
             <div class="operation">
               <div @click="handleEditClick(row)">编辑</div>
-              <div @click="handleCreateClick(row.id)">新增</div>
+              <div @click="handleCreateClick(row.id, row.path)">新增</div>
               <div @click="handleDeleteClick(row)">删除</div>
             </div>
             <i slot="reference" class="el-icon-more operation-icon" />
@@ -55,8 +56,18 @@
       >
         <template slot-scope="{row}">
           <span
-            v-if="item.prop === 'plan_start_date' || item.prop === 'plan_end_date'"
-          >{{ row[item.prop] | parseTime }}</span>
+            v-if="item.prop === 'planStartDate' || item.prop === 'planEndDate'"
+          >{{ new Date(row[item.prop]) | parseTime }}</span>
+
+          <div v-else-if="item.prop === 'priority'">
+            <el-tag
+              :type="row[item.prop] === 1 ? 'danger' : row[item.prop] === 2 ? 'warning' : 'success'"
+            >
+              {{ row[item.prop] | priorityFilter }}
+            </el-tag>
+          </div>
+
+          <span v-else-if="item.prop === 'progress'">{{ row[item.prop] && row[item.prop] + '%' }}</span>
 
           <span v-else>{{ row[item.prop] }}</span>
         </template>
@@ -81,18 +92,18 @@
           <el-input v-model.trim="temp.principal" style="width: 100%" clearable />
         </el-form-item>
 
-        <el-form-item label="计划开始时间" prop="plan_start_date">
+        <el-form-item label="计划开始时间" prop="planStartDate">
           <el-date-picker
-            v-model="temp.plan_start_date"
+            v-model="temp.planStartDate"
             type="datetime"
             placeholder="选择开始日期"
             style="width: 100%"
           />
         </el-form-item>
 
-        <el-form-item label="计划结束时间" prop="plan_end_date">
+        <el-form-item label="计划结束时间" prop="planEndDate">
           <el-date-picker
-            v-model="temp.plan_end_date"
+            v-model="temp.planEndDate"
             type="datetime"
             placeholder="选择结束日期"
             style="width: 100%"
@@ -105,7 +116,7 @@
               v-for="(item, index) in prioritySelectOptions"
               :key="index"
               :label="item.label"
-              :value="item.label"
+              :value="item.value"
             >
               <div class="select-item">
                 <i class="dot" :style="{ background: item.bg }" />
@@ -121,7 +132,7 @@
               v-for="(item, index) in progressSelectOptions"
               :key="index"
               :label="item.label"
-              :value="item.label"
+              :value="item.value"
             >
               <span>{{ item.label }}</span>
             </el-option>
@@ -146,6 +157,7 @@
 </template>
 
 <script>
+import request from '@/services/request'
 import { parseTime } from '@/utils'
 import { wbsTableOptions } from './options'
 
@@ -154,49 +166,36 @@ export default {
     principalFilter(row) {
       return row.position ? row.principal + '-' + row.position : row.principal
     },
+    priorityFilter(value) {
+      switch (value) {
+        case 1:
+          return 'High'
+        case 2:
+          return 'Medium'
+        case 3:
+          return 'Low'
+      }
+    },
     parseTime
+  },
+  props: {
+    project: {
+      type: String,
+      required: true
+    }
   },
   data() {
     return {
       key: 0,
       listLoading: false, // 是否在加载
-      list: [
-        {
-          id: 1, // id
-          name: '任务一',
-          principal: '高宇', // 负责人
-          position: '前端', // 职位
-          plan_start_date: new Date(2020, 8, 15), // 计划开始时间
-          plan_end_date: new Date(2020, 8, 20), // 计划结束时间
-          priority: undefined, // 优先级
-          progress: undefined, // 进度
-          deviation: undefined, // 偏差
-          remark: undefined, // 备注
-          children: [
-            {
-              id: 11,
-              name: '任务11',
-              principal: '高宇', // 负责人
-              position: '前端', // 职位
-              plan_start_date: new Date(2020, 8, 15), // 计划开始时间
-              plan_end_date: new Date(2020, 8, 20), // 计划结束时间
-              priority: undefined, // 优先级
-              progress: undefined, // 进度
-              deviation: undefined, // 偏差
-              remark: undefined, // 备注
-              parent_id: 1
-              // children: []
-            }
-          ]
-        }
-      ], // 表单数据
+      list: undefined,
       tableOptions: wbsTableOptions, // 表单列配置
       temp: {
         id: undefined,
         name: undefined, // 任务名称
         principal: undefined, // 责任人
-        plan_start_date: undefined, // 计划开始时间
-        plan_end_date: undefined, // 计划结束时间
+        planStartDate: undefined, // 计划开始时间
+        planEndDate: undefined, // 计划结束时间
         priority: undefined, // 优先级
         progress: undefined, // 进度
         deviation: undefined, // 偏差
@@ -216,16 +215,16 @@ export default {
       ],
       progressSelectOptions: [
         { label: '0%', value: 0 },
-        { label: '10%', value: 1 },
-        { label: '20%', value: 2 },
-        { label: '30%', value: 3 },
-        { label: '40%', value: 4 },
-        { label: '50%', value: 5 },
-        { label: '60%', value: 6 },
-        { label: '70%', value: 7 },
-        { label: '80%', value: 8 },
-        { label: '90%', value: 9 },
-        { label: '100%', value: 10 }
+        { label: '10%', value: 10 },
+        { label: '20%', value: 20 },
+        { label: '30%', value: 30 },
+        { label: '40%', value: 40 },
+        { label: '50%', value: 50 },
+        { label: '60%', value: 60 },
+        { label: '70%', value: 70 },
+        { label: '80%', value: 80 },
+        { label: '90%', value: 90 },
+        { label: '100%', value: 100 }
       ],
       pNode: undefined
     }
@@ -234,9 +233,9 @@ export default {
     rules() {
       // 开始时间校验
       const validateStartDate = (rule, value, callback) => {
-        if (this.temp.plan_end_date) {
+        if (this.temp.planEndDate) {
           const start = +new Date(value)
-          const end = +new Date(this.temp.plan_end_date)
+          const end = +new Date(this.temp.planEndDate)
 
           start > end ? callback(new Error('开始时间必须小于结束时间')) : callback()
         } else {
@@ -245,8 +244,8 @@ export default {
       }
       // 结束时间校验
       const validateEndDate = (rule, value, callback) => {
-        if (this.temp.plan_start_date) {
-          const start = +new Date(this.temp.plan_start_date)
+        if (this.temp.planStartDate) {
+          const start = +new Date(this.temp.planStartDate)
           const end = +new Date(value)
 
           start > end ? callback(new Error('开始时间必须小于结束时间')) : callback()
@@ -258,11 +257,11 @@ export default {
       return {
         name: [{ required: true, message: '请填写任务名', trigger: 'blur' }],
         principal: [{ required: true, message: '请填写负责人', trigger: 'blur' }],
-        plan_start_date: [
+        planStartDate: [
           { required: true, message: '请选择计划开始时间', trigger: 'change' },
           { validator: validateStartDate, trigger: 'change' }
         ],
-        plan_end_date: [
+        planEndDate: [
           { required: true, message: '请选择计划结束时间', trigger: 'change' },
           { validator: validateEndDate, trigger: 'change' }
         ],
@@ -272,7 +271,13 @@ export default {
       }
     }
   },
+  created() {
+    this.init()
+  },
   methods: {
+    init() {
+      this.getWbsTaskList()
+    },
     // 点击编辑按钮
     handleEditClick(row) {
       this.temp = Object.assign({}, row) // 复制对象
@@ -286,28 +291,31 @@ export default {
     // 进行真正的修改数据
     updateData() {
       // 1. 表单校验
-      this.$refs.dataFormRef.validate((valid) => {
+      this.$refs.dataFormRef.validate(async(valid) => {
         if (valid) {
-          // 1. 根据 id 找到下标值
-          this.findParentNode(this.list, this.temp.id)
-          const parentNode = this.pNode
-          const index = parentNode.findIndex((e) => e.id === this.temp.id)
-          // 2. 进行数据修改
-          parentNode.splice(index, 1, this.temp)
-          // 3. 提示修改成功
-          this.$notify({
-            title: '成功',
-            message: '修改数据成功',
-            type: 'success',
-            duration: 2000
+          // 1. 进行请求
+          const { data: res } = await request('/api/zcodergoo/updateWbsTask', {
+            method: 'POST',
+            data: this.temp
           })
-          // 4. 隐藏添加窗口
-          this.dialogVisible = false
+
+          // 2. 提示修改成功
+          if (res.item === 1) {
+            this.$message.success('修改成功')
+            this.init()
+          } else {
+            this.$message.error('修改失败')
+          }
+
+          this.$nextTick(() => {
+            // 4. 隐藏添加窗口
+            this.dialogVisible = false
+          })
         }
       })
     },
     // 点击添加按钮
-    handleCreateClick(parentId) {
+    handleCreateClick(parentId, path) {
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogVisible = true
@@ -315,35 +323,30 @@ export default {
         this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
       })
 
-      this.temp.parent_id = parentId
+      this.temp.parentId = parentId || 0
+      this.temp.path = path
+      this.temp.project = this.project
     },
     // 进行真正的添加数据
     createData() {
       // 1. 表单校验
-      this.$refs.dataFormRef.validate((valid) => {
+      this.$refs.dataFormRef.validate(async(valid) => {
         if (valid) {
-          // 模拟 id
-          this.temp.id = parseInt(Math.random() * 10000000)
-          // 如果没有 parent
-          if (!this.temp.parent_id) {
-            // 添加数据
-            this.list.push(this.temp)
-            // 隐藏添加窗口
-            this.dialogVisible = false
-          } else {
-            // 如果有 parent
-            this.findNode(this.list, this.temp.parent_id)
+          const { data: res } = await request('/api/zcodergoo/addWbsTask', {
+            method: 'POST',
+            data: this.temp
+          })
 
-            const parentNode = this.pNode
-            // // 如果是第一个子元素，则初始化 children
-            if (parentNode.children === undefined || !parentNode.children) {
-              this.$set(parentNode, 'children', [this.temp])
-            } else {
-              parentNode.children.push(this.temp)
-            }
-            // 隐藏添加窗口
-            this.dialogVisible = false
+          if (res.item && res.item !== undefined) {
+            this.$message.success('添加成功')
+          } else {
+            this.$message.error('添加失败')
           }
+          this.$nextTick(() => {
+            this.dialogVisible = false
+          })
+          // 重新获取页面
+          this.init()
         }
       })
     },
@@ -354,11 +357,21 @@ export default {
         cancelButtonText: '取消',
         type: 'warning'
       })
-        .then(() => {
-          this.findParentNode(this.list, row.id)
-          const parentNode = this.pNode
-          const index = parentNode.findIndex((e) => e.id === row.id)
-          parentNode.splice(index, 1)
+        .then(async() => {
+          const { data: res } = await request('/api/zcodergoo/deleteWbsTask', {
+            method: 'DELETE',
+            params: {
+              id: row.id
+            }
+          })
+
+          if (res.item === 0) {
+            this.$message.error(res.message)
+          } else {
+            this.$message.success(res.message)
+            // 重新加载页面
+            this.init()
+          }
         })
         .catch((err) => {
           console.log(err)
@@ -371,44 +384,27 @@ export default {
         id: undefined,
         name: undefined,
         principal: undefined,
-        plan_start_date: undefined,
-        plan_end_date: undefined,
+        planStartDate: undefined,
+        planEndDate: undefined,
         priority: undefined,
         progress: undefined,
         deviation: undefined,
-        remark: undefined
+        remark: undefined,
+        path: undefined
       }
     },
-    findParentNode(list, id) {
-      const index = list.findIndex((e) => e.id === id)
-
-      if (index !== -1) {
-        // 找到, 直接返回
-        this.pNode = list
-      } else {
-        // 没有找到, 判断是否有children,进行递归查找
-        for (const item of list) {
-          if (item.children && item.children.length !== 0) {
-            this.findParentNode(item.children, id)
-          }
+    async getWbsTaskList() {
+      this.listLoading = true
+      const { data: res } = await request('/api/zcodergoo/listWbsTask', {
+        params: {
+          project: this.project
         }
-      }
-    },
-    findNode(list, id) {
-      // 1. 第一次先循环一次，判断第一阶是否就存在
-      const node = list.find((e) => e.id === id)
+      })
+      this.list = res.item
 
-      if (node) {
-        // 找到, 直接返回
-        this.pNode = node
-      } else {
-        // 如果长度不为0
-        for (const item of list) {
-          if (item.children) {
-            this.findNode(item.children, id)
-          }
-        }
-      }
+      this.$nextTick(() => {
+        this.listLoading = false
+      })
     }
   }
 }

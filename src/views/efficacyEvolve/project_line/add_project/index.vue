@@ -61,6 +61,10 @@
             <div>4. PTGTTM拥有的权限。。。</div>
             <div>5. PTTE拥有的权限。。。</div>
           </el-col>
+
+          <el-col class="footer">
+            <el-button type="primary" @click="handleSaveClick">保存</el-button>
+          </el-col>
         </el-row>
         <div class="footer">
           <el-button type="danger" @click="handleCancleClick">取消</el-button>
@@ -112,6 +116,8 @@
 </template>
 
 <script>
+import request from '@/services/request'
+
 import Progress from './Form/Progress'
 import Quality from './Form/Quality'
 import Cost from './Form/Cost'
@@ -251,6 +257,14 @@ export default {
         })
       }
     },
+    // 点击暂时保存
+    async handleSaveClick() {
+      const { data: res } = await request('/api/zcodergoo/addBaseModel', {
+        method: 'POST',
+        data: this.temp
+      })
+      console.log(res)
+    },
     // 监听checkbox值改变
     handleCheckboxChange(item, index) {
       // 1. 如果 checkbox 的绑定项的 checked 修改为 false
@@ -318,25 +332,19 @@ export default {
           }
         }
       }
+
       // 2.每个表单组件进行取值
-      const params = {
-        base: this.temp,
-        progress:
-          this.$refs.progressRef && this.$refs.progressRef.length !== 0
-            ? this.$refs.progressRef[0].temp
-            : null,
-        quality:
-          this.$refs.qualityRef && this.$refs.qualityRef.length !== 0
-            ? this.$refs.qualityRef[0].temp
-            : null,
-        cost:
-          this.$refs.costRef && this.$refs.costRef.length !== 0 ? this.$refs.costRef[0].temp : null,
-        technology:
-          this.$refs.technologyRef && this.$refs.technologyRef.length !== 0
-            ? this.$refs.technologyRef[0].temp
-            : null
+      this.handleSaveClick()
+      for (const key in existComponents) {
+        if (
+          existComponents[key] &&
+          existComponents[key].length !== 0 &&
+          existComponents[key][0].handleSaveClick
+        ) {
+          // 调用保存方法
+          existComponents[key][0].handleSaveClick()
+        }
       }
-      console.log(params)
 
       // 返回页面
       // this.$store.dispatch('tagsView/delView', this.$route)
