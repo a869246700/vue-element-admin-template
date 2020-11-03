@@ -58,23 +58,22 @@ export default {
       // 配置显示列   // name:绑定数据的名称  align：对其方式  label显示在表头的名称
       this.gantt.config.columns = [
         {
-          name: 'task_name',
+          name: 'name',
           tree: true,
           width: '*',
-          label: '任务名'
+          label: '任务名',
+          align: 'left'
         },
         {
-          name: 'duty_name',
+          name: 'principal',
           label: '负责人',
-          width: '*',
           align: 'center'
         },
         {
           name: 'deviation',
           label: '偏差率',
-          width: '*',
           align: 'center',
-          template: (h) => `<span>${h.deviation * 100}%</span>`
+          template: (h) => `<span>${h.deviation}%</span>`
         }
       ]
 
@@ -96,31 +95,13 @@ export default {
       /* ------------------ 模板 ---------------------------------- */
       // 显示到进度条上的文本   计划名称和任务进度百分比
       this.gantt.templates.task_text = (start, end, task) => {
-        return `<span style='text-align:left;'> ${task.task_name} </span>`
+        return `<span> ${task.name} </span>`
       }
 
       /* ------------------ 事件 ---------------------------------- */
       // 当行点击事件，修改 market 的位置
-      this.gantt.attachEvent('onTaskRowClick', (id, row) => {
-        if (this.currentId === id) {
-          return
-        }
-        this.currentId = id
-        // console.log(this.$props.tasks.data)
-        const target = this.$props.tasks.data.find((e) => e.id === parseInt(id))
-        // 如果存在主任务 parent，则添加和修改标记
-        if (target.parent !== undefined) {
-          return
-        }
-
-        // 如果没有标记过，则进行创建 marker，否则就进行修改 marker
-        if (this.start_date && this.end_date) {
-          this.setStartOrEndDate(target.start_date, target.plan_end_date)
-          this.updateMarker()
-        } else {
-          this.setStartOrEndDate(target.start_date, target.plan_end_date)
-          this.createMarker()
-        }
+      this.gantt.attachEvent('onTaskRowClick', (id) => {
+        this.rowTouch(id)
       })
 
       this.gantt.attachEvent(
@@ -132,6 +113,11 @@ export default {
           100
         )
       )
+
+      this.gantt.attachEvent('onTaskSelected', (id) => {
+        this.gantt.showTask(id)
+        this.rowTouch(id)
+      })
 
       this.gantt.attachEvent('onCollapse', () => {
         this.isFullScreen = false
@@ -148,6 +134,33 @@ export default {
         } else {
           timer = setTimeout(fn, wait)
         }
+      }
+    },
+    rowTouch(id) {
+      if (this.currentId === id) {
+        return
+      }
+      this.currentId = id
+
+      let target = this.$props.tasks.data.find((e) => e.id === parseInt(id))
+      // 如果存在主任务 parent，则添加和修改标记
+      if (target.parent !== 0) {
+        let parentNode = target
+        let parentId = target.parent
+        while (parentId !== 0) {
+          parentNode = this.$props.tasks.data.find((e) => e.id === parentId)
+          parentId = parentNode.parent
+        }
+        target = parentNode
+      }
+
+      // 如果没有标记过，则进行创建 marker，否则就进行修改 marker
+      if (this.start_date && this.end_date) {
+        this.setStartOrEndDate(target.start_date, target.plan_end_date)
+        this.updateMarker()
+      } else {
+        this.setStartOrEndDate(target.start_date, target.plan_end_date)
+        this.createMarker()
       }
     },
     // 获取今日结束时间

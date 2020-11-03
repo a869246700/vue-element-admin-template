@@ -30,7 +30,7 @@
           <el-popover placement="bottom" width="50" trigger="click">
             <div class="operation">
               <div @click="handleEditClick(row)">编辑</div>
-              <div @click="handleCreateClick(row.id, row.path)">新增</div>
+              <div @click="handleCreateClick(row)">新增</div>
               <div @click="handleDeleteClick(row)">删除</div>
             </div>
             <i slot="reference" class="el-icon-more operation-icon" />
@@ -57,11 +57,12 @@
         <template slot-scope="{row}">
           <span
             v-if="item.prop === 'planStartDate' || item.prop === 'planEndDate'"
-          >{{ new Date(row[item.prop]) | parseTime }}</span>
+          >{{ new Date(row[item.prop]) | parseTime('{y}-{m}-{d}') }}</span>
 
           <div v-else-if="item.prop === 'priority'">
             <el-tag
               :type="row[item.prop] === 1 ? 'danger' : row[item.prop] === 2 ? 'warning' : 'success'"
+              effect="dark"
             >
               {{ row[item.prop] | priorityFilter }}
             </el-tag>
@@ -97,6 +98,8 @@
             v-model="temp.planStartDate"
             type="datetime"
             placeholder="选择开始日期"
+            :default-value="defaultDate"
+            :picker-options="datePickerOption"
             style="width: 100%"
           />
         </el-form-item>
@@ -106,6 +109,8 @@
             v-model="temp.planEndDate"
             type="datetime"
             placeholder="选择结束日期"
+            :default-value="defaultDate"
+            :picker-options="datePickerOption"
             style="width: 100%"
           />
         </el-form-item>
@@ -226,7 +231,8 @@ export default {
         { label: '90%', value: 90 },
         { label: '100%', value: 100 }
       ],
-      pNode: undefined
+      datePickerOption: undefined,
+      defaultDate: undefined
     }
   },
   computed: {
@@ -278,6 +284,15 @@ export default {
     init() {
       this.getWbsTaskList()
     },
+    // 设置时间选择器格式
+    setDatePickerOption(start, end) {
+      this.datePickerOption = {
+        disabledDate: (time) => {
+          return time.getTime() < +new Date(start) || time.getTime() > +new Date(end)
+        }
+      }
+      this.defaultDate = new Date(start)
+    },
     // 点击编辑按钮
     handleEditClick(row) {
       this.temp = Object.assign({}, row) // 复制对象
@@ -302,6 +317,8 @@ export default {
           // 2. 提示修改成功
           if (res.item === 1) {
             this.$message.success('修改成功')
+            // 重新获取页面
+            this.$emit()
             this.init()
           } else {
             this.$message.error('修改失败')
@@ -315,16 +332,23 @@ export default {
       })
     },
     // 点击添加按钮
-    handleCreateClick(parentId, path) {
+    handleCreateClick(row) {
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogVisible = true
+      if (row) {
+        this.setDatePickerOption(row.planStartDate, row.planEndDate)
+        this.temp.parent = row.id
+        this.temp.path = row.path
+      } else {
+        this.datePickerOption = {}
+        this.defaultDate = new Date()
+        this.temp.parent = 0
+      }
       this.$nextTick(() => {
         this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
       })
 
-      this.temp.parentId = parentId || 0
-      this.temp.path = path
       this.temp.project = this.project
     },
     // 进行真正的添加数据
@@ -339,14 +363,15 @@ export default {
 
           if (res.item && res.item !== undefined) {
             this.$message.success('添加成功')
+            this.$emit('reload')
+            // 重新获取页面
+            this.init()
           } else {
             this.$message.error('添加失败')
           }
           this.$nextTick(() => {
             this.dialogVisible = false
           })
-          // 重新获取页面
-          this.init()
         }
       })
     },
@@ -359,7 +384,6 @@ export default {
       })
         .then(async() => {
           const { data: res } = await request('/api/zcodergoo/deleteWbsTask', {
-            method: 'DELETE',
             params: {
               id: row.id
             }
@@ -371,6 +395,7 @@ export default {
             this.$message.success(res.message)
             // 重新加载页面
             this.init()
+            this.$emit('reload') // 提示WBS重新加载
           }
         })
         .catch((err) => {
@@ -390,7 +415,8 @@ export default {
         progress: undefined,
         deviation: undefined,
         remark: undefined,
-        path: undefined
+        path: undefined,
+        parent: undefined
       }
     },
     async getWbsTaskList() {

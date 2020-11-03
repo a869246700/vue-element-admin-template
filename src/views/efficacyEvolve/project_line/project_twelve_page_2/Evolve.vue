@@ -66,6 +66,11 @@ export default {
     CaseImplement,
     ImplementTypeSystem
   },
+  provide() {
+    return {
+      _project: this.project
+    }
+  },
   data() {
     return {
       active: '0',

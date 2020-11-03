@@ -41,11 +41,15 @@ export default {
   },
   data() {
     return {
-      chart: null
+      chart: null,
+      xData: undefined,
+      legend: undefined,
+      totalList: [],
+      completedList: [],
+      noCompletedList: []
     }
   },
   mounted() {
-    this.initChart()
     this.init()
   },
   beforeDestroy() {
@@ -61,68 +65,6 @@ export default {
     },
     initChart() {
       this.chart = echarts.init(document.getElementById(this.id))
-
-      const xData = (function() {
-        const data = []
-        for (let i = 1; i < 13; i++) {
-          i < 10 ? data.push('2019-0' + i) : data.push('2019-' + i)
-        }
-        const monthCount = new Date().getMonth() + 1
-        for (let i = 1; i <= monthCount; i++) {
-          i < 10 ? data.push('2020-0' + i) : data.push('2020-' + i)
-        }
-        return data
-      })()
-
-      const total_task_count = [
-        150,
-        120,
-        100,
-        130,
-        170,
-        130,
-        200,
-        250,
-        150,
-        100,
-        130,
-        160,
-        180,
-        230,
-        160,
-        100,
-        180,
-        200,
-        300,
-        350
-      ]
-      const complete_task_count = [
-        130,
-        115,
-        85,
-        120,
-        160,
-        114,
-        158,
-        231,
-        123,
-        96,
-        108,
-        160,
-        156,
-        210,
-        135,
-        93,
-        175,
-        187,
-        283,
-        320
-      ]
-      const no_complete_task_count = []
-
-      total_task_count.forEach((item, index) => {
-        no_complete_task_count[index] = item - complete_task_count[index]
-      })
 
       this.chart.setOption({
         backgroundColor: '#344b58',
@@ -184,9 +126,9 @@ export default {
               show: false
             },
             axisLabel: {
-              interval: 0
+              interval: 2
             },
-            data: xData
+            data: this.xData
           }
         ],
         yAxis: [
@@ -261,7 +203,7 @@ export default {
                 }
               }
             },
-            data: no_complete_task_count
+            data: this.noCompletedList
           },
 
           {
@@ -281,7 +223,7 @@ export default {
                 }
               }
             },
-            data: complete_task_count
+            data: this.completedList
           },
 
           {
@@ -304,7 +246,7 @@ export default {
                 }
               }
             },
-            data: total_task_count
+            data: this.totalList
           }
         ]
       })
@@ -316,7 +258,15 @@ export default {
           project
         }
       })
-      console.log(res)
+      this.xData = res.xCoordinate
+      this.totalList = res.total
+      this.completedList = res.completed
+
+      for (let i = 0; i < res.total.length; i++) {
+        this.noCompletedList.push(res.total[i] - res.completed[i])
+      }
+
+      this.initChart()
     }
   }
 }

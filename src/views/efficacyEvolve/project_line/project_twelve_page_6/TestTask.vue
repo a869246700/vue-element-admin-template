@@ -43,12 +43,14 @@ export default {
   methods: {
     // 处理 tab 切换
     handleTabClick() {
-      console.log(this.active)
       if (this.active === '2') {
         this.$nextTick(() => {
           this.$refs.taskChartRef.resize()
         })
       }
+    },
+    resize() {
+      this.$refs.taskChartRef.chartResize()
     }
   }
 }
