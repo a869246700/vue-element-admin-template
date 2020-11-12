@@ -46,6 +46,7 @@ export default {
       if (this.active === '2') {
         this.$nextTick(() => {
           this.$refs.taskChartRef.resize()
+          this.$refs.taskChartRef.init()
         })
       }
     },

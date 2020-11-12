@@ -6,15 +6,15 @@
         <el-radio-button label="1">历史项目信息看板</el-radio-button>
       </el-radio-group>
 
-      <div style="display: flex; align-items: center;">
-        <div style="border: 1px solid #ccc; padding: 4px;">
+      <div class="flex-container">
+        <div class="create-box pointer-type">
           <i class="el-icon-plus" style="font-size: 24px;" @click="handleCreateClick" />
         </div>
 
         <div class="panel-select">
           <div
             :class="sizeActive === '0' ? 'active' : ''"
-            class="panel-select-icon"
+            class="panel-select-icon pointer-type"
             style="border-right: 1px solid #d3d3d3;"
             @click="handleSizeChange(0)"
           >
@@ -22,7 +22,7 @@
           </div>
           <div
             :class="sizeActive === '1' ? 'active' : ''"
-            class="panel-select-icon"
+            class="panel-select-icon pointer-type"
             @click="handleSizeChange(1)"
           >
             <svg-icon icon-class="component" class="icon" />
@@ -86,6 +86,13 @@ export default {
     width: 100%;
     display: flex;
     justify-content: space-between;
+  }
+
+  .flex-container {
+    .create-box {
+      border: 1px solid #ccc;
+      padding: 4px;
+    }
   }
 
   .panel-select {

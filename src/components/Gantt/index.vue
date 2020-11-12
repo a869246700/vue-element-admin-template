@@ -10,7 +10,7 @@
         <el-button type="primary" size="small" @click="handleExpandClick">全屏</el-button>
       </div>
     </div>
-    <div ref="gantt" :class="isFullScreen ? 'zoom': ''" class="left-container" />
+    <div ref="gantt" :class="isFullScreen ? 'zoom' : ''" class="left-container" />
   </div>
 </template>
 
@@ -22,15 +22,23 @@ import locale from './gantt-locale.js'
 export default {
   name: 'DhtmlxGantt',
   props: {
-    tasks: {
-      type: Object,
-      default() {
-        return { data: [], links: [] }
-      }
+    datas: {
+      type: Array,
+      default: () => [],
+      required: true
+    },
+    links: {
+      type: Array,
+      default: () => [],
+      required: true
     }
   },
   data() {
     return {
+      task: {
+        data: [],
+        links: []
+      },
       gantt: undefined,
       currentDateType: '周', // 当前选中的日期类型
       startMarkerId: undefined, // 开始标记的 id
@@ -42,9 +50,24 @@ export default {
       isFullScreen: false // 是否全屏
     }
   },
+  computed: {
+    isRefresh() {
+      return this.datas
+    }
+  },
+  watch: {
+    datas(newV, oldV) {
+      this.$set(this.task, 'data', newV)
+    },
+    links(newV, oldV) {
+      this.$set(this.task, 'links', newV)
+    }
+  },
   methods: {
     // 初始化
     init() {
+      gantt.clearAll() // 清除所有的方法
+
       this.gantt = gantt
       /* -------------------启动插件-------------- */
       this.gantt.plugins({
@@ -104,15 +127,9 @@ export default {
         this.rowTouch(id)
       })
 
-      this.gantt.attachEvent(
-        'onTaskDblClick',
-        this.debounce(
-          () => {
-            this.$emit('edit', this.currentId)
-          },
-          100
-        )
-      )
+      this.gantt.attachEvent('onTaskDblClick', () => {
+        this.$emit('dbl-click', this.currentId)
+      })
 
       this.gantt.attachEvent('onTaskSelected', (id) => {
         this.gantt.showTask(id)
@@ -124,17 +141,7 @@ export default {
       })
 
       this.gantt.init(this.$refs.gantt)
-      this.gantt.parse(this.$props.tasks)
-    },
-    debounce(fn, wait) {
-      let timer = null
-      return args => {
-        if (timer) {
-          clearTimeout(timer)
-        } else {
-          timer = setTimeout(fn, wait)
-        }
-      }
+      this.gantt.parse(this.task)
     },
     rowTouch(id) {
       if (this.currentId === id) {
@@ -142,13 +149,13 @@ export default {
       }
       this.currentId = id
 
-      let target = this.$props.tasks.data.find((e) => e.id === parseInt(id))
+      let target = this.datas.find((e) => e.id === parseInt(id))
       // 如果存在主任务 parent，则添加和修改标记
       if (target.parent !== 0) {
         let parentNode = target
         let parentId = target.parent
         while (parentId !== 0) {
-          parentNode = this.$props.tasks.data.find((e) => e.id === parentId)
+          parentNode = this.datas.find((e) => e.id === parentId)
           parentId = parentNode.parent
         }
         target = parentNode

@@ -153,6 +153,7 @@ const efficacyEvolveRouter = {
         {
           path: 'project_twelve_four',
           name: 'project_twelve_four',
+          redirect: 'noRedirect',
           meta: {
             title: 'project_twelve_four',
             icon: 'tree'

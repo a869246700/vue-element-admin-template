@@ -12,7 +12,8 @@
         @click.middle.native="!isAffix(tag)?closeSelectedTag(tag):''"
         @contextmenu.prevent.native="openMenu(tag,$event)"
       >
-        {{ generateTitle(tag.title) }}
+        {{ tag.matched && tag.matched[2] && tag.matched[3] ? `${ tag.matched[2].meta.title }-${ generateTitle(tag.title) }` : generateTitle(tag.title) }}
+
         <span v-if="!isAffix(tag)" class="el-icon-close" @click.prevent.stop="closeSelectedTag(tag)" />
       </router-link>
     </scroll-pane>

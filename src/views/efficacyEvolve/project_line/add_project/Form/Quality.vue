@@ -11,7 +11,7 @@
             @click="handleDownloadTemplateClick"
           >下载导入模板</el-button>
           <el-upload
-            action="http://172.30.61.89:882/api/userQualificationsRealmReach/import"
+            action="api/userQualificationsRealmReach/import"
             :file-list="temp.work_package_stage_mapping"
             :show-file-list="false"
             :on-success="handleSuccessUpload"
@@ -142,7 +142,6 @@
 </template>
 
 <script>
-import request from '@/services/request'
 import DownFiles from '@/vendor/ExportExcel'
 
 export default {
@@ -194,11 +193,7 @@ export default {
     // 保存数据
     async handleSaveClick() {
       this.temp.project = this.project
-      const { data: res } = await request('/api/zcodergoo/addQualityModel', {
-        method: 'POST',
-        data: this.temp
-      })
-      console.log(res)
+      console.log('保存数据')
     }
   }
 }

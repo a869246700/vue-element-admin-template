@@ -45,9 +45,3 @@ export default {
   }
 }
 </script>
-
-<style lang="scss" scoped>
-.project-total-container {
-  margin: 20px;
-}
-</style>

@@ -113,8 +113,6 @@
 </template>
 
 <script>
-import request from '@/services/request'
-
 export default {
   props: {
     project: {
@@ -143,11 +141,7 @@ export default {
     // 保存数据
     async handleSaveClick() {
       this.temp.project = this.project
-      const { data: res } = await request('/api/zcodergoo/addProgressModel', {
-        method: 'POST',
-        data: this.temp
-      })
-      console.log(res)
+      console.log('保存数据')
     }
   }
 }

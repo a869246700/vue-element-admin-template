@@ -252,7 +252,7 @@ export default {
       })
     },
     async getEchartsData(project) {
-      const { data: res } = await request('/api/zcodergoo/echarts/taskPerformance', {
+      const { data: res } = await request('/api/projectTestTask/echartsTestTask', {
         method: 'POST',
         data: {
           project
@@ -261,10 +261,7 @@ export default {
       this.xData = res.xCoordinate
       this.totalList = res.total
       this.completedList = res.completed
-
-      for (let i = 0; i < res.total.length; i++) {
-        this.noCompletedList.push(res.total[i] - res.completed[i])
-      }
+      this.noCompletedList = res.uncompleted
 
       this.initChart()
     }

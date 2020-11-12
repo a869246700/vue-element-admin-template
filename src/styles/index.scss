@@ -77,6 +77,11 @@ div:focus {
   display: block;
 }
 
+.flex-container {
+  display: flex;
+  align-items: center;
+}
+
 .pointer {
   cursor: pointer;
 }
@@ -170,6 +175,15 @@ aside {
 .link-type,
 .link-type:focus {
   color: #337ab7;
+  cursor: pointer;
+
+  &:hover {
+    color: rgb(32, 160, 255);
+  }
+}
+
+.pointer-type,
+.pointer-type:focus {
   cursor: pointer;
 
   &:hover {

@@ -144,13 +144,16 @@ export default {
       switch (this.active) {
         case '0':
           this.$refs.implementRef.chartResize()
-          break
+          return
         case '1':
           this.$refs.specRef.chartResize()
-          break
+          return
+        case '2':
+          this.$refs.ganttRef.init()
+          return
         case '4':
           this.$refs.reviewRef.chartResize()
-          break
+          return
       }
     },
     handleCaseTypeClick(type, stage, projectStage) {

@@ -81,7 +81,7 @@
     <div class="upload-desc">
       <el-upload
         class="upload-demo"
-        action="http://172.30.61.89:882/api/userQualifications/bug/import"
+        action="api/userQualifications/bug/import"
         :with-credentials="true"
         multiple
         :file-list="fileList"

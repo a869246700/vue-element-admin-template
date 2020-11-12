@@ -61,14 +61,14 @@
 
           <div v-else-if="item.prop === 'priority'">
             <el-tag
-              :type="row[item.prop] === 1 ? 'danger' : row[item.prop] === 2 ? 'warning' : 'success'"
+              :type="Number(row[item.prop]) === 1 ? 'danger' : Number(row[item.prop]) === 2 ? 'warning' : 'success'"
               effect="dark"
             >
               {{ row[item.prop] | priorityFilter }}
             </el-tag>
           </div>
 
-          <span v-else-if="item.prop === 'progress'">{{ row[item.prop] && row[item.prop] + '%' }}</span>
+          <span v-else-if="item.prop === 'progress' || item.prop === 'deviation'">{{ row[item.prop] && row[item.prop] + '%' }}</span>
 
           <span v-else>{{ row[item.prop] }}</span>
         </template>
@@ -90,16 +90,47 @@
         </el-form-item>
 
         <el-form-item label="负责人" prop="principal">
-          <el-input v-model.trim="temp.principal" style="width: 100%" clearable />
+          <el-select
+            v-model="temp.principal"
+            filterable
+            clearable
+            placeholder="请输入主要负责人"
+            style="width: 100%;"
+          >
+            <el-option
+              v-for="item in userList"
+              :key="item.value"
+              :label="item.title"
+              :value="item.name"
+            />
+          </el-select>
+        </el-form-item>
+
+        <el-form-item label="次要负责人" prop="secondary">
+          <el-select
+            v-model="temp.secondary"
+            filterable
+            clearable
+            placeholder="请输入次要负责人"
+            style="width: 100%;"
+          >
+            <el-option
+              v-for="item in userList"
+              :key="item.value"
+              :label="item.title"
+              :value="item.name"
+            />
+          </el-select>
         </el-form-item>
 
         <el-form-item label="计划开始时间" prop="planStartDate">
           <el-date-picker
             v-model="temp.planStartDate"
-            type="datetime"
+            type="date"
             placeholder="选择开始日期"
             :default-value="defaultDate"
             :picker-options="datePickerOption"
+            value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 100%"
           />
         </el-form-item>
@@ -107,10 +138,11 @@
         <el-form-item label="计划结束时间" prop="planEndDate">
           <el-date-picker
             v-model="temp.planEndDate"
-            type="datetime"
+            type="date"
             placeholder="选择结束日期"
             :default-value="defaultDate"
             :picker-options="datePickerOption"
+            value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 100%"
           />
         </el-form-item>
@@ -163,8 +195,7 @@
 
 <script>
 import request from '@/services/request'
-import { parseTime } from '@/utils'
-import { wbsTableOptions } from './options'
+import { parseTime, toTree } from '@/utils'
 
 export default {
   filters: {
@@ -172,7 +203,7 @@ export default {
       return row.position ? row.principal + '-' + row.position : row.principal
     },
     priorityFilter(value) {
-      switch (value) {
+      switch (Number(value)) {
         case 1:
           return 'High'
         case 2:
@@ -194,7 +225,38 @@ export default {
       key: 0,
       listLoading: false, // 是否在加载
       list: undefined,
-      tableOptions: wbsTableOptions, // 表单列配置
+      tableOptions: [
+        {
+          prop: 'planStartDate',
+          label: '计划开始时间',
+          minWidth: '140'
+        },
+        {
+          prop: 'planEndDate',
+          label: '计划结束时间',
+          minWidth: '140'
+        },
+        {
+          prop: 'priority',
+          label: '优先级',
+          minWidth: '80'
+        },
+        {
+          prop: 'progress',
+          label: '进度',
+          minWidth: '80'
+        },
+        {
+          prop: 'deviation',
+          label: '偏差',
+          minWidth: '80'
+        },
+        {
+          prop: 'remark',
+          label: '备注',
+          minWidth: '160'
+        }
+      ], // 表单列配置
       temp: {
         id: undefined,
         name: undefined, // 任务名称
@@ -232,7 +294,8 @@ export default {
         { label: '100%', value: 100 }
       ],
       datePickerOption: undefined,
-      defaultDate: undefined
+      defaultDate: undefined,
+      userList: [] // 用户列表，用于新增修改任务
     }
   },
   computed: {
@@ -283,9 +346,14 @@ export default {
   methods: {
     init() {
       this.getWbsTaskList()
+      this.getUserList()
     },
     // 设置时间选择器格式
     setDatePickerOption(start, end) {
+      if (!start && !end) {
+        this.datePickerOption = {}
+        return
+      }
       this.datePickerOption = {
         disabledDate: (time) => {
           return time.getTime() < +new Date(start) || time.getTime() > +new Date(end)
@@ -296,6 +364,13 @@ export default {
     // 点击编辑按钮
     handleEditClick(row) {
       this.temp = Object.assign({}, row) // 复制对象
+      // 格式化时间
+      this.temp.createTime = this.toDate(this.temp.createTime)
+      this.temp.planStartDate = this.toDate(this.temp.planStartDate)
+      this.temp.planEndDate = this.toDate(this.temp.planEndDate)
+      this.temp.actualStartDate = this.toDate(this.temp.actualStartDate)
+      this.temp.actualEndDate = this.toDate(this.temp.actualEndDate)
+
       // 显示编辑对话框
       this.dialogStatus = 'edit'
       this.dialogVisible = true
@@ -303,23 +378,26 @@ export default {
         this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
       })
     },
+    toDate(dataStr) {
+      return new Date(dataStr)
+    },
     // 进行真正的修改数据
     updateData() {
       // 1. 表单校验
       this.$refs.dataFormRef.validate(async(valid) => {
         if (valid) {
           // 1. 进行请求
-          const { data: res } = await request('/api/zcodergoo/updateWbsTask', {
+          const { data: res } = await request('/api/projectTestTask/updateTestTask', {
             method: 'POST',
             data: this.temp
           })
 
           // 2. 提示修改成功
-          if (res.item === 1) {
+          if (res === 1) {
             this.$message.success('修改成功')
             // 重新获取页面
-            this.$emit()
-            this.init()
+            this.$emit('reload')
+            this.getWbsTaskList()
           } else {
             this.$message.error('修改失败')
           }
@@ -341,9 +419,10 @@ export default {
         this.temp.parent = row.id
         this.temp.path = row.path
       } else {
-        this.datePickerOption = {}
+        this.setDatePickerOption()
         this.defaultDate = new Date()
         this.temp.parent = 0
+        this.temp.path = ''
       }
       this.$nextTick(() => {
         this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
@@ -356,16 +435,22 @@ export default {
       // 1. 表单校验
       this.$refs.dataFormRef.validate(async(valid) => {
         if (valid) {
-          const { data: res } = await request('/api/zcodergoo/addWbsTask', {
+          // 增加创建人和创建时间
+          this.temp.createName = this.$store.state.user.name
+          this.temp.createTime = new Date()
+          // 设置任务类型
+          this.temp.type = '任务类型一'
+
+          const { data: res } = await request('/api/projectTestTask/insertTestTask', {
             method: 'POST',
             data: this.temp
           })
 
-          if (res.item && res.item !== undefined) {
+          if (res === 1) {
             this.$message.success('添加成功')
             this.$emit('reload')
             // 重新获取页面
-            this.init()
+            this.getWbsTaskList()
           } else {
             this.$message.error('添加失败')
           }
@@ -383,23 +468,21 @@ export default {
         type: 'warning'
       })
         .then(async() => {
-          const { data: res } = await request('/api/zcodergoo/deleteWbsTask', {
+          const { data: res } = await request('/api/projectTestTask/deleteTestTask', {
             params: {
               id: row.id
             }
           })
-
-          if (res.item === 0) {
-            this.$message.error(res.message)
+          if (res === 0) {
+            this.$message.error('删除失败, 存在子任务!')
           } else {
-            this.$message.success(res.message)
+            this.$message.success('删除成功')
             // 重新加载页面
-            this.init()
+            this.getWbsTaskList()
             this.$emit('reload') // 提示WBS重新加载
           }
         })
-        .catch((err) => {
-          console.log(err)
+        .catch(() => {
           this.$message.info('已取消')
         })
     },
@@ -419,18 +502,24 @@ export default {
         parent: undefined
       }
     },
+    // 获取WBS列表
     async getWbsTaskList() {
       this.listLoading = true
-      const { data: res } = await request('/api/zcodergoo/listWbsTask', {
+      const { data: res } = await request('/api/projectTestTask/listTestTask', {
         params: {
           project: this.project
         }
       })
-      this.list = res.item
+      this.list = toTree(res)
 
       this.$nextTick(() => {
         this.listLoading = false
       })
+    },
+    // 获取人员列表
+    async getUserList() {
+      const { data: res } = await request('/api/authority/user/listPlatformTestUserSelect')
+      this.userList = res
     }
   }
 }
