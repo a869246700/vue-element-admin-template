@@ -45,7 +45,9 @@ export function parseTime(time, cFormat) {
   const time_str = format.replace(/{([ymdhisa])+}/g, (result, key) => {
     const value = formatObj[key]
     // Note: getDay() returns 0 on Sunday
-    if (key === 'a') { return ['日', '一', '二', '三', '四', '五', '六'][value] }
+    if (key === 'a') {
+      return ['日', '一', '二', '三', '四', '五', '六'][value]
+    }
     return value.toString().padStart(2, '0')
   })
   return time_str
@@ -381,4 +383,48 @@ export function toTree(arr) {
     }
   })
   return val
+}
+
+export function toArray(node) {
+  const stack = JSON.parse(JSON.stringify(node))
+  const data = []
+  while (stack.length !== 0) {
+    const pop = stack.pop()
+    data.push({
+      id: pop.id,
+      parentId: pop.parentId || 0,
+      ...pop
+    })
+    const children = pop.children
+    if (children) {
+      for (let i = children.length - 1; i >= 0; i--) {
+        stack.push(children[i])
+      }
+    }
+  }
+  return data
+}
+
+export function deepTraversal(list) {
+  const result = []
+  const row = 1
+  list.forEach(item => {
+    const loop = (data, parentKey, rowKey) => {
+      result.push({
+        id: data.key,
+        parentId: parentKey || '',
+        rowKey,
+        ...data
+      })
+      rowKey++
+      const child = data.children
+      if (child) {
+        for (let i = 0; i < child.length; i++) {
+          loop(child[i], data.key, rowKey)
+        }
+      }
+    }
+    loop(item, list.key, row)
+  })
+  return result
 }

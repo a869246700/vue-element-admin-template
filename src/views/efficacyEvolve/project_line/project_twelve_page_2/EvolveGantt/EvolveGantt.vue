@@ -133,7 +133,7 @@ export default {
     },
     // 点击任务
     handleRowClick(id) {
-      const row = this.dataSource.data.find((e) => e.id === parseInt(id))
+      const row = this.ganttList.find((e) => e.id === parseInt(id))
 
       const temp = {
         id,

@@ -381,10 +381,11 @@ export default {
     },
     // 校验方法
     validate() {
-      for (const key in this.temp) {
-        const element = this.temp[key]
-        console.log(key + ': ' + element)
-      }
+      console.log('进行校验，待开发')
+      // for (const key in this.temp) {
+      //   const element = this.temp[key]
+      //   console.log(key + ': ' + element)
+      // }
     },
     // 判断完成时间是否超时
     handleEndTimeOver() {

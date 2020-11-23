@@ -14,7 +14,7 @@
       </el-tab-pane>
 
       <el-tab-pane label="STP" name="4">
-        <el-card>STP</el-card>
+        <stp :project="project" />
       </el-tab-pane>
     </el-tabs>
   </div>
@@ -24,12 +24,14 @@
 import TestTaskChart from './components/TestTaskChart'
 import TestTaskWbs from './components/TestTaskWbs'
 import SpecialTask from './components/SpecialTask'
+import Stp from './components/Stp'
 
 export default {
   components: {
     TestTaskChart,
     TestTaskWbs,
-    SpecialTask
+    SpecialTask,
+    Stp
   },
   data() {
     return {

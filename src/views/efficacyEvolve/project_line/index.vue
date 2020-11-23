@@ -41,6 +41,7 @@ import Cost from './project_twelve_page_4/Cost'
 import RiskManage from './project_twelve_page_5/RiskManage'
 import TestTask from './project_twelve_page_6/TestTask'
 import TechnologyProject from './project_twelve_page_8/TechnologyProject'
+import IntegralAssessment from './project_twelve_page_9/IntegralAssessment'
 
 export default {
   components: {
@@ -50,7 +51,13 @@ export default {
     Cost,
     RiskManage,
     TestTask,
-    TechnologyProject
+    TechnologyProject,
+    IntegralAssessment
+  },
+  provide() {
+    return {
+      project: this.project
+    }
   },
   data() {
     return {
@@ -64,7 +71,7 @@ export default {
         { label: '风险管理', key: '5', name: 'RiskManage', disabled: false },
         { label: '测试任务', key: '6', name: 'TestTask', disabled: false },
         { label: '技术项目', key: '7', name: 'TechnologyProject', disabled: false },
-        { label: '积分考核', key: '8', disabled: true },
+        { label: '积分考核', key: '8', name: 'IntegralAssessment', disabled: false },
         { label: '项目报告推送', key: '9', disabled: true },
         { label: '项目要素设置', key: '10', disabled: true }
       ]

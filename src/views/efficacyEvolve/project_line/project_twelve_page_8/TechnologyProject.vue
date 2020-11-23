@@ -14,8 +14,8 @@
 </template>
 
 <script>
-import PoProject from './components/PoProject'
-import CompProject from './components/CompProject'
+import PoProject from './PoProject/PoProject'
+import CompProject from './CompProject/CompProject'
 
 export default {
   components: {

@@ -504,7 +504,7 @@ export default {
 }
 
 .table-content {
-  margin-top: 20px;
+  margin-top: 10px;
 }
 
 // 分页器
