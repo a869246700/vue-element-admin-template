@@ -1,5 +1,14 @@
 <template>
-  <div class="demand-change">
+  <card title="需求变更" class="demand-change">
+    <template #buttons>
+      <el-button
+        :loading="butLoading"
+        type="primary"
+        size="small"
+        @click="handleExportClick"
+      >导出变更数据</el-button>
+    </template>
+
     <!-- 操作栏 -->
     <el-form ref="formRef" :inline="true" :model="listQuery" class="demo-form-inline">
       <el-form-item label="需求ID" prop="requestId">
@@ -46,7 +55,7 @@
       :header-cell-style="{background: '#f6f6f6'}"
       style="width: 100%"
     >
-      <el-table-column key="requestId" prop="requestId" label="需求ID" min-width="50" />
+      <el-table-column key="requestId" prop="requestId" label="需求ID" min-width="70" />
       <el-table-column key="requestName" prop="requestName" label="需求名称" min-width="360">
         <template slot-scope="{row}">
           <div class="flex">
@@ -92,15 +101,15 @@
           </div>
         </template>
       </el-table-column>
-      <el-table-column key="create_time" prop="create_time" label="创建时间" min-width="100" />
-      <el-table-column key="update_time" prop="update_time" label="修改时间" min-width="100" />
-      <el-table-column key="requestStatus" prop="requestStatus" label="需求状态" min-width="50">
+      <el-table-column key="create_time" prop="create_time" label="创建时间" min-width="160" />
+      <el-table-column key="update_time" prop="update_time" label="修改时间" min-width="160" />
+      <el-table-column key="requestStatus" prop="requestStatus" label="需求状态" min-width="80">
         <template slot-scope="{row}">
           <div>{{ row['requestStatus'] | statusFilter }}</div>
         </template>
       </el-table-column>
-      <el-table-column key="project" prop="project" label="项目名称" min-width="120" />
-      <el-table-column key="request_state" prop="request_state" label="变更状态" min-width="50">
+      <el-table-column key="project" prop="project" label="项目名称" min-width="200" />
+      <el-table-column key="request_state" prop="request_state" label="变更状态" min-width="80">
         <template slot-scope="{row}">
           <div>{{ row['request_state'] | stateFilter }}</div>
         </template>
@@ -118,13 +127,15 @@
     </div>
 
     <demand-change-dialog ref="dialogRef" />
-  </div>
+  </card>
 </template>
 
 <script>
+import Card from '@/components/Card'
 import Pagination from '@/components/Pagination/index'
 import Badge from '@/components/Badge'
 
+import DownFiles from '@/vendor/ExportExcel'
 import request from '@/services/request'
 import newIcon from './img/new.png'
 import deleteIcon from './img/delete.png'
@@ -134,6 +145,7 @@ import DemandChangeDialog from './DemandChangeDialog.vue'
 
 export default {
   components: {
+    Card,
     Pagination,
     Badge,
     DemandChangeDialog
@@ -185,7 +197,8 @@ export default {
       deleteIcon,
       updateBlueIcon,
       updateGreenIcon,
-      temp: undefined
+      temp: undefined,
+      butLoading: false
     }
   },
   computed: {
@@ -218,6 +231,16 @@ export default {
       // 显示对话框
       this.$refs.dialogRef.showDialog()
     },
+    handleExportClick() {
+      const url = '/api/export/projectDataChangeInfo'
+      const filename = this.project + '需求变更明细.xlsx'
+      const options = {
+        conditions: {
+          project: this.project
+        }
+      }
+      DownFiles(url, options, filename, this)
+    },
     handlePaginationChange(e) {
       this.pageInfo.page = e.page
       this.pageInfo.limit = e.limit
@@ -239,7 +262,6 @@ export default {
           ...listQuery
         }
       })
-      console.log(res)
       this.list = res
 
       this.$nextTick(() => {

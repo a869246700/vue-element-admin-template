@@ -28,21 +28,36 @@
       </el-form-item>
     </el-form>
 
-    <my-table v-loading="tableLoading" :table-data="list" :options="options" />
+    <filter-table
+      v-loading="tableLoading"
+      :table-data="list"
+      :options="options"
+      :export-filename="filename"
+      :tree-props="{ label: 'title', children: 'children' }"
+      is-pagination
+      is-filter
+      is-export-excel
+      :max-height="488"
+    />
   </div>
 </template>
 
 <script>
-import MyTable from '@/components/Table'
+import FilterTable from '@/components/Table/FilterTable'
 
 import request from '@/services/request'
 import { parseTime } from '@/utils'
 
 export default {
   components: {
-    MyTable
+    FilterTable
   },
-  inject: ['project'],
+  props: {
+    project: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       list: [],
@@ -208,6 +223,11 @@ export default {
         userName: '',
         date: ''
       }
+    }
+  },
+  computed: {
+    filename() {
+      return this.project + '员工积分列表'
     }
   },
   created() {

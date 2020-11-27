@@ -9,6 +9,8 @@
 <script>
 import Chart from '@/components/MyChart/Chart'
 
+import mockDate from './demo'
+
 export default {
   components: {
     Chart
@@ -17,7 +19,8 @@ export default {
     return {
       active: 'day',
       currentOptions: {},
-      options: {}
+      options: {},
+      legend: ['新增', '解决', '关闭', '未决', '已决', '累计']
     }
   },
   mounted() {
@@ -36,7 +39,39 @@ export default {
       })
     },
     // 获取chart的数据
-    getChartDate() {
+    async getChartDate(project) {
+      const newBugNums = [] // 新增bug数量列表
+      const resolvedBugNums = [] // 解决bug数量列表
+      const closeBugNums = [] // 关闭bug数量列表
+      const dates = [] // 横坐标数据列表
+      const totalBugNums = [] // 累计bug数量列表
+      const unresolvedBugNums = [] // 未决bug数量列表
+      const completedBugNums = [] // 已决bug数量列表
+
+      // 真正的网络请求
+      // const { data: res } = await request('/api/...', {
+      //   method: 'POST',
+      //   params: {
+      //     project
+      //   }
+      // })
+      // console.log(res)
+
+      // demoDate为模拟数据，真实网络请求则直接修改为res即可
+      const res = await this.mockDate()
+      res.map((item) => {
+        resolvedBugNums.push(item.resolvedBugNums)
+        totalBugNums.push(item.totalBugNums)
+        unresolvedBugNums.push(item.unresolvedBugNums)
+        closeBugNums.push(item.closeBugNums)
+        completedBugNums.push(item.totalBugNums - item.unresolvedBugNums)
+
+        const date = new Date(item.date)
+        dates.push(
+          `${date.getFullYear()}-${date.getMonth() + 1}-${date.getDate()}第${item.week}周`
+        )
+      })
+
       this.currentOptions = {
         title: {
           text: 'BUG按周趋势图',
@@ -53,7 +88,7 @@ export default {
         },
         legend: {
           top: 40,
-          data: ['新增', '解决', '关闭', '未决', '已决', '累计']
+          data: this.legend
         },
         grid: {
           top: 80,
@@ -78,7 +113,7 @@ export default {
               color: '#57617B'
             }
           },
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周日']
+          data: dates
         },
         yAxis: {
           type: 'value',
@@ -97,40 +132,45 @@ export default {
             name: '新增',
             type: 'line',
             stack: '总量',
-            data: [120, 132, 101, 134, 90, 230, 210]
+            data: newBugNums
           },
           {
             name: '解决',
             type: 'line',
             stack: '总量',
-            data: [220, 182, 191, 234, 290, 330, 310]
+            data: resolvedBugNums
           },
           {
             name: '关闭',
             type: 'line',
             stack: '总量',
-            data: [150, 232, 201, 154, 190, 330, 410]
+            data: closeBugNums
           },
           {
             name: '未决',
             type: 'line',
             stack: '总量',
-            data: [320, 332, 301, 334, 390, 330, 320]
+            data: unresolvedBugNums
           },
           {
             name: '已决',
             type: 'line',
             stack: '总量',
-            data: [820, 932, 901, 934, 1290, 1330, 1320]
+            data: completedBugNums
           },
           {
             name: '累计',
             type: 'line',
             stack: '总量',
-            data: [1000, 1200, 1250, 1100, 2000, 3000, 4000]
+            data: totalBugNums
           }
         ]
       }
+    },
+    mockDate() {
+      return new Promise((resolve, reject) => {
+        resolve(mockDate)
+      })
     }
   }
 }

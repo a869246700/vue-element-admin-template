@@ -77,10 +77,22 @@ export default {
       ]
     }
   },
+  beforeCreate() {
+    this.project = this.$t(this.$route.matched[2].meta.title)
+  },
   methods: {
     handleTabClick(e) {
       const currentCom = this.tabMapOptions.find(ele => ele.key === this.activeName).name + 'Ref'
-      this.$refs[currentCom] && this.$refs[currentCom].length !== 0 && this.$refs[currentCom][0].chartResize && this.$refs[currentCom][0].chartResize()
+      if (currentCom === 'EvolveRef') {
+        // 刷新
+        this.$nextTick(() => {
+          // console.log(this.$refs.EvolveRef)
+          this.$refs['EvolveRef'][0].reloadGantt()
+        })
+      }
+      this.$nextTick(() => {
+        this.$refs[currentCom] && this.$refs[currentCom].length !== 0 && this.$refs[currentCom][0].chartResize && this.$refs[currentCom][0].chartResize()
+      })
     }
   }
 }

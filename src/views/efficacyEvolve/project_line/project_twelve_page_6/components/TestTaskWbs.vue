@@ -4,7 +4,7 @@
     <!-- 表格 -->
     <el-table
       v-loading="listLoading"
-      :data="list"
+      :data="treeList"
       style="width: 100%"
       row-key="id"
       :header-cell-style="{background: '#f6f6f6'}"
@@ -38,10 +38,10 @@
         </template>
       </el-table-column>
 
-      <el-table-column prop="principal" label="负责人" min-width="130" show-overflow-tooltip>
+      <el-table-column prop="principal" label="负责人" min-width="100" show-overflow-tooltip>
         <template slot-scope="{row}">
           <div class="principal">
-            <img src="http://oa.ruijie.com.cn/ImgUser/lujiwei.jpg">
+            <img :src="`http://oa.ruijie.com.cn/ImgUser/${row.userInfo.userEn}.jpg`">
             <span class="principal-desc">{{ row | principalFilter }}</span>
           </div>
         </template>
@@ -125,11 +125,12 @@
 
         <el-form-item label="计划开始时间" prop="planStartDate">
           <el-date-picker
+            :key="key"
             v-model="temp.planStartDate"
             type="date"
             placeholder="选择开始日期"
             :default-value="defaultDate"
-            :picker-options="datePickerOption"
+            :picker-options="startPickerOption"
             value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 100%"
           />
@@ -137,11 +138,12 @@
 
         <el-form-item label="计划结束时间" prop="planEndDate">
           <el-date-picker
+            :key="key"
             v-model="temp.planEndDate"
             type="date"
             placeholder="选择结束日期"
             :default-value="defaultDate"
-            :picker-options="datePickerOption"
+            :picker-options="endPickerOption"
             value-format="yyyy-MM-dd HH:mm:ss"
             style="width: 100%"
           />
@@ -163,7 +165,7 @@
           </el-select>
         </el-form-item>
 
-        <el-form-item label="进度" prop="progress">
+        <el-form-item v-if="dialogStatus === 'update'" label="进度" prop="progress">
           <el-select v-model="temp.progress" placeholder="请选择进度" style="width: 100%">
             <el-option
               v-for="(item, index) in progressSelectOptions"
@@ -177,7 +179,7 @@
         </el-form-item>
 
         <el-form-item label="偏差" prop="deviation">
-          <el-input v-model.trim="temp.deviation" style="width: 100%" clearable />
+          <el-input-number v-model="temp.deviation" :min="0" :max="100" style="width: 100%" />
         </el-form-item>
 
         <el-form-item label="任务描述" prop="remark">
@@ -224,7 +226,8 @@ export default {
     return {
       key: 0,
       listLoading: false, // 是否在加载
-      list: undefined,
+      treeList: [],
+      arrayList: [],
       tableOptions: [
         {
           prop: 'planStartDate',
@@ -264,7 +267,7 @@ export default {
         planStartDate: undefined, // 计划开始时间
         planEndDate: undefined, // 计划结束时间
         priority: undefined, // 优先级
-        progress: undefined, // 进度
+        progress: 0, // 进度
         deviation: undefined, // 偏差
         remark: undefined // 备注
       }, // 添加和编辑的临时变量
@@ -293,7 +296,8 @@ export default {
         { label: '90%', value: 90 },
         { label: '100%', value: 100 }
       ],
-      datePickerOption: undefined,
+      startPickerOption: undefined,
+      endPickerOption: undefined,
       defaultDate: undefined,
       userList: [] // 用户列表，用于新增修改任务
     }
@@ -348,38 +352,67 @@ export default {
       this.getWbsTaskList()
       this.getUserList()
     },
-    // 设置时间选择器格式
-    setDatePickerOption(start, end) {
-      if (!start && !end) {
-        this.datePickerOption = {}
-        return
-      }
-      this.datePickerOption = {
-        disabledDate: (time) => {
-          return time.getTime() < +new Date(start) || time.getTime() > +new Date(end)
-        }
-      }
-      this.defaultDate = new Date(start)
-    },
     // 点击编辑按钮
     handleEditClick(row) {
+      // 显示编辑对话框
+      this.dialogStatus = 'update'
+      this.dialogVisible = true
+
       this.temp = Object.assign({}, row) // 复制对象
+      // 如果有父节点，则控制编辑时间范围为父任务时间范围内
+      if (row.parent || row.parent !== 0) {
+        // 查询否节点
+        const parentNode = this.arrayList.find(e => e.id === row.parent)
+        this.setDatePickerOption(parentNode.planStartDate, parentNode.planEndDate)
+      } else {
+        // 如果没有，则判断是否有子节点，无则重置
+        const children = this.arrayList.filter(e => e.parent === row.id)
+        if (children.length === 0) {
+          // console.log('重置')
+          this.resetDatePickerOption()
+        } else {
+          // console.log('根据子任务的最小开始日期和最大结束日期设置')
+          // 获取最小开始日期和最大结束日期
+          let minStart
+          let maxEnd
+          children.forEach(item => {
+            if (minStart && maxEnd) {
+              // 进行判断大小
+              minStart = minStart > item.planStartDate ? item.planStartDate : minStart
+              maxEnd = maxEnd < item.planEndDate ? item.planEndDate : maxEnd
+            } else {
+              minStart = item.planStartDate
+              maxEnd = item.planEndDate
+            }
+          })
+          // 最大开始不得大于minStart
+          // 最小结束不得小于maxEnd
+          // console.log('min:', minStart, 'max', maxEnd)
+          // 最终进行设置时间选择器
+          this.startPickerOption = {
+            disabledDate: (time) => {
+              return time.getTime() > this.toDate(minStart)
+            }
+          }
+
+          this.endPickerOption = {
+            disabledDate: (time) => {
+              return time.getTime() < this.toDate(maxEnd)
+            }
+          }
+        }
+        this.defaultDate = row.planStartDate
+      }
       // 格式化时间
       this.temp.createTime = this.toDate(this.temp.createTime)
       this.temp.planStartDate = this.toDate(this.temp.planStartDate)
       this.temp.planEndDate = this.toDate(this.temp.planEndDate)
       this.temp.actualStartDate = this.toDate(this.temp.actualStartDate)
       this.temp.actualEndDate = this.toDate(this.temp.actualEndDate)
-
-      // 显示编辑对话框
-      this.dialogStatus = 'edit'
-      this.dialogVisible = true
+      this.temp.progress = Number(this.temp.progress)
       this.$nextTick(() => {
         this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
       })
-    },
-    toDate(dataStr) {
-      return new Date(dataStr)
     },
     // 进行真正的修改数据
     updateData() {
@@ -414,20 +447,21 @@ export default {
       this.resetTemp()
       this.dialogStatus = 'create'
       this.dialogVisible = true
+      this.resetDatePickerOption()
+
+      this.$nextTick(() => {
+        this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
+      })
+
       if (row) {
         this.setDatePickerOption(row.planStartDate, row.planEndDate)
         this.temp.parent = row.id
         this.temp.path = row.path
       } else {
-        this.setDatePickerOption()
         this.defaultDate = new Date()
         this.temp.parent = 0
         this.temp.path = ''
       }
-      this.$nextTick(() => {
-        this.$refs.dataFormRef.clearValidate() // 清除原有的校验内容
-      })
-
       this.temp.project = this.project
     },
     // 进行真正的添加数据
@@ -486,6 +520,28 @@ export default {
           this.$message.info('已取消')
         })
     },
+    // 设置时间选择器格式
+    setDatePickerOption(start, end) {
+      const startTime = +new Date(start) - 86400000
+      const endTime = +new Date(end)
+      const option = {
+        disabledDate: (time) => {
+          return time.getTime() < startTime || time.getTime() > endTime
+        }
+      }
+      this.startPickerOption = option
+      this.endPickerOption = option
+      this.defaultDate = new Date(start)
+    },
+    toDate(dataStr) {
+      return new Date(dataStr)
+    },
+    // 重置datePickerOption
+    resetDatePickerOption() {
+      this.startPickerOption = undefined
+      this.endPickerOption = undefined
+      this.key++
+    },
     // 重置 temp
     resetTemp() {
       this.temp = {
@@ -495,7 +551,7 @@ export default {
         planStartDate: undefined,
         planEndDate: undefined,
         priority: undefined,
-        progress: undefined,
+        progress: 0,
         deviation: undefined,
         remark: undefined,
         path: undefined,
@@ -510,7 +566,8 @@ export default {
           project: this.project
         }
       })
-      this.list = toTree(res)
+      this.arrayList = res
+      this.treeList = toTree(res)
 
       this.$nextTick(() => {
         this.listLoading = false

@@ -8,21 +8,42 @@
             <div class="project">{{ project }}</div>
             <div class="duty">
               <div class="avatar">
-                <img src="@/assets/ka.png">
+                <img v-if="isExistDutyAvatar" :src="dutyAvatar" @error="avatarErrorLoad">
+                <img v-else src="@/assets/ka.png">
               </div>
               <div class="duty-info">
-                <span class="name">{{ user.name }}</span>
-                <span class="office">{{ user.office }}</span>
+                <span class="name">{{ dutyInfo.name_cn || '无' }}</span>
+                <span class="office">{{ dutyInfo.office || '无' }}</span>
               </div>
             </div>
           </div>
+
+          <!-- 多项目阶段，项目阶段切换 -->
+          <div v-if="isMultiProjectStage" class="multi-stage-change">
+            <el-radio-group
+              v-model="currentProjectStageLabel"
+              size="mini"
+              @change="handleProjectStageChange"
+            >
+              <el-radio-button
+                v-for="(item, index) in projectStageLabelList"
+                :key="index"
+                :label="item"
+              >
+                <span class="one-row">{{ item }}</span>
+              </el-radio-button>
+            </el-radio-group>
+          </div>
+
+          <div v-else class="multi-stage-change" />
 
           <!-- 项目周期 -->
           <div class="project-cycle-wrapper">
             <div class="project-cycle">
               <i class="iconfont icon-clock icon" />
               <div class="content">
-                <div>{{ `${project_round.start} ~ ${project_round.end}` }}</div>
+                <div v-if="currentProjectStage">{{ currentProjectStage.project_start + '~' + currentProjectStage.project_start }}</div>
+                <div v-else>暂无信息</div>
                 <span>项目周期</span>
               </div>
             </div>
@@ -30,7 +51,8 @@
             <div class="project-cycle">
               <i class="icon el-icon-suitcase" />
               <div class="content">
-                <div>1.96个/kloc / 2.3个/kloc</div>
+                <div v-if="currentProjectStage">{{ `${currentProjectStage.defect}个/kloc - ${currentProjectStage.defect_target}个/kloc` }}</div>
+                <div v-else>0个/kloc - 0个/kloc</div>
                 <span>项目缺陷数量 / 目标数量（总）</span>
               </div>
             </div>
@@ -40,7 +62,8 @@
 
       <div class="right-wrapper">
         <div class="title">
-          <div>{{ '阶段：' + currentStage.title }}</div>
+          <div v-if="currentMilestone">{{ '阶段：' + currentMilestone.stage }}</div>
+          <div v-else>阶段：暂无信息</div>
           <el-popover v-model="isPopoverShow" placement="bottom" width="50" trigger="click">
             <div class="operation">
               <div @click="handleEditClick">编辑</div>
@@ -54,51 +77,61 @@
             <el-step status="process">
               <template #icon>
                 <div class="dot">
-                  <span class="text">{{ currentStage.start_title }}</span>
+                  <span class="text">开始</span>
                 </div>
               </template>
               <template #title>
-                <span style="font-size: 13px;">{{ currentStage.start_text }}</span>
+                <span style="font-size: 13px">启动日期</span>
               </template>
               <template #description>
-                <span
-                  style="font-size: 12px;"
-                >{{ currentStage.plan_start_date | parseTime('{y}-{m}-{d}') }}</span>
+                <span v-if="currentMilestone" style="font-size: 12px">
+                  {{ currentMilestone.plan_start_date | parseTime('{y}-{m}-{d}') }}
+                </span>
+                <span v-else style="font-size: 12px">
+                  {{ new Date() | parseTime('{y}-{m}-{d}') }}
+                </span>
               </template>
             </el-step>
 
             <el-step status="finish">
               <template #icon>
                 <div class="dot">
-                  <span class="text">{{ currentStage.current_title }}</span>
+                  <span class="text">进行中</span>
                 </div>
               </template>
               <template #title>
-                <span style="font-size: 13px;">{{ currentStage.current_text }}</span>
+                <span style="font-size: 13px">当前进度</span>
               </template>
               <template #description>
-                <span
-                  style="font-size: 12px;"
-                >{{ currentStage.current_date | parseTime('{y}-{m}-{d}') }}</span>
+                <span style="font-size: 12px">
+                  {{ new Date() | parseTime('{y}-{m}-{d}') }}
+                </span>
               </template>
             </el-step>
 
-            <el-step :status="currentStage.delay ? 'error' : 'wait'">
+            <el-step :status="currentMilestone && (currentMilestone.plan_end_date < currentMilestone.actual_end_date) ? 'error' : 'wait'">
               <template #icon>
                 <div class="dot">
-                  <span class="text">{{ currentStage.end_title }}</span>
+                  <span class="text">结束</span>
                 </div>
               </template>
               <template #title>
-                <span style="font-size: 13px;">{{ currentStage.end_text }}</span>
+                <span style="font-size: 13px">完成日期</span>
               </template>
               <template #description>
-                <span
-                  style="font-size: 12px;"
-                >{{ currentStage.plan_end_date | parseTime('{y}-{m}-{d}') }}</span>
+                <span v-if="currentMilestone" style="font-size: 12px">
+                  {{ currentMilestone.plan_end_date | parseTime('{y}-{m}-{d}') }}
+                </span>
+                <span v-else style="font-size: 12px">
+                  {{ new Date() | parseTime('{y}-{m}-{d}') }}
+                </span>
               </template>
             </el-step>
           </el-steps>
+        </div>
+        <div class="bottom-btn">
+          <span>点击前往</span>
+          <el-button type="primary" icon="el-icon-right" circle />
         </div>
       </div>
     </div>
@@ -112,44 +145,71 @@ export default {
   filters: {
     parseTime
   },
+  props: {
+    // 项目名
+    project: {
+      type: String,
+      default: '项目名称'
+    },
+    // 负责人信息
+    dutyInfo: {
+      type: Object,
+      default() {
+        return {}
+      }
+    },
+    // 项目多阶段数据列表
+    projectStageList: {
+      type: Array,
+      default: () => []
+    }
+  },
   data() {
     return {
       isPopoverShow: false,
-      project: '12.4PL1',
-      user: {
-        name: '叶轩乾',
-        office: 'PTM'
-      },
-      project_round: {
-        isShow: true,
-        start: '2020/09/01',
-        end: '2020/10/31'
-      },
-      currentStage: {
-        title: '首轮回归',
-        delay: true,
-        start_title: '启动',
-        start_text: '启动日期',
-        current_title: '进行中',
-        current_text: '当前进度',
-        end_title: '完成',
-        end_text: '计划完成日期',
-        current_date: new Date(),
-        plan_start_date: new Date('2020-09-01'),
-        actual_start_date: new Date('2020-09-01'),
-        plan_end_date: new Date('2020-09-07'),
-        actual_end_date: new Date('2020-09-07')
-      }
+      currentProjectStageLabel: '',
+      projectStageLabelList: [],
+      isExistDutyAvatar: true // 是否存在负责人头像
     }
+  },
+  computed: {
+    // 是否是多阶段项目
+    isMultiProjectStage() {
+      return this.projectStageList.length > 1
+    },
+    // 当前阶段项目
+    currentProjectStage() {
+      return this.projectStageList ? this.projectStageList.find(e => e.project === this.currentProjectStageLabel) : null
+    },
+    // 当前里程碑数据
+    currentMilestone() {
+      return this.currentProjectStage ? this.currentProjectStage.milestoneList.find(e => e.stage === this.currentProjectStage.current_stage) : null
+    },
+    // 负责人头像
+    dutyAvatar() {
+      return this.dutyInfo ? 'http://oa.ruijie.com.cn/ImgUser/' + this.dutyInfo.name_en + '.jpg' : '@/assets/ka.png'
+    }
+  },
+  created() {
+    this.currentProjectStageLabel = this.projectStageList.length > 0 && this.projectStageList[0].project
+    this.projectStageLabelList = this.projectStageList.map((element) => element.project)
   },
   methods: {
     handleEditClick() {
-      console.log('编辑')
+      this.$emit('edit', this.$props)
       this.isPopoverShow = false
     },
     handleDeleteClick() {
-      console.log('删除')
+      this.$emit('delete', this.$props)
       this.isPopoverShow = false
+    },
+    // 切换当前项目阶段
+    handleProjectStageChange(e) {
+      console.log(e)
+    },
+    // 头像错误加载
+    avatarErrorLoad() {
+      this.isExistDutyAvatar = false
     }
   }
 }
@@ -157,6 +217,7 @@ export default {
 
 <style lang="scss" scoped>
 .data-wrapper {
+  height: 220px;
   display: flex;
 
   .left-wrapper {
@@ -182,13 +243,10 @@ export default {
         display: flex;
         align-items: center;
 
-        .avatar {
+        .avatar img {
           width: 36px;
-          height: 36px;
-
-          img {
-            width: 100%;
-          }
+          height: 40px;
+          border-radius: 50%;
         }
 
         .duty-info {
@@ -200,12 +258,10 @@ export default {
       }
 
       .project-cycle-wrapper {
-        margin-top: 30px;
-
         .project-cycle {
           display: flex;
           align-items: center;
-          margin-top: 20px;
+          margin-top: 15px;
 
           .content {
             margin-left: 10px;
@@ -214,6 +270,14 @@ export default {
               margin-bottom: 4px;
             }
           }
+        }
+
+        .mt30 {
+          margin-top: 25px;
+        }
+
+        .mt40 {
+          margin-top: 40px;
         }
       }
 
@@ -234,7 +298,8 @@ export default {
     }
 
     .progress {
-      margin-top: 70px;
+      margin-top: 50px;
+      margin-bottom: 30px;
     }
 
     .dot {
@@ -265,6 +330,30 @@ export default {
     &:hover {
       background: #f1f1f1;
     }
+  }
+}
+
+.multi-stage-change {
+  height: 25px;
+  margin-top: 15px;
+
+  .one-row {
+    width: 70px;
+    display: inline-block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow:ellipsis;
+  }
+}
+
+.bottom-btn {
+  margin: 10px 10px 0px 0px;
+  display: flex;
+  justify-content: flex-end;
+  align-items: center;
+
+  & span {
+    margin-right: 5px;
   }
 }
 </style>

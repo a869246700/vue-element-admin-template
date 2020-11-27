@@ -317,7 +317,6 @@
 
 <script>
 import waves from '@/directive/waves'
-import { rules } from './options'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils'
 
@@ -419,7 +418,22 @@ export default {
         target_finish_data: undefined,
         update_date: undefined
       },
-      rules, // 表单规则
+      rules: {
+        project_type: [{ required: true, message: '请填写主干/组件', trigger: 'blur' }],
+        project_stage: [{ required: true, message: '请填写阶段', trigger: 'blur' }],
+        createTime: [{ required: true, message: '请填写创建时间', trigger: 'change' }],
+        risk: [{ required: true, message: '请填写风险项', trigger: 'blur' }],
+        risk_describe: [{ required: true, message: '请填写风险描述', trigger: 'blur' }],
+        influence: [{ required: true, message: '请填写影响', trigger: 'blur' }],
+        source: [{ required: true, message: '请选择来源', trigger: 'change' }],
+        type: [{ required: true, message: '请选择类型', trigger: 'change' }],
+        stage: [{ required: true, message: '请选择发生阶段', trigger: 'change' }],
+        probability: [{ required: true, message: '请选择风险概率', trigger: 'change' }],
+        effect: [{ required: true, message: '请选择风险等级', trigger: 'change' }],
+        duty_name: [{ required: true, message: '请填写负责人', trigger: 'blur' }],
+        state: [{ required: true, message: '请填写风险状态', trigger: 'blur' }],
+        newest_progress: [{ required: true, message: '请填写当前进展', trigger: 'blur' }]
+      }, // 表单规则
       dataViewVisible: false // 控制数据视图的显示与隐藏
     }
   },
@@ -556,9 +570,13 @@ export default {
       this.pageSize = e.limit
       this.currentPage = e.page
     },
-    // 修改优先级
+    // 修改优先级或者闭环
     handleSwitchChange(row, prop) {
-      console.log(prop)
+      if (prop === 'is_top') {
+        this.$emit('change-top', row)
+      } else {
+        this.$emit('change-closed', row)
+      }
     },
     // 重置 temp
     resetTemp() {
@@ -597,8 +615,6 @@ export default {
       // 1. 表单校验
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
-          // 模拟 id
-          this.temp.id = this.tableData[this.tableData.length - 1].id + 1
           // 添加数据
           this.tableData.push(this.temp)
           this.$emit('create', this.temp)
@@ -610,10 +626,6 @@ export default {
     // 点击编辑按钮，显示编辑表单
     handleUpdateClcik(row) {
       this.temp = Object.assign({}, row) // 复制对象
-      // 将 时间戳 修改为 date
-      this.temp.creation_time = this.temp.creation_time
-        ? new Date(this.temp.creation_time)
-        : new Date()
       this.dialogStatus = 'update'
       this.dialogFormVisible = true
       // 清除原有的校验内容
@@ -626,24 +638,9 @@ export default {
       // 1. 表单校验
       this.$refs.dataFormRef.validate((valid) => {
         if (valid) {
-          // 1. 对象深拷贝
-          const tempData = Object.assign({}, this.temp)
-          // 2. 将 date 修改为 时间戳
-          tempData.creation_time = +new Date(tempData.creation_time)
-          // 3. 根据 id 找到下标值
-          const index = this.tableData.findIndex((v) => v.id === this.temp.id)
-          // 4. 进行数据修改
-          this.tableData.splice(index, 1, this.temp)
           this.$emit('update', this.temp)
-          // 5. 提示修改成功
-          this.$notify({
-            title: '成功',
-            message: '修改数据成功',
-            type: 'success',
-            duration: 2000
-          })
 
-          // 6. 隐藏添加窗口
+          // 隐藏添加窗口
           this.dialogFormVisible = false
         }
       })
@@ -656,12 +653,7 @@ export default {
         type: 'warning'
       })
         .then(() => {
-          this.$notify({
-            title: '成功',
-            message: '删除成功',
-            type: 'success',
-            duration: 1500
-          })
+          this.$emit('delete', row)
         })
         .catch(() => {
           this.$message({

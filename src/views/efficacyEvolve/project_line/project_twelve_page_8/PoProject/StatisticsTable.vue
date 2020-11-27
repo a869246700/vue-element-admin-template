@@ -15,7 +15,7 @@
           <el-input
             v-model="listQuery.topic_name"
             placeholder="技术课题"
-            style="width: 150px;"
+            style="width: 150px"
             clearable
             @keyup.enter.native="handleSearchClick"
             @clear="handleSearchClick"
@@ -45,6 +45,7 @@
           >搜索</el-button>
 
           <el-button
+            v-waves
             type="primary"
             size="small"
             icon="el-icon-setting"
@@ -69,7 +70,7 @@
             style="width: 100%"
             border
             fit
-            :header-cell-style="{'background-color': '#FAFAFA' }"
+            :header-cell-style="{ 'background-color': '#FAFAFA' }"
             highlight-current-row
           >
             <el-table-column
@@ -80,16 +81,20 @@
               :min-width="item.minWidth"
               show-overflow-tooltip
             >
-              <template slot-scope="{row}">
+              <template slot-scope="{ row }">
                 <!-- 技术课题 -->
                 <div v-if="item.prop === 'topic_name'">
                   <span
                     v-if="row.topic_name === '合计' || row.topic_name === '' || row.topic_name === undefined"
                   >{{ row.topic_name }}</span>
-                  <span v-else class="blue" @click="handleTopicClick(row)">{{ row.topic_name }}</span>
+                  <span v-else class="blue" @click="handleTopicClick(row)">{{
+                    row.topic_name
+                  }}</span>
                 </div>
 
-                <div v-else-if="item.prop === 'code'">{{ Math.round(row[item.prop] * 100) / 100 }}</div>
+                <div v-else-if="item.prop === 'code'">
+                  {{ Math.round(row[item.prop] * 100) / 100 }}
+                </div>
 
                 <!-- 如果是验收方式 -->
                 <div v-else-if="item.prop === 'check_mode'">
@@ -123,8 +128,8 @@
                   <i slot="reference" class="el-icon-question" />
                 </el-popover>
               </template>
-              <template slot-scope="{row}">
-                <div v-if="row.topic_name !== '合计' ">
+              <template slot-scope="{ row }">
+                <div v-if="row.topic_name !== '合计'">
                   <el-button
                     type="danger"
                     size="small"
@@ -155,7 +160,7 @@
         :rules="rules"
         label-position="right"
         label-width="110px"
-        style="width: 60%; margin: 0 auto;"
+        style="width: 60%; margin: 0 auto"
       >
         <el-form-item
           v-for="item in statisticsTableList"
@@ -177,7 +182,6 @@
 
 <script>
 import waves from '@/directive/waves'
-import { statisticsTableList } from './options'
 import { parseTime } from '@/utils'
 
 import request from '@/services/request'
@@ -209,7 +213,59 @@ export default {
       technologyTopicTotalSta: undefined, // 总述
       technologyTopicOmitTopList: undefined, // 遗漏率 TOP3
       technologyTopicNotTopList: undefined, // 非功能性比占 TOP3
-      statisticsTableList, // 表格头列表配置
+      // 表格头列表配置
+      statisticsTableList: [
+        {
+          prop: 'topic_name',
+          label: '技术课题',
+          minWidth: 180
+        },
+        {
+          prop: 'code',
+          label: '技术课题代码量',
+          minWidth: 130
+        },
+        {
+          prop: 'check_mode',
+          label: '验收方式',
+          minWidth: 130
+        },
+        {
+          prop: 'all_num',
+          label: '工作包缺陷',
+          minWidth: 100
+        },
+        {
+          prop: 'type_all_num',
+          label: '课题遗漏',
+          minWidth: 80
+        },
+        {
+          prop: 'type_all_rate',
+          label: '缺陷率',
+          minWidth: 80
+        },
+        {
+          prop: 'unknown_defect',
+          label: '未知缺陷',
+          minWidth: 80
+        },
+        {
+          prop: 'function_type',
+          label: '功能类',
+          minWidth: 80
+        },
+        {
+          prop: 'performance_type',
+          label: '性能类',
+          minWidth: 80
+        },
+        {
+          prop: 'no_function_type',
+          label: '非功能类',
+          minWidth: 80
+        }
+      ],
       // 筛选的条件
       listQuery: {
         topic_name: undefined, // 技术课题
@@ -243,7 +299,7 @@ export default {
     rules() {
       return {
         topic_name: [{ required: true, message: '请输入技术课题', trigger: 'blur' }],
-        code: [{ required: true, message: '请输入代码量', trigger: 'blur' }],
+        code: [{ required: true, message: '请输入技术课题代码量', trigger: 'blur' }],
         // check_mode: [{ required: true, message: '请输入验收方式', trigger: 'change' }],
         all_num: [{ required: true, message: '请输入工作包缺陷数', trigger: 'blur' }],
         type_all_num: [{ required: true, message: '请输入课题遗漏数', trigger: 'blur' }],
@@ -284,14 +340,8 @@ export default {
         this.context = `<ol type="1" start="1">
           <li>
             技术项目总述：技术课题
-            ${
-  technologyTopicTotalSta.verify_num +
-              technologyTopicTotalSta.review_num +
-              technologyTopicTotalSta.other_num
-}
-            个，${technologyTopicTotalSta.verify_num}个验证结项，${
-  technologyTopicTotalSta.review_num
-}
+            ${technologyTopicTotalSta.verify_num + technologyTopicTotalSta.review_num + technologyTopicTotalSta.other_num
+}个，${technologyTopicTotalSta.verify_num}个验证结项，${technologyTopicTotalSta.review_num}
             个评审结项，${technologyTopicTotalSta.other_num}个未归类；
           </li>
           <li>缺陷产出：总遗漏率${technologyTopicTotalSta.type_all_rate}个/k，遗漏率TOP3：</li>
@@ -301,26 +351,26 @@ export default {
     .map(
       (item) =>
         `<li>
-                ${item.topic_name}(课题)：${item.type_all_rate}（${item.type_all_num}/${item.code}）
-              </li>`
+      ${item.topic_name}(课题)：${item.type_all_rate}（${item.type_all_num}/${item.code}）
+    </li>`
     )
     .join('')}
-          </ul>
-          <li>
-            非功能性占比${technologyTopicTotalSta.no_function_rate}
-            %(非功能性问题数量/遗漏缺陷总数)；非功能性占比TOP3：
+</ul>
+<li>
+  非功能性占比${technologyTopicTotalSta.no_function_rate}
+          %(非功能性问题数量/遗漏缺陷总数)；非功能性占比TOP3：
           </li>
           <ul type="circle">
             ${technologyTopicNotTopList
     .map(
       (item) =>
         `<li>
-                ${item.topic_name}(课题)：${item.no_function_type} 个
-              </li>`
+      ${item.topic_name}(课题)：${item.no_function_type} 个
+    </li>`
     )
     .join('')}
-          </ul>
-        </ol>`
+    </ul>
+  </ol>`
       } else {
         this.context = undefined
       }
@@ -337,13 +387,10 @@ export default {
         project: this.project
       }
 
-      const { data: res } = await request(
-        '/api/projectEvolveSta/technologyTopicInfo/updateCheckMode',
-        {
-          method: 'POST',
-          data: values
-        }
-      )
+      const { data: res } = await request('/api/projectEvolveSta/technologyTopicInfo/updateCheckMode', {
+        method: 'POST',
+        data: values
+      })
 
       if (res) {
         this.$notify.success({ title: '修改成功' })

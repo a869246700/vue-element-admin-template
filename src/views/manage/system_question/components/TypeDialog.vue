@@ -1,5 +1,5 @@
 <template>
-  <el-dialog title="新增项目进度问题" :visible.sync="dialogVisible" width="50%">
+  <el-dialog title="新增问题规则" :visible.sync="dialogVisible" width="50%">
     <el-form
       ref="addFormRef"
       :model="temp"
@@ -80,14 +80,9 @@ export default {
   },
   methods: {
     resetTemp() {
-      this.temp = {
-        question: undefined,
-        according: undefined,
-        cause: undefined,
-        causeReplenish: undefined,
-        otherReplenish: undefined,
-        userName: undefined
-      }
+      this.$nextTick(() => {
+        this.$refs.addFormRef.resetFields()
+      })
     },
     // 确认添加
     handleComfirmClick() {

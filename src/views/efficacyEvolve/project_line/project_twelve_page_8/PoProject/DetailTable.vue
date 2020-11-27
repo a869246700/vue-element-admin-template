@@ -120,10 +120,10 @@
           >
             <el-form-item label="技术项目" prop="project">
               <el-select
-                v-if="dialogStatus === 'create'"
                 v-model="temp.project"
                 placeholder="请选择"
                 style="width: 100%"
+                :disabled="isUpdateDialog"
               >
                 <el-option
                   v-for="(item, index) in projectNameOptions"
@@ -132,16 +132,14 @@
                   :value="item"
                 />
               </el-select>
-
-              <span v-else>{{ temp.project }}</span>
             </el-form-item>
 
             <el-form-item label="bugid" prop="bugid">
               <el-input
-                v-if="dialogStatus === 'create'"
                 v-model.trim="temp.bugid"
                 placeholder="请输入bugid"
                 style="width: 100%"
+                :disabled="isUpdateDialog"
                 @blur="handleBugIdValid(temp.bugid)"
               >
                 <span slot="suffix">
@@ -155,56 +153,48 @@
                   </el-popover>
                 </span>
               </el-input>
-
-              <span v-else>{{ temp.bugid }}</span>
             </el-form-item>
 
             <el-form-item label="技术课题" prop="topic">
               <el-input
-                v-if="dialogStatus === 'create'"
                 v-model.trim="temp.topic"
                 placeholder="根据bugid关联"
                 readonly
+                disabled
                 style="width: 100%"
               />
-
-              <span v-else>{{ temp.topic }}</span>
             </el-form-item>
 
             <el-form-item label="工作包" prop="workPackage">
               <el-input
-                v-if="dialogStatus === 'create'"
                 v-model.trim="temp.workPackage"
                 placeholder="根据bugid关联"
                 readonly
+                disabled
                 style="width: 100%"
               />
-
-              <span v-else>{{ temp.workPackage }}</span>
             </el-form-item>
 
             <el-form-item label="代码量" prop="code">
               <el-input
-                v-if="dialogStatus === 'create'"
                 v-model.trim="temp.code"
                 placeholder="根据bugid关联"
                 readonly
+                disabled
                 style="width: 100%"
               />
 
-              <span v-else>{{ temp.code }}</span>
             </el-form-item>
 
             <el-form-item label="验收方式" prop="checkMode">
               <el-input
-                v-if="dialogStatus === 'create'"
                 v-model.trim="temp.checkMode"
                 placeholder="根据bugid关联"
                 readonly
+                disabled
                 style="width: 100%"
               />
 
-              <span v-else>{{ temp.checkMode }}</span>
             </el-form-item>
 
             <el-form-item label="遗漏类型归属" prop="omitType">
@@ -254,7 +244,6 @@
 <script>
 import waves from '@/directive/waves'
 import Card from '@/components/Card/index'
-import { detailTableList, rules } from './options'
 import { parseTime } from '@/utils'
 import request from '@/services/request'
 
@@ -285,7 +274,80 @@ export default {
       technologyProject: undefined,
       tableShowData: undefined, // 表格显示的数据
       list: undefined, // 存储表格数据
-      detailTableList, // 表格头列表配置
+      // 表格头列表配置
+      detailTableList: [
+        {
+          prop: 'project',
+          label: '项目名称',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'topic',
+          label: '技术课题',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'check_mode',
+          label: '验收方式',
+          minWidth: 140,
+          search: true
+        },
+        {
+          prop: 'work_package',
+          label: '工作包',
+          minWidth: 100,
+          search: true
+        },
+        {
+          prop: 'code',
+          label: '代码量',
+          minWidth: 100
+        },
+        {
+          prop: 'deve_name',
+          label: '开发负责人',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'test_name',
+          label: '测试负责人',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'bugid',
+          label: 'bugid',
+          minWidth: 100,
+          search: true
+        },
+        {
+          prop: 'summary',
+          label: 'bug描述',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'omit_type',
+          label: '遗漏类型归属',
+          minWidth: 140,
+          search: true
+        },
+        {
+          prop: 'omit_cause',
+          label: '遗漏原因',
+          minWidth: 120,
+          search: true
+        },
+        {
+          prop: 'improve',
+          label: '改进对策',
+          minWidth: 120,
+          search: true
+        }
+      ],
       formLoading: false,
       // 筛选的条件
       listQuery: {
@@ -333,26 +395,29 @@ export default {
         omitCause: undefined,
         improve: undefined
       },
-      rules, // 表单校验规则
       bugIdIcon: '', // bugID校验图标
       bugIdMessage: '' // bugid 显示的文本
     }
   },
   computed: {
-    updateRules() {
-      return {
-        omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
-        omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
-        improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
-      }
+    isUpdateDialog() {
+      return this.dialogStatus === 'update'
     },
-    createRules() {
-      return {
-        project: [{ required: true, message: '请填写项目名称', trigger: 'blur' }],
-        bugid: [{ required: true, message: '请填写bugid', trigger: 'blur' }],
-        omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
-        omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
-        improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+    rules() {
+      if (this.dialogStatus === 'update') {
+        return {
+          omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
+          omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
+          improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+        }
+      } else {
+        return {
+          project: [{ required: true, message: '请填写项目名称', trigger: 'blur' }],
+          bugid: [{ required: true, message: '请填写bugid', trigger: 'blur' }],
+          omitType: [{ required: true, message: '请填写遗漏类型归属', trigger: 'blur' }],
+          omitCause: [{ required: true, message: '请填写遗漏原因', trigger: 'blur' }],
+          improve: [{ required: true, message: '请填写改进对策', trigger: 'blur' }]
+        }
       }
     },
     tableOptions() {
@@ -649,7 +714,6 @@ export default {
           project
         }
       })
-
       this.list = res
       this.tableShowData = res
       this.$nextTick(() => {

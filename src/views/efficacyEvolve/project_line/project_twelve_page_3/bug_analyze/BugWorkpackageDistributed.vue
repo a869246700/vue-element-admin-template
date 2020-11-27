@@ -1,13 +1,16 @@
 <template>
   <el-card class="bug-week-trend">
-    <div class="title">BUG增长趋势图</div>
+    <div class="title">BUG工作包分布情况</div>
 
-    <chart ref="chartRef" :option-rate="currentOptions" />
+    <chart ref="chartRef" :option-rate="optionMap.first" />
+    <chart ref="chartRef" :option-rate="optionMap.second" />
   </el-card>
 </template>
 
 <script>
 import Chart from '@/components/MyChart/Chart'
+
+import mockDate from './demo2'
 
 export default {
   components: {
@@ -15,9 +18,10 @@ export default {
   },
   data() {
     return {
-      active: 'day',
-      currentOptions: {},
-      options: {}
+      optionMap: {
+        first: undefined,
+        second: undefined
+      }
     }
   },
   mounted() {
@@ -30,44 +34,63 @@ export default {
     chartResize() {
       this.$refs.chartRef.resize()
     },
-    handleDatetypeChange(e) {
-      this.$nextTick(() => {
-        this.currentOptions = this.options[this.active]
-      })
-    },
     // 获取chart的数据
-    getChartDate() {
-      const dataAxis = [
-        '其他(RGOS软件)',
-        '易用性',
-        '安全性',
-        '接口设计(详细设计)',
-        '数据类型使用不当',
-        '未遵守显示的接口约定',
-        '产品特性定义',
-        '异常处理问题',
-        '解决方案',
-        '其他(RGOS软件)',
-        '易用性',
-        '安全性',
-        '接口设计(详细设计)',
-        '数据类型使用不当',
-        '未遵守显示的接口约定',
-        '产品特性定义',
-        '异常处理问题',
-        '解决方案',
-        '其他(RGOS软件)',
-        '易用性',
-        '安全性',
-        '接口设计(详细设计)',
-        '数据类型使用不当',
-        '未遵守显示的接口约定',
-        '产品特性定义',
-        '异常处理问题',
-        '解决方案'
-      ]
+    async getChartDate() {
+      const dataAxis = []
+      const firstSeriesData = []
+      const secondSeriesDate = []
 
-      this.currentOptions = {
+      const res = await this.mockDate()
+      res.map((item) => {
+        dataAxis.push(item.name)
+        firstSeriesData.push(item.value)
+        secondSeriesDate.push(item)
+      })
+
+      this.optionMap.second = {
+        title: {
+          text: 'BUG工作包分布情况',
+          top: 10,
+          textStyle: {
+            fontWeight: '700',
+            fontSize: 16,
+            color: '#000'
+          },
+          left: '1%'
+        },
+
+        tooltip: {
+          trigger: 'item',
+          formatter: '{b} <br/>BUG工作包分布 : {c} ({d}%)'
+        },
+        legend: {
+          type: 'scroll',
+          orient: 'vertical',
+          left: 20,
+          top: 50,
+          bottom: 20,
+          data: dataAxis
+        },
+        series: [
+          {
+            name: '姓名',
+            type: 'pie',
+            radius: '55%',
+            center: ['70%', '50%'],
+            avoidLabelOverlap: false,
+            data: secondSeriesDate,
+            emphasis: {
+              itemStyle: {
+                shadowBlur: 10,
+                shadowOffsetX: 0,
+                shadowColor: 'rgba(0, 0, 0, 0.5)'
+              }
+            }
+          }
+        ]
+      }
+
+      this.optionMap.first = {
         color: ['#3398DB'],
         tooltip: {
           trigger: 'axis',
@@ -87,10 +110,12 @@ export default {
           left: '1%'
         },
         grid: {
+          id: 'first',
           top: 80,
-          left: 80,
-          right: 80,
+          left: 50,
+          right: 50,
           bottom: 50,
+          show: false,
           containLabel: true
         },
         xAxis: {
@@ -98,7 +123,8 @@ export default {
           axisLabel: {
             textStyle: {
               color: '#000'
-            }
+            },
+            interval: '5'
           },
           axisTick: {
             show: false
@@ -138,49 +164,16 @@ export default {
                 { type: 'min', name: '最小值' }
               ]
             },
-            data: [
-              410,
-              100,
-              50,
-              50,
-              30,
-              20,
-              10,
-              8,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              3,
-              2,
-              2,
-              2,
-              2,
-              2,
-              2,
-              2,
-              2,
-              2,
-              0
-            ]
+            data: firstSeriesData
           }
         ]
       }
+    },
+    // 模拟数据
+    mockDate() {
+      return new Promise((resolve, reject) => {
+        resolve(mockDate)
+      })
     }
   }
 }
@@ -192,5 +185,10 @@ export default {
   margin-bottom: 10px;
   color: #666;
   border-bottom: 1px solid #ccc;
+}
+
+.operation-bar {
+  display: flex;
+  justify-content: flex-end;
 }
 </style>

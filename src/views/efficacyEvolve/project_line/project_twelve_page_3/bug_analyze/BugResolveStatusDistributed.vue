@@ -13,6 +13,12 @@ export default {
   components: {
     Chart
   },
+  props: {
+    project: {
+      type: String,
+      default: ''
+    }
+  },
   data() {
     return {
       active: 'day',
@@ -25,7 +31,7 @@ export default {
   },
   methods: {
     init() {
-      this.getChartDate()
+      this.getChartDate(this.project)
     },
     chartResize() {
       this.$refs.chartRef.resize()
@@ -36,8 +42,23 @@ export default {
       })
     },
     // 获取chart的数据
-    getChartDate() {
-      const { seriesData, legendData } = this.genData()
+    async getChartDate(project) {
+      const legendData = []
+      const seriesData = []
+      // 真实网络请求
+      // const { data: res } = await request('', {
+      //   params: {
+      //     project
+      //   }
+      // })
+      // console.log(res)
+
+      // 模拟数据请求
+      const res = await this.genData()
+      res.map((item) => {
+        legendData.push(item.name)
+        seriesData.push(item)
+      })
       this.currentOptions = {
         title: {
           text: 'BUG解决状态分布情况',
@@ -81,27 +102,51 @@ export default {
       }
     },
     genData() {
-      const seriesData = []
-      const legends = [
-        'CLOSED-ByDevelopment',
-        'CLOSED-ByTest',
-        'DENIAL-ByDevelopment',
-        'DENIAL-ByTest',
-        'DELAY',
-        'DENIAL-ByPSD',
-        'GIVEUP',
-        'NEW'
+      const data = [
+        {
+          name: 'CLOSED-ByDevelopment',
+          value: 3438
+        },
+        {
+          name: 'CLOSED-ByTest',
+          value: 1055
+        },
+        {
+          name: 'DENIAL-ByDevelopment',
+          value: 599
+        },
+        {
+          name: 'DENIAL-ByTest',
+          value: 184
+        },
+        {
+          name: 'DELAY',
+          value: 53
+        },
+        {
+          name: 'DENIAL-ByPSD',
+          value: 8
+        },
+        {
+          name: 'GIVEUP',
+          value: 8
+        },
+        {
+          name: 'NEW',
+          value: 5
+        },
+        {
+          name: 'RESOLVED',
+          value: 1
+        },
+        {
+          name: 'ASSIGNED',
+          value: 1
+        }
       ]
-      for (let i = 0; i < 8; i++) {
-        seriesData.push({
-          name: legends[i],
-          value: Math.round(Math.random() * 100000)
-        })
-      }
-      return {
-        seriesData: seriesData,
-        legendData: legends
-      }
+      return new Promise((resolve, reject) => {
+        resolve(data)
+      })
     }
   }
 }

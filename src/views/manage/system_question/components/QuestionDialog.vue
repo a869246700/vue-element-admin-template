@@ -75,7 +75,10 @@
       </el-form-item>
 
       <el-form-item label="是否跟催" prop="isUrge">
-        <el-input v-model.trim="temp.isUrge" style="width: 100%;" placeholder="请输入公告标题" />
+        <el-radio-group v-model="temp.isUrge">
+          <el-radio :label="0">否</el-radio>
+          <el-radio :label="1">是</el-radio>
+        </el-radio-group>
       </el-form-item>
 
       <el-form-item label="考核时间" prop="examineTime">
@@ -124,7 +127,7 @@ export default {
         phenomenon: undefined,
         userName: undefined,
         manageName: undefined,
-        isUrge: undefined,
+        isUrge: 0,
         examineTime: undefined
       },
       dialogVisible: false,
@@ -136,16 +139,9 @@ export default {
   },
   methods: {
     resetTemp() {
-      this.temp = {
-        project: undefined,
-        question: undefined,
-        questionType: undefined,
-        phenomenon: undefined,
-        userName: undefined,
-        manageName: undefined,
-        isUrge: undefined,
-        examineTime: undefined
-      }
+      this.$nextTick(() => {
+        this.$refs.addFormRef.resetFields()
+      })
     },
     async handleComfirmClick() {
       this.$refs.addFormRef.validate(async(valid) => {

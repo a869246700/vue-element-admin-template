@@ -63,8 +63,10 @@ export default {
     },
     // 设置 chart 的配置项
     setOptions(options) {
-      // 设置配置
-      this.chart.setOption(options)
+      this.$nextTick(() => {
+        // 设置配置
+        this.chart.setOption(options)
+      })
     }
   }
 }

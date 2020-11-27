@@ -90,8 +90,6 @@
 <script>
 import Pagination from '@/components/Pagination/index'
 
-import { tableOptions } from './options'
-
 export default {
   components: { Pagination },
   props: {
@@ -119,7 +117,77 @@ export default {
         workPacketManager: undefined,
         ptgttm: undefined
       }, // 内部查询条件
-      tableOptions
+      tableOptions: [
+        {
+          prop: 'topic_name',
+          label: '技术课题',
+          minWidth: 100
+        },
+        {
+          prop: 'topic_code',
+          label: '技术课题代码量',
+          minWidth: 115
+        },
+        {
+          prop: 'check_mode',
+          label: '验收方式',
+          minWidth: 90,
+          search: true
+        },
+        {
+          prop: 'work_package',
+          label: '工作包',
+          minWidth: 140,
+          search: true
+        },
+        {
+          prop: 'code',
+          label: '代码量',
+          minWidth: 60
+        },
+        {
+          prop: 'workPacketManager',
+          label: '开发负责人',
+          minWidth: 100,
+          search: true
+        },
+        {
+          prop: 'ptgttm',
+          label: '测试负责人',
+          minWidth: 100,
+          search: true
+        },
+        {
+          prop: 'all_num',
+          label: '工作包缺陷总数',
+          minWidth: 115
+        },
+        {
+          prop: 'type_all_num',
+          label: '技术课题遗漏个数',
+          minWidth: 128
+        },
+        {
+          prop: 'type_all_rate',
+          label: '缺陷率',
+          minWidth: 65
+        },
+        {
+          prop: 'function_type',
+          label: '功能类',
+          minWidth: 65
+        },
+        {
+          prop: 'performance_type',
+          label: '性能类',
+          minWidth: 65
+        },
+        {
+          prop: 'no_function_type',
+          label: '非功能类',
+          minWidth: 80
+        }
+      ]
     }
   },
   computed: {

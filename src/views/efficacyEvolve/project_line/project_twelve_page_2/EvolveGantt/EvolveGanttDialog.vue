@@ -32,10 +32,20 @@
         <div class="infos-bar">
           <!-- 任务状态 -->
           <div class="task-status">
-            <i :class="temp.progress === 1 ? 'el-icon-circle-check ed' : 'el-icon-loading ing'" />
+            <!-- <i
+              :class="isCompleted ? 'el-icon-circle-check' : 'el-icon-loading'"
+              :style="{ 'color': isOvertime ? 'orange' : 'yellowgreen' }"
+            /> -->
+            <el-progress v-if="isCompleted" type="circle" :percentage="temp.progress * 100" status="success" />
+            <el-progress v-else-if="isOvertime" type="circle" :percentage="temp.progress * 100" status="warning" />
+            <el-progress v-else-if="!isCompleted&&!isOvertime" type="circle" :percentage="temp.progress * 100" />
             <div class="brief">
-              <span v-if="temp.progress !== 1" class="status" style="color: orange">进行中</span>
-              <span v-else class="status" style="color: yellowgreen">已完成</span>
+              <span
+                class="status"
+                :style="{ 'color': isOvertime ? 'orange' : 'yellowgreen' }"
+              >
+                {{ isCompleted ? '已完成' : '进行中' }}
+              </span>
               <span class="tips">当前状态</span>
             </div>
           </div>
@@ -93,7 +103,7 @@
             <div v-show="!editMap.planEndDate" class="brief">
               <div @dblclick="editClick('planEndDate')">
                 <!-- 根据是否超时，渲染颜色 -->
-                <span :class="handleEndTimeOver() ? '' : 'over'">{{
+                <span :class="!isOvertime ? '' : 'over'">{{
                   temp.planEndDate | parseTime('{y}-{m}-{d}')
                 }}</span>
                 <span class="tips">截止时间</span>
@@ -348,6 +358,19 @@ export default {
   computed: {
     childTaskList() {
       return this.ganttList.filter((e) => e.parent === Number(this.temp.id))
+    },
+    // 任务是否完成
+    isCompleted() {
+      return this.temp.progress && (this.temp.progress === '100' || this.temp.progress === 1)
+    },
+    // 任务是否超时
+    isOvertime() {
+      // 如果项目已经完成，则比较实际时间完成时间和计划完成时间
+      if (this.isCompleted) {
+        return this.temp.actualEndDate > this.temp.planEndDate
+      } else {
+        return new Date() > this.temp.planEndDate
+      }
     }
   },
   methods: {
@@ -381,17 +404,11 @@ export default {
     },
     // 校验方法
     validate() {
-      console.log('进行校验，待开发')
+      // console.log('进行校验，待开发')
       // for (const key in this.temp) {
       //   const element = this.temp[key]
       //   console.log(key + ': ' + element)
       // }
-    },
-    // 判断完成时间是否超时
-    handleEndTimeOver() {
-      const { actualEndDate, planEndDate } = this.temp
-      // 实际时间是否小于等于计划时间
-      return actualEndDate <= planEndDate
     },
     // 点击编辑按钮
     editClick(key) {
@@ -410,6 +427,11 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+.task-status ::v-deep .el-progress-circle {
+  width: 60px!important;
+  height: 60px!important;
+}
+
 .wrapper {
   width: 100%;
 
@@ -466,6 +488,10 @@ export default {
         }
       }
 
+      .brief {
+        margin-left: 10px;
+      }
+
       .tips {
         margin-top: 8px;
         color: #aaa;
@@ -473,7 +499,7 @@ export default {
       }
 
       .over {
-        color: red;
+        color: orange;
       }
     }
   }

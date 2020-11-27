@@ -138,6 +138,7 @@ export default {
   created() {
     this.queryProjectMilepostList(this.project)
     this.queryImplementStageType()
+    console.log(1)
   },
   methods: {
     chartResize() {
@@ -186,6 +187,11 @@ export default {
         method: 'GET'
       })
       this.implementStageTypeList = res
+    },
+    // 重新获取甘特图数据
+    reloadGantt() {
+      console.log(1)
+      this.$refs.ganttRef && this.$refs.ganttRef.init()
     }
   }
 }

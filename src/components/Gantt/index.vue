@@ -118,7 +118,7 @@ export default {
       /* ------------------ 模板 ---------------------------------- */
       // 显示到进度条上的文本   计划名称和任务进度百分比
       this.gantt.templates.task_text = (start, end, task) => {
-        return `<span> ${task.name} </span>`
+        return `<span> ${task.name}：当前进度${task.progress * 100}% </span>`
       }
 
       /* ------------------ 事件 ---------------------------------- */
@@ -150,6 +150,7 @@ export default {
       this.currentId = id
 
       let target = this.datas.find((e) => e.id === parseInt(id))
+      console.log(target)
       // 如果存在主任务 parent，则添加和修改标记
       if (target.parent !== 0) {
         let parentNode = target
@@ -163,9 +164,11 @@ export default {
 
       // 如果没有标记过，则进行创建 marker，否则就进行修改 marker
       if (this.start_date && this.end_date) {
+        // console.log('修改')
         this.setStartOrEndDate(target.start_date, target.plan_end_date)
         this.updateMarker()
       } else {
+        // console.log('添加')
         this.setStartOrEndDate(target.start_date, target.plan_end_date)
         this.createMarker()
       }
@@ -191,9 +194,16 @@ export default {
     },
     // 修改 marker 的位置
     updateMarker() {
-      this.gantt.getMarker(this.startMarkerId).start_date = this.start_date
-      this.gantt.getMarker(this.endMarkerId).start_date = this.end_date
-      this.gantt.renderMarkers()
+      // PS: 为了防止在组件调整后，回到改页面时，gantt插件会自动移除marker的操作。
+      //      所以我们在修改marker的位置的时候，需要事先进行判断是否存在标记，不存在则创建新的。
+      if (this.gantt.getMarker(this.startMarkerId) && this.gantt.getMarker(this.endMarkerId)) {
+        this.gantt.getMarker(this.startMarkerId).start_date = this.start_date
+        this.gantt.getMarker(this.endMarkerId).start_date = this.end_date
+        this.gantt.renderMarkers()
+      } else {
+        // console.log('找不到之前的标记，重新创建')
+        this.createMarker()
+      }
     },
     // 设置 start end
     setStartOrEndDate(start, end) {

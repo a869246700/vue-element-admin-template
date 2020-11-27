@@ -10,7 +10,7 @@
     </div>
 
     <!-- 甘特图 -->
-    <gantt ref="ganttRef" :datas="ganttList" :links="ganttLinks" @dbl-click="handleRowClick" />
+    <gantt ref="ganttRef" :datas="datas" :links="ganttLinks" @dbl-click="handleRowClick" />
 
     <evolve-gantt-dialog ref="dialogRef" :gantt-list="ganttList" @dialog-close="handleDialogCloseClick" />
   </div>
@@ -101,35 +101,38 @@ export default {
       priorityValue: '', // 优先级选项选中值
       isPrioritySelectVisible: false, // 控制优先级选择是否显示
       childTaskList: [], // 子任务列表
-      dialogKey: 0
+      dialogKey: 0,
+      flag: false // 甘特图是否已经渲染过
     }
   },
   computed: {
     datas() {
       // 子节点根据父节点，延长父节点的时间
-      const datas = this.dataSource.data
+      const datas = this.ganttList
       for (const item of datas) {
-        for (const child of datas) {
-          if (item.id === child.parent) {
-            // 如果子任务结束时间 大于 主任务的结束时间，则主任务变红，子任务变橙
-            if (child.end_date > item.end_date) {
-              item.end_date = child.end_date
-              item.color = 'LightCoral'
-              child.color = 'SandyBrown'
-            }
-          }
+        // 如果实际完成时间大于计划完成时间，则显示预警
+        // 说明自己任务，或者子任务超出预期了，
+        if (item.end_date > item.plan_end_date) {
+          item.color = 'LightCoral'
         }
       }
-
       return datas || []
     }
   },
   mounted() {
+    // 重新渲染页面，如果gantt的
     this.init()
   },
   methods: {
     init() {
-      this.getGanttList(this._project)
+      if (!this.flag) {
+        this.getGanttList(this._project)
+        this.flag = true
+      } else {
+        this.$nextTick(() => {
+          this.$refs.ganttRef.updateMarker()
+        })
+      }
     },
     // 点击任务
     handleRowClick(id) {
@@ -186,8 +189,8 @@ export default {
       const resultArr = tempArr.map((item) => {
         return {
           ...item,
-          start_date: new Date(item.planStartDate),
-          end_date: new Date(item.planEndDate),
+          start_date: new Date(item.actualStartDate),
+          end_date: new Date(item.actualEndDate || item.planEndDate),
           plan_start_date: new Date(item.planStartDate),
           plan_end_date: new Date(item.planEndDate),
           progress: item.progress / 100

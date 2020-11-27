@@ -12,6 +12,10 @@
       <el-tab-pane label="需求变更" name="demandChange" lazy>
         <demand-change :project="project" />
       </el-tab-pane>
+
+      <el-tab-pane label="沟通管理" name="communicationManage" lazy>
+        <communication-manage :project="project" />
+      </el-tab-pane>
     </el-tabs>
   </div>
 </template>
@@ -20,17 +24,19 @@
 import IntegralManage from './IntegralManage/IntegralManage'
 import QualificationReview from './QualificationReview/QualificationReview'
 import DemandChange from './DemandChange/DemandChange'
+import CommunicationManage from './CommunicationManage/CommunicationManage'
 
 export default {
   components: {
     IntegralManage,
     QualificationReview,
-    DemandChange
+    DemandChange,
+    CommunicationManage
   },
   data() {
     return {
-      project: '',
-      active: 'integralManage'
+      active: 'integralManage',
+      project: ''
     }
   },
   created() {

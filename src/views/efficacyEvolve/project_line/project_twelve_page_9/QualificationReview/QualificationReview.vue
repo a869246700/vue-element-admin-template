@@ -69,6 +69,7 @@
         is-export-excel
         :table-data="reportList"
         :options="reportOptions"
+        :export-filename="project + '报备'"
         :max-height="488"
       />
     </card>
@@ -101,20 +102,38 @@
         </el-upload>
       </template>
 
-      <my-table key="review" v-loading="reviewLoading" :table-data="reviewList" :options="reviewOptions" :max-height="488" />
+      <filter-table
+        key="review"
+        v-loading="reviewLoading"
+        is-pagination
+        is-filter
+        is-export-excel
+        :table-data="reviewList"
+        :options="reviewOptions"
+        :export-filename="project + '在线审查'"
+        :max-height="488"
+      />
     </card>
 
     <!-- 事件汇总 -->
     <card title="事件汇总" class="card">
-      <simple-table v-loading="summaryLoading" :table-data="summaryList" :options="summaryOptions" :max-height="488" />
+      <filter-table
+        key="summary"
+        v-loading="summaryLoading"
+        is-pagination
+        is-filter
+        is-export-excel
+        :table-data="summaryList"
+        :options="summaryOptions"
+        :export-filename="project + '事件汇总'"
+        :max-height="488"
+      />
     </card>
   </div>
 </template>
 
 <script>
-import SimpleTable from '@/components/Table/SimpleTable'
 import FilterTable from '@/components/Table/FilterTable'
-import MyTable from '@/components/Table'
 import Card from '@/components/Card'
 
 import request from '@/services/request'
@@ -122,9 +141,7 @@ import DownFiles from '@/vendor/ExportExcel'
 
 export default {
   components: {
-    MyTable,
     FilterTable,
-    SimpleTable,
     Card
   },
   props: {
@@ -228,7 +245,7 @@ export default {
       reviewList: [],
       reviewOptions: [
         {
-          title: '人员姓名',
+          label: '人员姓名',
           prop: 'user_name',
           key: 'user_name',
           width: 50,
@@ -240,31 +257,31 @@ export default {
           }
         },
         {
-          title: '部门',
+          label: '部门',
           prop: 'department',
           key: 'department',
           width: 50
         },
         {
-          title: '专业组',
+          label: '专业组',
           prop: 'group_name',
           key: 'group_name',
           width: 50
         },
         {
-          title: '当前资质',
+          label: '当前资质',
           prop: 'qualifications',
           key: 'qualifications',
           width: 50
         },
         {
-          title: '不满足项',
+          label: '不满足项',
           prop: 'type',
           key: 'type',
           width: 50
         },
         {
-          title: '是否报备',
+          label: '是否报备',
           prop: 'remarks',
           key: 'remarks',
           width: 50

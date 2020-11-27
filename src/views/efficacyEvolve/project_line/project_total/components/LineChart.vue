@@ -5,7 +5,7 @@
 <script>
 import echarts from 'echarts'
 require('echarts/theme/macarons') // echarts theme
-import resize from './mixins/resize'
+import resize from '@/components/Charts/mixins/resize'
 
 export default {
   mixins: [resize],
@@ -61,18 +61,26 @@ export default {
       this.chart = echarts.init(this.$el, 'macarons')
       this.setOptions(this.chartData)
     },
-    setOptions({ expectedData, actualData } = {}) {
+    setOptions({ expectedList, actualList, dateList } = {}) {
       this.chart.setOption({
         xAxis: {
-          data: ['周一', '周二', '周三', '周四', '周五', '周六', '周天'],
+          data: dateList,
           boundaryGap: false,
           axisTick: {
             show: false
           }
         },
+        dataZoom: [
+          {
+            type: 'inside',
+            bottom: 10,
+            start: 0,
+            end: 100
+          }
+        ],
         grid: {
-          left: 50,
-          right: 50,
+          left: 15,
+          right: 15,
           bottom: 20,
           top: 30,
           containLabel: true
@@ -108,7 +116,7 @@ export default {
           },
           smooth: true,
           type: 'line',
-          data: expectedData,
+          data: expectedList,
           animationDuration: 2800,
           animationEasing: 'cubicInOut'
         },
@@ -128,7 +136,7 @@ export default {
               }
             }
           },
-          data: actualData,
+          data: actualList,
           animationDuration: 2800,
           animationEasing: 'quadraticOut'
         }]

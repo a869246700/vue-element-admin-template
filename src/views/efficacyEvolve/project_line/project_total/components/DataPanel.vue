@@ -7,9 +7,9 @@
         </div>
 
         <div class="panel-data">
-          <div>进度:{{ `[${progress.title}]` }}</div>
-          <div>执行率：{{ (progress.exac_actual / progress.exac_plan) * 100 + '%' }}</div>
-          <div>Pass率：{{ (progress.pass_actual / progress.pass_plan) * 100 + '%' }}</div>
+          <div>进度:{{ `[${data.progress_title || '标题暂无'}]` }}</div>
+          <div>执行率：{{ (data.progress_exac ? data.progress_exac : 0) + '%' }}</div>
+          <div>Pass率：{{ (data.progress_pass ? data.progress_pass : 0) + '%' }}</div>
         </div>
       </div>
     </el-col>
@@ -21,10 +21,10 @@
         </div>
 
         <div class="panel-data">
-          <div>质量:{{ `[${quality.title}]` }}</div>
-          <div>目标：{{ quality.target + '个/K' }}</div>
-          <div>当前质量：{{ quality.current+ '个/K' }}</div>
-          <div>遗漏率：{{ quality.omiss_rate + '个/K' }}</div>
+          <div>质量:{{ `[${data.quality_title || '标题暂无'}]` }}</div>
+          <div>目标：{{ (data.quality_target ? data.quality_target : 0) + '个/K' }}</div>
+          <div>当前质量：{{ (data.quality_current ? data.quality_current : 0) + '个/K' }}</div>
+          <div>遗漏率：{{ (data.quality_omiss_rate ? data.quality_omiss_rate : 0) + '个/K' }}</div>
         </div>
       </div>
     </el-col>
@@ -36,10 +36,10 @@
         </div>
 
         <div class="panel-data">
-          <div>成本:{{ `[${cost.title}]` }}</div>
-          <div>目标：{{ cost.target + 'D/K' }}</div>
-          <div>当前使用：{{ cost.current+ '%' }}</div>
-          <div>测试效率：{{ cost.test_rate + 'D/K' }}</div>
+          <div>成本:{{ `[${data.cost_title || '标题暂无'}]` }}</div>
+          <div>目标：{{ (data.cost_target ? data.cost_target : 0) + 'D/K' }}</div>
+          <div>当前使用：{{ (data.cost_current ? data.cost_current : 0) + '%' }}</div>
+          <div>测试效率：{{ (data.cost_efficiency ? data.cost_efficiency : 0) + 'D/K' }}</div>
         </div>
       </div>
     </el-col>
@@ -51,10 +51,10 @@
         </div>
 
         <div class="panel-data">
-          <div>风险&问题:{{ `[${risk_question.title}]` }}</div>
-          <div>总风险数：{{ risk_question.total + '个' }}</div>
-          <div>已闭环：{{ risk_question.is_round + '个' }}</div>
-          <div>未闭环：{{ risk_question.is_not_round + '个' }}</div>
+          <div>风险&问题:{{ `[${data.risk_title || '标题暂无'}]` }}</div>
+          <div>总风险数：{{ (data.risk_total ? data.risk_total : 0) + '个' }}</div>
+          <div>已闭环：{{ (data.risk_isClosed ? data.risk_isClosed : 0) + '个' }}</div>
+          <div>未闭环：{{ (data.risk_isNotClosed ? data.risk_isNotClosed : 0) + '个' }}</div>
         </div>
       </div>
     </el-col>
@@ -63,32 +63,12 @@
 
 <script>
 export default {
-  data() {
-    return {
-      progress: {
-        title: '总用例执行情况',
-        exac_plan: 1000,
-        exac_actual: 1000,
-        pass_plan: 1000,
-        pass_actual: 950
-      },
-      quality: {
-        title: '标题暂无',
-        target: 2.3,
-        current: 1.96,
-        omiss_rate: 0.05
-      },
-      cost: {
-        title: '标题暂无',
-        target: 2399,
-        current: 51,
-        test_rate: 1200
-      },
-      risk_question: {
-        title: '标题暂无',
-        total: 23,
-        is_not_round: 13,
-        is_round: 10
+  props: {
+    // 传递过来的面板数据
+    data: {
+      type: Object,
+      default() {
+        return {}
       }
     }
   }

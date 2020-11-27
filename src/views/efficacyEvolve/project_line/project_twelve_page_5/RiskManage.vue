@@ -15,13 +15,23 @@
     <!-- 表格-阶段值切换栏 -->
     <div class="stage-change">
       <el-radio-group v-model="currentStage" @change="handleStageChange">
-        <el-radio-button v-for="(item, index) in stageList" :key="index" :label="item.stage" />
+        <el-radio-button v-for="item in stageList" :key="item.index_num" :label="item.stage_name">
+          {{ item.stage_name }}
+        </el-radio-button>
       </el-radio-group>
     </div>
 
     <!-- 中间的表格区域 -->
     <div class="table">
-      <risk-table :table-data="tableData" @create="handleRiskCreate" @update="handleRiskUpdate" />
+      <risk-table
+        :table-data="tableData"
+        :user-list="userList"
+        @change-top="handleRiskTopChange"
+        @change-closed="handleRiskClosedloopChange"
+        @create="handleRiskCreate"
+        @update="handleRiskUpdate"
+        @delete="handleRiskDelete"
+      />
     </div>
 
     <!-- charts区域 -->
@@ -46,23 +56,26 @@ export default {
     return {
       project: undefined,
       currentStage: '阶段一', // 当前选中阶段值
-      stageList: [{ stage: '阶段一' }, { stage: '阶段二' }], // 阶段列表
-      tableData: []
+      stageList: [], // 阶段列表
+      tableData: [],
+      userList: [] // 人员列表
     }
   },
   created() {
     this.project = this.$t(this.$route.matched[2].meta.title)
-    this.stageList.forEach((item) => {
-      this.getTableList(this.project, item.stage)
-    })
+    this.queryByUserSelect()
+    this.init()
   },
   methods: {
+    init() {
+      this.queryByProjectStage(this.project)
+    },
     chartResize() {
       this.$refs.riskChartRef.chartResize()
     },
     // 处理阶段值的改变
     handleStageChange(e) {
-      console.log(e)
+      this.getTableList(this.project, e)
     },
     // 添加风险信息
     handleRiskCreate(risk) {
@@ -72,26 +85,32 @@ export default {
     handleRiskUpdate(risk) {
       console.log(risk)
     },
+    handleRiskDelete(risk) {
+      console.log('删除：' + risk)
+    },
     // 获取数据列表
     async getTableList(project, projectStage) {
-      const { data: res1 } = await request('/api/projectEvolveSta/queryByProblemList', {
+      console.log(project, projectStage)
+      /* const { data: res1 } = await request('/api/projectEvolveSta/queryByProblemList', {
         methods: 'GET',
         params: {
           project,
           projectStage
         }
       })
-      const { data: res2 } = await request('/api/projectEvolveSta/queryByRiskList', {
-        methods: 'GET',
-        params: {
-          project,
-          projectStage
-        }
-      })
-      // res1 res2 两个数组对象，需要将两个数组对象链接
-      const result = Object.assign(res1, res2)
-      result.project_stage = projectStage // 项目阶段
-      this.tableData.push(result)
+      this.tableData = res */
+    },
+    // 修改置顶
+    handleRiskTopChange(e) {
+      console.log('修改置顶', e)
+      // const { data: res } = await request('', {  })
+      // console.log(res)
+    },
+    // 修改风险闭环
+    handleRiskClosedloopChange(e) {
+      console.log('修改闭环：', e)
+      // const { data: res } = await request('', {  })
+      // console.log(res)
     },
     // 获取具体风险的信息
     async getProjectRiskProgressList(id) {
@@ -106,7 +125,7 @@ export default {
     // 查询人员列表
     async queryByUserSelect() {
       const { data: res } = await request('/api/authority/user/listUserSelect', { method: 'GET' })
-      console.log(res)
+      this.userList = res
     },
     // 查询项目阶段
     async queryByProjectStage(project) {
@@ -116,7 +135,11 @@ export default {
           project
         }
       })
-      console.log(res)
+      this.stageList = res
+
+      const stage = res && res.length > 0 ? res[0].stage_name : '阶段一'
+      // 获取第一阶段数据
+      this.getTableList(this.project, stage)
     }
   }
 }
